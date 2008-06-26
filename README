@@ -1,7 +1,8 @@
 --------------
 MetaInspector
 --------------
-Ruby gem for web scraping purposes.
-It scrapes a given URL, and returns you a hash with data from it like for example the title, meta description, meta keywords, an array with all the links, all the images in it, etc.
+DESCRIPTION: Ruby gem for web scraping purposes. It scrapes a given URL, and returns you a hash with data from it like for example the title, meta description, meta keywords, an array with all the links, all the images in it, etc.
+AUTHOR: Jaime Iniesta (jaimeiniesta@gmail.com, http://www.jaimeiniesta.com)
+LICENSE: GPLv3
 
 (more to come soon...)
