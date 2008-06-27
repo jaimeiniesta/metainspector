@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "metainspector"
-  s.version = "1.0.2"
+  s.version = "1.0.3"
   s.date = "2008-06-27"
   s.summary = "Ruby gem for web scraping"
   s.email = "jaimeiniesta@gmail.com"
@@ -12,5 +12,5 @@ Gem::Specification.new do |s|
   s.test_files = []
   s.rdoc_options = []
   s.extra_rdoc_files = []
-  s.add_dependency("hpricot", ["> 0.6"])
+  s.add_dependency("hpricot", ["> 0.5"])
 end

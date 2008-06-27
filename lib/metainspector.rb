@@ -3,6 +3,8 @@ class MetaInspector
   require 'rubygems'
   require 'hpricot'
 
+  VERSION = '1.0.2'
+
   Hpricot.buffer_size = 300000
 
   def self.scrape(url)
