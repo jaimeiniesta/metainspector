@@ -16,15 +16,15 @@ Then install the gem:
 
 Scrape a web and store the returned data like this:
 
-  data = MetaInspector.scrape('http://pagerankalert.com')
+  page = MetaInspector.scrape('http://pagerankalert.com')
 
 Then you can access the data returned:
 
-  data['ok']          # returns a boolean, true if scraping went OK, false if there was an error
-  data['title']       # title of the page, as string
-  data['description]  # meta description, as string
-  data['keywords']    # meta keywords, as string
-  data['links']       # array of strings, with every link found on the page
+  page['ok']          # returns a boolean, true if scraping went OK, false if there was an error
+  page['title']       # title of the page, as string
+  page['description]  # meta description, as string
+  page['keywords']    # meta keywords, as string
+  page['links']       # array of strings, with every link found on the page
 
 = Examples
 
