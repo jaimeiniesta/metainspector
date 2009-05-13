@@ -21,10 +21,30 @@ Scrape a web and store the returned data like this:
 Then you can access the data returned:
 
   data['ok']          # returns a boolean, true if scraping went OK, false if there was an error
- 	data['title']       # title of the page, as string
+  data['title']       # title of the page, as string
   data['description]  # meta description, as string
   data['keywords']    # meta keywords, as string
   data['links']       # array of strings, with every link found on the page
+
+= Examples
+
+  $ irb
+  >> require 'metainspector'
+  => true
+  >> page = MetaInspector.scrape('http://pagerankalert.com')
+  => {"title"=>"PageRankAlert.com :: Track your pagerank changes", "description"=>"Track your PageRank(TM) changes and receive alert by email", "ok"=>true, "links"=>["/", "/signup", "/paginas/show/41357", "/paginas/show/41356", "/paginas/show/33977", "/paginas/show/31261", "/paginas/show/23737", "/paginas/show/23674", "/paginas/show/23672", "/paginas/show/23065", "/paginas/show/19829", "/paginas/show/18628", "/blog/2009/4/15/more-than-100-000-pagerank-changes-", "/blog/2009/2/7/rss-for-keywords", "/blog/2009/2/7/track-your-pagerank-changes-with-rss", "/blog/2009/1/31/web-hosting-with-a-discount-for-pagerankalert-com-users", "/blog/2009/1/31/find-similar-pages", "/blog/2009/1/31/20-000-pages-", "/blog/2009/1/30/a-site-a-little-more-accesible", "/blog/2009/1/30/how-many-pages-can-you-track-", "/blog/2009/1/30/reviewed-on-makeuseof-com", "/blog/2009/1/28/pagerankalert-com-listed-on-feedmyapp", "/login", "/signup", "http://www.jaimeiniesta.com", "http://pagerankalert.com", "/terms_and_conditions", "http://feeds.feedburner.com/PageRankAlert", "http://feeds.feedburner.com/PageRankAlertBlogComments", "http://www.nuviotemplates.com/", "http://www.nuvio.cz/"], "keywords"=>"pagerank, seo, optimization, google"}
+  >> page['title']
+  => "PageRankAlert.com :: Track your pagerank changes"
+  >> page['description']
+  => "Track your PageRank(TM) changes and receive alert by email"
+  >> page['keywords']
+  => "pagerank, seo, optimization, google"
+  >> page['links'].size
+  => 31
+  >> page['links'][30]
+  => "http://www.nuvio.cz/"
+  >> page['ok']
+  => true
     
 = To Do
 
