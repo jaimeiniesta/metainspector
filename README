@@ -1,8 +1,37 @@
---------------
-MetaInspector
---------------
-DESCRIPTION: Ruby gem for web scraping purposes. It scrapes a given URL, and returns you a hash with data from it like for example the title, meta description, meta keywords, an array with all the links, all the images in it, etc.
-AUTHOR: Jaime Iniesta (jaimeiniesta@gmail.com, http://www.jaimeiniesta.com)
-LICENSE: GPLv3
+= MetaInspector
 
-(more to come soon...)
+  MetaInspector is a gem for web scraping purposes. You give it an URL, and it returns you a hash with metadata from it.
+
+= Installation
+
+ 	Run the following if you haven't already:
+
+	gem sources -a http://gems.github.com
+
+	Then install the gem:
+
+	sudo gem install jaimeiniesta-metainspector
+
+= Usage
+
+  Scrape a web and store the returned data like this:
+
+	data = MetaInspector.scrape('http://pagerankalert.com')
+
+  Then you can access the data returned:
+
+ 	data['ok']          # returns a boolean, true if scraping went OK, false if there was an error
+ 	data['title']       # title of the page, as string
+  data['description]  # meta description, as string
+  data['keywords']    # meta keywords, as string
+  data['links']       # array of strings, with every link found on the page
+    
+= ToDo
+
+* Easier access to data, like data.title, data.description, instead of data['title']. Return a MetaInspector object, not a hash.
+* Tests & Mocks
+* Return array of images in page
+* Return contents of meta robots tag
+* Consider using nokogiri instead of hpricot
+
+Copyright (c) 2009 Jaime Iniesta, released under the MIT license
