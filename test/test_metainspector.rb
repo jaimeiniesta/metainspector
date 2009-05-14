@@ -14,7 +14,7 @@ class TestMetaInspector < Test::Unit::TestCase
     assert_nil m.title
     assert_nil m.description
     assert_nil m.keywords
-    assert_nil m.links
+    assert_equal m.links.size, 0
     assert_nil m.full_doc
     assert_nil m.scraped_doc
   end
@@ -53,7 +53,7 @@ class TestMetaInspector < Test::Unit::TestCase
     assert_nil m.title
     assert_nil m.description
     assert_nil m.keywords
-    assert_nil m.links
+    assert_equal m.links.size, 0
     assert_nil m.full_doc
     assert_nil m.scraped_doc    
   end

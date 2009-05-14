@@ -4,7 +4,7 @@ require 'hpricot'
 
 # MetaInspector provides an easy way to scrape web pages and get its elements
 class MetaInspector
-  VERSION = '1.1.0'
+  VERSION = '1.1.1'
 
   Hpricot.buffer_size = 300000
   
@@ -16,7 +16,8 @@ class MetaInspector
     @address = address
     @scraped = false
     
-    @title = @description = @keywords = @links = @full_doc = @scraped_doc = nil
+    @title = @description = @keywords = @full_doc = @scraped_doc = nil
+    @links = []
   end
   
   # Setter for address. Initializes the whole state as the address is being changed.
@@ -30,25 +31,13 @@ class MetaInspector
     @scraped_doc = Hpricot(@full_doc)
     
     # Searching title...
-    if @scraped_doc.at('title')
-      @title = @scraped_doc.at('title').inner_html.strip
-    else
-      @title = ""
-    end
+    @title = @scraped_doc.at('title').inner_html.strip if @scraped_doc.at('title')
     
     # Searching meta description...
-    if @scraped_doc.at("meta[@name='description']")
-      @description = @scraped_doc.at("meta[@name='description']")['content'].strip
-    else
-      @description = ""
-    end
+    @description = @scraped_doc.at("meta[@name='description']")['content'].strip if @scraped_doc.at("meta[@name='description']")
     
     # Searching meta keywords...
-    if @scraped_doc.at("meta[@name='keywords']")
-      @keywords = @scraped_doc.at("meta[@name='keywords']")['content'].strip
-    else
-      @keywords = ""
-    end
+    @keywords = @scraped_doc.at("meta[@name='keywords']")['content'].strip if @scraped_doc.at("meta[@name='keywords']")
         
     # Searching links...
     @links = []

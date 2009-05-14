@@ -1,3 +1,8 @@
+= 1.1.1
+=== 14th May, 2009
+* Simplified scrape method, leaves as nil the metadata not found, to be able to distinguish between a not found element or a found element that was empty.
+* Links array is initialized as an empty array
+
 = 1.1.0
 === 14th May, 2009
 * Rewritten to use instance methods instead of class methods.
