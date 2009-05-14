@@ -1,6 +1,6 @@
 = MetaInspector
 
-MetaInspector is a gem for web scraping purposes. You give it an URL, and it returns you a hash with metadata from it.
+MetaInspector is a gem for web scraping purposes. You give it an URL, and it returns you metadata from it.
 
 = Installation
 
