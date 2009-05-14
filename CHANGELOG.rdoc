@@ -1,0 +1,12 @@
+= 1.1.0
+=== 14th May, 2009
+* Rewritten to use instance methods instead of class methods.
+* Easier interface, provides #new(address), #scrape!, #scraped?, #title, #description, #keywords, and #links instance methods
+* Added #full_doc method to access the temporary file that containts the raw html fetched
+* Added #scraped_doc method to get the whole Hpricot scraped doc
+* Added tests
+* Added samples, including a basic scraping and a little spider
+
+= 1.0.3
+=== 27th June, 2008
+* Initial published version.

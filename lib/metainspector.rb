@@ -1,47 +1,71 @@
-class MetaInspector
-  require 'open-uri'
-  require 'rubygems'
-  require 'hpricot'
+require 'open-uri'
+require 'rubygems'
+require 'hpricot'
 
-  VERSION = '1.0.2'
+# MetaInspector provides an easy way to scrape web pages and get its elements
+class MetaInspector
+  VERSION = '1.1.0'
 
   Hpricot.buffer_size = 300000
-
-  def self.scrape(url)
-    doc = Hpricot(open(url))
+  
+  attr_reader :address, :title, :description, :keywords, :links, :full_doc, :scraped_doc
+  
+  # Initializes a new instance of MetaInspector, setting the URL address to the one given
+  # TODO: validate address as http URL, dont initialize it if wrong format 
+  def initialize(address)
+    @address = address
+    @scraped = false
+    
+    @title = @description = @keywords = @links = @full_doc = @scraped_doc = nil
+  end
+  
+  # Setter for address. Initializes the whole state as the address is being changed.
+  def address=(address)
+    initialize(address)
+  end
+  
+  # Visit web page, get its contents, and parse it
+  def scrape!
+    @full_doc = open(@address)
+    @scraped_doc = Hpricot(@full_doc)
     
     # Searching title...
-    if doc.at('title')
-      title = doc.at('title').inner_html
+    if @scraped_doc.at('title')
+      @title = @scraped_doc.at('title').inner_html.strip
     else
-      title = ""
+      @title = ""
     end
     
     # Searching meta description...
-    if doc.at("meta[@name='description']")
-      description = doc.at("meta[@name='description']")['content']
+    if @scraped_doc.at("meta[@name='description']")
+      @description = @scraped_doc.at("meta[@name='description']")['content'].strip
     else
-      description = ""
+      @description = ""
     end
     
     # Searching meta keywords...
-    if doc.at("meta[@name='keywords']")
-      keywords = doc.at("meta[@name='keywords']")['content']
+    if @scraped_doc.at("meta[@name='keywords']")
+      @keywords = @scraped_doc.at("meta[@name='keywords']")['content'].strip
     else
-      keywords = ""
+      @keywords = ""
     end
         
     # Searching links...
-    links = []
-    doc.search("//a").each do |link|
-      links << link.attributes["href"] if (!link.attributes["href"].nil?)
+    @links = []
+    @scraped_doc.search("//a").each do |link|
+      @links << link.attributes["href"].strip if (!link.attributes["href"].nil?)
     end
-  
-    # Returning all data...
-    {'ok' => true, 'title' => title, 'description' => description, 'keywords' => keywords, 'links' => links}  
+    
+    # Mark scraping as success
+    @scraped = true
 
     rescue SocketError
       puts 'MetaInspector exception: The url provided does not exist or is temporarily unavailable (socket error)'
-      {'ok' => false, 'title' => nil, 'description' => nil, 'keywords' => nil, 'links' => nil}  
+      @scraped = false
+  end
+  
+  # Syntactic sugar
+  def scraped?
+    @scraped
   end
 end

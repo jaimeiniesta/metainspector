@@ -14,67 +14,91 @@ Then install the gem:
 
 = Usage
 
-Scrape a web and store the returned data like this:
+Initialize a MetaInspector instance with an URL like this:
 
-  page = MetaInspector.scrape('http://pagerankalert.com')
+  page = MetaInspector.new('http://pagerankalert.com')
 
-Then you can access the data returned:
+Then you can tell it to fetch and scrape the URL:
 
-  page['ok']          # returns a boolean, true if scraping went OK, false if there was an error
-  page['title']       # title of the page, as string
-  page['description]  # meta description, as string
-  page['keywords']    # meta keywords, as string
-  page['links']       # array of strings, with every link found on the page
+  page.scrape!
+
+Once scraped, you can see the returned data like this:
+
+  page.address       # URL of the page
+  page.title         # title of the page, as string
+  page.description   # meta description, as string
+  page.keywords      # meta keywords, as string
+  page.links         # array of strings, with every link found on the page
+  
+You can see if the scraping process went ok checking what page.scrape! returns (true or false), or checking the page.scraped? method, which returns false if no successfull scraping has been finished since the last address change.
+You can also change the address of the page to be scraped using the address= setter, like this:
+
+  page.address="http://jaimeiniesta.com"
+
+Doing so resets the state of the MetaInspector instance to the initial state (not scraped yet, cleared stored meta data). You can re-scrape it again by calling the page.scrape! method.
+
+The full fetched document and the scraped doc are accessible from:
+
+  page.full_doc    # it points to the temp file where the fetched doc is stored
+  page.scraped_doc # Hpricot doc that you can use it to get any element from the page
 
 = Examples
+
+You can find some sample scripts on the samples folder, including a basic scraping and a spider that will follow external links using a queue. What follows is an example of use from irb:
 
   $ irb
   >> require 'metainspector'
   => true
 
-  >> page = MetaInspector.scrape('http://pagerankalert.com')
-  => {"title"=>"PageRankAlert.com :: Track your pagerank changes",
-      "description"=>"Track your PageRank(TM) changes and receive alert by email",
-      "ok"=>true,
-      "links"=>["/", "/signup", "/paginas/show/41357", "/paginas/show/41356", "/paginas/show/33977",
-                "/paginas/show/31261", "/paginas/show/23737", "/paginas/show/23674", "/paginas/show/23672",
-                "/paginas/show/23065", "/paginas/show/19829", "/paginas/show/18628",
-                "/blog/2009/4/15/more-than-100-000-pagerank-changes-", "/blog/2009/2/7/rss-for-keywords",
-                "/blog/2009/2/7/track-your-pagerank-changes-with-rss",
-                "/blog/2009/1/31/web-hosting-with-a-discount-for-pagerankalert-com-users",
-                "/blog/2009/1/31/find-similar-pages", "/blog/2009/1/31/20-000-pages-",
-                "/blog/2009/1/30/a-site-a-little-more-accesible",
-                "/blog/2009/1/30/how-many-pages-can-you-track-",
-                "/blog/2009/1/30/reviewed-on-makeuseof-com",
-                "/blog/2009/1/28/pagerankalert-com-listed-on-feedmyapp",
-                "/login", "/signup", "http://www.jaimeiniesta.com",
-                "http://pagerankalert.com", "/terms_and_conditions", "http://feeds.feedburner.com/PageRankAlert",
-                "http://feeds.feedburner.com/PageRankAlertBlogComments", "http://www.nuviotemplates.com/",
-                "http://www.nuvio.cz/"],
-      "keywords"=>"pagerank, seo, optimization, google"}
+  >> page = MetaInspector.new('http://pagerankalert.com')
+  => #<MetaInspector:0x5fc594 @full_doc=nil, @scraped=false, @description=nil, @links=nil, @address="http://pagerankalert.com", @keywords=nil, @scraped_doc=nil, @title=nil>
 
-  >> page['title']
+  >> page.scrape!
+  => true
+
+  >> page.title
   => "PageRankAlert.com :: Track your pagerank changes"
 
-  >> page['description']
+  >> page.description
   => "Track your PageRank(TM) changes and receive alert by email"
 
-  >> page['keywords']
+  >> page.keywords
   => "pagerank, seo, optimization, google"
 
-  >> page['links'].size
+  >> page.links.size
   => 31
 
-  >> page['links'][30]
+  >> page.links[30]
   => "http://www.nuvio.cz/"
 
-  >> page['ok']
+  >> page.full_doc
+  => #<File:/var/folders/X8/X8TBsDiWGYuMKzrB3bhWTU+++TI/-Tmp-/open-uri.6656.0>
+
+  >> page.scraped_doc.class
+  => Hpricot::Doc
+
+  >> page.scraped?
   => true
+
+  >> page.address="http://jaimeiniesta.com"
+  => "http://jaimeiniesta.com"
+
+  >> page.scraped?
+  => false
+
+  >> page.scrape!
+  => true
+
+  >> page.scraped?
+  => true
+
+  >> page.title
+  => "ruby on rails freelance developer &#8212; Jaime Iniesta"
     
 = To Do
 
-* Easier access to data, like data.title, data.description, instead of data['title']. Return a MetaInspector object, not a hash.
-* Tests & Mocks
+* Mocks
+* Check content type, process only HTML pages (i.e., dont try to scrape http://ftp.ruby-lang.org/pub/ruby/ruby-1.9.1-p129.tar.bz2)
 * Return array of images in page
 * Return contents of meta robots tag
 * Consider using nokogiri instead of hpricot
