@@ -51,7 +51,8 @@ You can find some sample scripts on the samples folder, including a basic scrapi
   => true
 
   >> page = MetaInspector.new('http://pagerankalert.com')
-  => #<MetaInspector:0x5fc594 @full_doc=nil, @scraped=false, @description=nil, @links=nil, @address="http://pagerankalert.com", @keywords=nil, @scraped_doc=nil, @title=nil>
+  => #<MetaInspector:0x5fc594 @full_doc=nil, @scraped=false, @description=nil, @links=nil,
+     @address="http://pagerankalert.com", @keywords=nil, @scraped_doc=nil, @title=nil>
 
   >> page.scrape!
   => true
