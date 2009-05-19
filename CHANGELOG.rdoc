@@ -1,6 +1,7 @@
 = 1.1.2
 === 19th May, 2009
 * Using nokogiri instead of hpricot
+* Recover from exceptions
 
 = 1.1.1
 === 14th May, 2009
