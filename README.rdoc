@@ -2,6 +2,22 @@
 
 MetaInspector is a gem for web scraping purposes. You give it an URL, and it returns you metadata from it.
 
+= Dependencies
+
+MetaInspector uses the nokogiri gem to parse HTML. You can install it from github.
+
+Run the following if you haven't already:
+
+  gem sources -a http://gems.github.com
+
+Then install the gem:
+
+  sudo gem install tenderlove-nokogiri
+
+If you're on Ubuntu, you might need to install these packages before installing nokogiri:
+
+  sudo aptitude install libxslt-dev libxml2 libxml2-dev
+
 = Installation
 
 Run the following if you haven't already:
@@ -76,7 +92,7 @@ You can find some sample scripts on the samples folder, including a basic scrapi
   => #<File:/var/folders/X8/X8TBsDiWGYuMKzrB3bhWTU+++TI/-Tmp-/open-uri.6656.0>
 
   >> page.scraped_doc.class
-  => Hpricot::Doc
+  => Nokogiri::HTML::Document
 
   >> page.scraped?
   => true
@@ -98,10 +114,17 @@ You can find some sample scripts on the samples folder, including a basic scrapi
     
 = To Do
 
-* Mocks
-* Check content type, process only HTML pages (i.e., dont try to scrape http://ftp.ruby-lang.org/pub/ruby/ruby-1.9.1-p129.tar.bz2)
-* Return array of images in page
+* Get page.base_dir from the address
+* Distinguish between external and internal links, returning page.links for all of them as found, page.external_links and page.internal_links converted to absolute URLs
+* Return array of images in page as absolute URLs
 * Return contents of meta robots tag
-* Consider using nokogiri instead of hpricot
+* Be able to set a timeout in seconds
+* Recover from Timeout exception
+* Recover from Errno::ECONNREFUSED
+* If keywords seem to be separated by blank spaces, replace them with commas
+* Mocks
+* Check content type, process only HTML pages_
+** Don't try to scrape http://ftp.ruby-lang.org/pub/ruby/ruby-1.9.1-p129.tar.bz2
+** Don't try to scrape http://isabel.dit.upm.es/component/option,com_docman/task,doc_download/gid,831/Itemid,74/
 
 Copyright (c) 2009 Jaime Iniesta, released under the MIT license

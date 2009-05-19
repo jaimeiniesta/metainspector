@@ -6,6 +6,7 @@ visited_links=[]
 
 puts "Enter a valid http address to spider it following external links"
 address = gets.strip
+
 page = MetaInspector.new(address)
 q.push(address)
 
@@ -14,9 +15,13 @@ while q.size > 0
   page.address=address
   puts "Spidering #{page.address}"
   page.scrape!
+
   puts "TITLE: #{page.title}"
+  puts "DESCRIPTION: #{page.description}"
+  puts "KEYWORDS: #{page.keywords}"
+  puts "LINKS: #{page.links.size}"
   page.links.each do |link|
-    if link[0..6].downcase == 'http://' && !visited_links.include?(link)
+    if link[0..6] == 'http://' && !visited_links.include?(link)
       q.push(link)
     end
   end

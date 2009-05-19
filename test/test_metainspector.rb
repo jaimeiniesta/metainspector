@@ -31,7 +31,7 @@ class TestMetaInspector < Test::Unit::TestCase
     assert_equal m.links.size, 31
     assert_equal m.links[30], 'http://www.nuvio.cz/'
     assert_equal m.full_doc.class, Tempfile
-    assert_equal m.scraped_doc.class, Hpricot::Doc
+    assert_equal m.scraped_doc.class, Nokogiri::HTML::Document
   end
   
   # Test changing the address resets the state of the instance

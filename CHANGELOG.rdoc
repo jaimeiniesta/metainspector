@@ -1,3 +1,7 @@
+= 1.1.2
+=== 19th May, 2009
+* Using nokogiri instead of hpricot
+
 = 1.1.1
 === 14th May, 2009
 * Simplified scrape method, leaves as nil the metadata not found, to be able to distinguish between a not found element or a found element that was empty.

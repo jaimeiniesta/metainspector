@@ -1,12 +1,10 @@
 require 'open-uri'
 require 'rubygems'
-require 'hpricot'
+require 'nokogiri'
 
 # MetaInspector provides an easy way to scrape web pages and get its elements
 class MetaInspector
-  VERSION = '1.1.1'
-
-  Hpricot.buffer_size = 300000
+  VERSION = '1.1.2'
   
   attr_reader :address, :title, :description, :keywords, :links, :full_doc, :scraped_doc
   
@@ -28,21 +26,21 @@ class MetaInspector
   # Visit web page, get its contents, and parse it
   def scrape!
     @full_doc = open(@address)
-    @scraped_doc = Hpricot(@full_doc)
+    @scraped_doc = Nokogiri::HTML(@full_doc)
     
     # Searching title...
-    @title = @scraped_doc.at('title').inner_html.strip if @scraped_doc.at('title')
+    @title = @scraped_doc.css('title').inner_html rescue nil
     
     # Searching meta description...
-    @description = @scraped_doc.at("meta[@name='description']")['content'].strip if @scraped_doc.at("meta[@name='description']")
+    @description = @scraped_doc.css("meta[@name='description']").first['content'] rescue nil
     
     # Searching meta keywords...
-    @keywords = @scraped_doc.at("meta[@name='keywords']")['content'].strip if @scraped_doc.at("meta[@name='keywords']")
+    @keywords = @scraped_doc.css("meta[@name='keywords']").first['content'] rescue nil
         
     # Searching links...
     @links = []
     @scraped_doc.search("//a").each do |link|
-      @links << link.attributes["href"].strip if (!link.attributes["href"].nil?)
+      @links << link.attributes["href"].to_s.strip
     end
     
     # Mark scraping as success
@@ -51,6 +49,10 @@ class MetaInspector
     rescue SocketError
       puts 'MetaInspector exception: The url provided does not exist or is temporarily unavailable (socket error)'
       @scraped = false
+    rescue TimeoutError
+      puts 'Timeout!!!'
+    rescue
+      puts 'An exception occurred while trying to scrape the page!'
   end
   
   # Syntactic sugar
