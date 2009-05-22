@@ -14,7 +14,6 @@ while q.size > 0
   visited_links << address = q.pop
   page.address=address
   puts "Spidering #{page.address}"
-  page.scrape!
 
   puts "TITLE: #{page.title}"
   puts "DESCRIPTION: #{page.description}"

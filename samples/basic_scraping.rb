@@ -7,7 +7,6 @@ address = gets
 page = MetaInspector.new(address)
 puts "Scraping #{address}"
 puts "...please wait..."
-page.scrape!
 
 puts "Scraping #{page.address} returned these results:"
 puts "TITLE: #{page.title}"

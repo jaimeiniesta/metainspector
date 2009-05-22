@@ -34,11 +34,7 @@ Initialize a MetaInspector instance with an URL like this:
 
   page = MetaInspector.new('http://pagerankalert.com')
 
-Then you can tell it to fetch and scrape the URL:
-
-  page.scrape!
-
-Once scraped, you can see the returned data like this:
+Once scraped, you can see the scraped data like this:
 
   page.address       # URL of the page
   page.title         # title of the page, as string
@@ -46,17 +42,15 @@ Once scraped, you can see the returned data like this:
   page.keywords      # meta keywords, as string
   page.links         # array of strings, with every link found on the page
   
-You can see if the scraping process went ok checking what page.scrape! returns (true or false), or checking the page.scraped? method, which returns false if no successfull scraping has been finished since the last address change.
 You can also change the address of the page to be scraped using the address= setter, like this:
 
   page.address="http://jaimeiniesta.com"
 
-Doing so resets the state of the MetaInspector instance to the initial state (not scraped yet, cleared stored meta data). You can re-scrape it again by calling the page.scrape! method.
+Doing so resets the state of the MetaInspector instance to the initial state (not scraped yet, cleared stored meta data). The page will be re-scraped when you consult any of its metadata again.
 
-The full fetched document and the scraped doc are accessible from:
+The full scraped document if accessible from:
 
-  page.full_doc    # it points to the temp file where the fetched doc is stored
-  page.scraped_doc # Hpricot doc that you can use it to get any element from the page
+  page.document # Nokogiri doc that you can use it to get any element from the page
 
 = Examples
 
@@ -65,52 +59,33 @@ You can find some sample scripts on the samples folder, including a basic scrapi
   $ irb
   >> require 'metainspector'
   => true
-
+  
   >> page = MetaInspector.new('http://pagerankalert.com')
-  => #<MetaInspector:0x5fc594 @full_doc=nil, @scraped=false, @description=nil, @links=nil,
-     @address="http://pagerankalert.com", @keywords=nil, @scraped_doc=nil, @title=nil>
-
-  >> page.scrape!
-  => true
-
+  => #<MetaInspector:0x11330c0 @document=nil, @links=nil, @address="http://pagerankalert.com", @description=nil, @keywords=nil, @title=nil>
+  
   >> page.title
   => "PageRankAlert.com :: Track your pagerank changes"
-
+  
   >> page.description
   => "Track your PageRank(TM) changes and receive alert by email"
-
+  
   >> page.keywords
   => "pagerank, seo, optimization, google"
-
+  
   >> page.links.size
   => 31
-
+  
   >> page.links[30]
   => "http://www.nuvio.cz/"
-
-  >> page.full_doc
-  => #<File:/var/folders/X8/X8TBsDiWGYuMKzrB3bhWTU+++TI/-Tmp-/open-uri.6656.0>
-
-  >> page.scraped_doc.class
+  
+  >> page.document.class
   => Nokogiri::HTML::Document
-
-  >> page.scraped?
-  => true
-
+  
   >> page.address="http://jaimeiniesta.com"
   => "http://jaimeiniesta.com"
-
-  >> page.scraped?
-  => false
-
-  >> page.scrape!
-  => true
-
-  >> page.scraped?
-  => true
-
+  
   >> page.title
-  => "ruby on rails freelance developer &#8212; Jaime Iniesta"
+  => "ruby on rails freelance developer -- Jaime Iniesta"
     
 = To Do
 
