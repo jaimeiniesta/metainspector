@@ -4,7 +4,7 @@ require 'nokogiri'
 
 # MetaInspector provides an easy way to scrape web pages and get its elements
 class MetaInspector
-  VERSION = '1.1.3'
+  VERSION = '1.1.4'
   
   attr_reader :address
   
@@ -14,11 +14,6 @@ class MetaInspector
     @address = address
     
     @document = @title = @description = @keywords = @links = nil
-  end
-  
-  # Setter for address. Initializes the whole state as the address is being changed.
-  def address=(address)
-    initialize(address)
   end
   
   # Returns the parsed document title

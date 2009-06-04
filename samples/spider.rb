@@ -12,7 +12,7 @@ q.push(address)
 
 while q.size > 0
   visited_links << address = q.pop
-  page.address=address
+  page = MetaInspector.new(address)
   puts "Spidering #{page.address}"
 
   puts "TITLE: #{page.title}"

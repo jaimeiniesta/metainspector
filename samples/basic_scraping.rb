@@ -3,10 +3,9 @@
 require '../lib/metainspector.rb'
 
 puts "Enter a valid http address to scrape it"
-address = gets
+address = gets.strip
 page = MetaInspector.new(address)
-puts "Scraping #{address}"
-puts "...please wait..."
+puts "...please wait while scraping the page..."
 
 puts "Scraping #{page.address} returned these results:"
 puts "TITLE: #{page.title}"

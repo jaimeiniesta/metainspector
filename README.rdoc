@@ -42,12 +42,6 @@ Once scraped, you can see the scraped data like this:
   page.keywords      # meta keywords, as string
   page.links         # array of strings, with every link found on the page
   
-You can also change the address of the page to be scraped using the address= setter, like this:
-
-  page.address="http://jaimeiniesta.com"
-
-Doing so resets the state of the MetaInspector instance to the initial state (not scraped yet, cleared stored meta data). The page will be re-scraped when you consult any of its metadata again.
-
 The full scraped document if accessible from:
 
   page.document # Nokogiri doc that you can use it to get any element from the page
@@ -80,12 +74,6 @@ You can find some sample scripts on the samples folder, including a basic scrapi
   
   >> page.document.class
   => Nokogiri::HTML::Document
-  
-  >> page.address="http://jaimeiniesta.com"
-  => "http://jaimeiniesta.com"
-  
-  >> page.title
-  => "ruby on rails freelance developer -- Jaime Iniesta"
     
 = To Do
 

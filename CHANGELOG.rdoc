@@ -1,3 +1,7 @@
+= 1.1.4
+=== 4th June, 2009
+* Simplified code: removed address setter, just instantiate a new MetaInspector object if you need to scrape a different URL
+
 = 1.1.3
 === 22nd May, 2009
 * Simplified code: now there's no need to call page.scrape!, just initialize it and go directly to page.address, page.title, page.description, page.keywords or page.links, the page will be scraped on the fly

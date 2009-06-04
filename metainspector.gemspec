@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name = "metainspector"
-  s.version = "1.1.3"
-  s.date = "2009-05-19"
+  s.version = "1.1.4"
+  s.date = "2009-06-04"
   s.summary = "Ruby gem for web scraping"
   s.email = "jaimeiniesta@gmail.com"
   s.homepage = "http://github.com/jaimeiniesta/metainspector/tree/master"
