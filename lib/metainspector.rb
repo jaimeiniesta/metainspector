@@ -20,17 +20,17 @@ class MetaInspector
   
   # Returns the parsed document title
   def title
-    @title ||= charset == 'utf-8' ? parsed_document.css('title').inner_html : Iconv.iconv('utf-8', charset, parsed_document.css('title').inner_html).to_s rescue nil
+    @title ||= parsed_document.css('title').inner_html rescue nil
   end
   
   # Returns the parsed document meta description
   def description
-    @description ||= charset == 'utf-8' ? parsed_document.css("meta[@name='description']").first['content'] : Iconv.iconv('utf-8', charset, parsed_document.css("meta[@name='description']").first['content']).to_s rescue nil
+    @description ||= parsed_document.css("meta[@name='description']").first['content'] rescue nil
   end
   
   # Returns the parsed document meta keywords
   def keywords
-    @keywords ||= charset == 'utf-8' ? parsed_document.css("meta[@name='keywords']").first['content'] : Iconv.iconv('utf-8', charset, parsed_document.css("meta[@name='keywords']").first['content']).to_s rescue nil
+    @keywords ||= parsed_document.css("meta[@name='keywords']").first['content'] rescue nil
   end
   
   # Returns the parsed document links
