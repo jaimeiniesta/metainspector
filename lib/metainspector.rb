@@ -36,6 +36,12 @@ class MetaInspector
     @links ||= document.search("//a").map {|link| link.attributes["href"].to_s.strip} rescue nil
   end
   
+  # Returns the parsed image from Facebook's open graph property tags
+  # Most all major websites now define this property and is usually very relevant
+  def image
+    @image ||= document.css("meta[@property='og:image']").first['content'] rescue nil
+  end
+  
   # Returns the whole parsed document
   def document
     @document ||= Nokogiri::HTML(open(@address))
