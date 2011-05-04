@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
   s.name = "metainspector"
-  s.version = "1.1.5"
-  s.date = "2009-06-21"
+  s.version = "1.1.6"
+  s.date = "2009-09-20"
   s.summary = "Ruby gem for web scraping"
   s.email = "jaimeiniesta@gmail.com"
-  s.homepage = "http://github.com/jaimeiniesta/metainspector/tree/master"
+  s.homepage = "http://github.com/jaimeiniesta/metainspector"
   s.description = "MetaInspector is a ruby gem for web scraping purposes, that returns a hash with metadata from a given URL"
   s.has_rdoc = false
   s.authors = ["Jaime Iniesta"]
@@ -16,9 +16,9 @@ Gem::Specification.new do |s|
     "lib/metainspector.rb",
     "samples/basic_scraping.rb",
     "samples/spider.rb"]
-  s.test_files = ["test/test_metainspector.rb"]
+  s.test_files = ["spec/metainspector_spec.rb", "spec/spec_helper.rb"]
   s.rdoc_options = []
   s.extra_rdoc_files = []
-  s.add_dependency("nokogiri", ["> 1.2"])
+  s.add_dependency("nokogiri", ["> 1.3.3"])
   s.add_dependency("chardet", [">= 0.9"])
 end

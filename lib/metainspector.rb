@@ -1,67 +1,96 @@
 require 'open-uri'
 require 'rubygems'
 require 'nokogiri'
-require 'UniversalDetector'
+require 'charguess'
 require 'iconv'
 
 # MetaInspector provides an easy way to scrape web pages and get its elements
 class MetaInspector
-  VERSION = '1.1.5'
-  
+  VERSION = '1.1.6'
+
   attr_reader :address
-  
+
   # Initializes a new instance of MetaInspector, setting the URL address to the one given
-  # TODO: validate address as http URL, dont initialize it if wrong format 
+  # TODO: validate address as http URL, dont initialize it if wrong format
   def initialize(address)
     @address = address
-    
+
     @document = @title = @description = @keywords = @links = nil
   end
-  
-  # Returns the parsed document title
+
+  # Returns the parsed document title, from the content of the <title> tag.
+  # This is not the same as the meta_tite tag
   def title
     @title ||= parsed_document.css('title').inner_html rescue nil
   end
-  
-  # Returns the parsed document meta description
-  def description
-    @description ||= parsed_document.css("meta[@name='description']").first['content'] rescue nil
-  end
-  
-  # Returns the parsed document meta keywords
-  def keywords
-    @keywords ||= parsed_document.css("meta[@name='keywords']").first['content'] rescue nil
-  end
-  
+
   # Returns the parsed document links
   def links
     @links ||= parsed_document.search("//a").map {|link| link.attributes["href"].to_s.strip} rescue nil
   end
-  
-  # Returns the specified charset, or tries to guess it
+
+  # Returns the charset
+  # TODO: We should trust the charset expressed on the Content-Type meta tag
+  # and only guess it if none given
   def charset
-    @charset ||= UniversalDetector::chardet(document)['encoding'].downcase
+    @charset ||= CharGuess.guess(document).downcase
   end
-  
+
   # Returns the whole parsed document
   def parsed_document
     @parsed_document ||= Nokogiri::HTML(document)
-    
+
     rescue
-      puts 'An exception occurred while trying to scrape the page!'
+      warn 'An exception occurred while trying to scrape the page!'
   end
-  
+
   # Returns the original, unparsed document
   def document
     @document ||= open(@address).read
-    
+
     rescue SocketError
-      puts 'MetaInspector exception: The url provided does not exist or is temporarily unavailable (socket error)'
+      warn 'MetaInspector exception: The url provided does not exist or is temporarily unavailable (socket error)'
       @scraped = false
     rescue TimeoutError
-      puts 'Timeout!!!'
+      warn 'Timeout!!!'
     rescue
-      puts 'An exception occurred while trying to fetch the page!'
+      warn 'An exception occurred while trying to fetch the page!'
+  end
+
+  # Scrapers for all meta_tags in the form of "meta_name" are automatically defined. This has been tested for
+  # meta name: keywords, description, robots, generator
+  # meta http-equiv: content-language, Content-Type
+  #
+  # It will first try with meta name="..." and if nothing found,
+  # with meta http-equiv="...", substituting "_" by "-"
+  # TODO: this should be case unsensitive, so meta_robots gets the results from the HTML for robots, Robots, ROBOTS...
+  # TODO: cache results on instance variables, using ||=
+  # TODO: define respond_to? to return true on the meta_name methods
+  def method_missing(method_name)
+    if method_name.to_s =~ /^meta_(.*)/
+      content = parsed_document.css("meta[@name='#{$1}']").first['content'] rescue nil
+      content = parsed_document.css("meta[@http-equiv='#{$1.gsub("_", "-")}']").first['content'] rescue nil if content.nil?
+
+      content
+    else
+      super
+    end
+  end
+
+  #########################################################################################################
+  # DEPRECATED METHODS
+  # These methods are deprecated and will disappear soonish.
+
+  # DEPRECATED: Returns the parsed document meta description
+  def description
+    warn "DEPRECATION WARNING: description method is deprecated since 1.1.6 and will be removed on 1.2.0, use meta_description instead"
+    @description ||= meta_description rescue nil
+  end
+
+  # DEPRECATED: Returns the parsed document meta keywords
+  def keywords
+    warn "DEPRECATION WARNING: keywords method is deprecated since 1.1.6 and will be removed on 1.2.0, use meta_keywords instead"
+    @keywords ||= meta_keywords rescue nil
   end
 
 end
