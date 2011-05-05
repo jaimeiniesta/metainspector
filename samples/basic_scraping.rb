@@ -9,8 +9,8 @@ puts "...please wait while scraping the page..."
 
 puts "Scraping #{page.address} returned these results:"
 puts "TITLE: #{page.title}"
-puts "DESCRIPTION: #{page.description}"
-puts "KEYWORDS: #{page.keywords}"
+puts "META DESCRIPTION: #{page.meta_description}"
+puts "META KEYWORDS: #{page.meta_keywords}"
 puts "#{page.links.size} links found..."
 page.links.each do |link|
   puts " ==> #{link}"

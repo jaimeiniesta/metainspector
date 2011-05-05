@@ -16,8 +16,8 @@ while q.size > 0
   puts "Spidering #{page.address}"
 
   puts "TITLE: #{page.title}"
-  puts "DESCRIPTION: #{page.description}"
-  puts "KEYWORDS: #{page.keywords}"
+  puts "META DESCRIPTION: #{page.meta_description}"
+  puts "META KEYWORDS: #{page.meta_keywords}"
   puts "LINKS: #{page.links.size}"
   page.links.each do |link|
     if link[0..6] == 'http://' && !visited_links.include?(link)
