@@ -56,21 +56,24 @@ You can find some sample scripts on the samples folder, including a basic scrapi
   => #<MetaInspector:0x11330c0 @document=nil, @links=nil, @address="http://pagerankalert.com", @description=nil, @keywords=nil, @title=nil>
 
   >> page.title
-  => "PageRankAlert.com :: Track your pagerank changes"
+  => "PageRankAlert.com :: Track your PageRank changes"
 
   >> page.meta_description
-  => "Track your PageRank(TM) changes and receive alert by email"
+  => "Track your PageRank(TM) changes and receive alerts by email"
 
   >> page.meta_keywords
   => "pagerank, seo, optimization, google"
 
   >> page.links.size
-  => 31
+  => 8
 
-  >> page.links[30]
-  => "http://www.nuvio.cz/"
+  >> page.links[5]
+  => "http://pagerankalert.posterous.com"
 
   >> page.document.class
+  => String
+
+  >> page.parsed_document.class
   => Nokogiri::HTML::Document
 
 = To Do
@@ -82,5 +85,6 @@ You can find some sample scripts on the samples folder, including a basic scrapi
 * If keywords seem to be separated by blank spaces, replace them with commas
 * Mocks
 * Check content type, process only HTML pages, don't try to scrape TAR files like http://ftp.ruby-lang.org/pub/ruby/ruby-1.9.1-p129.tar.bz2 or video files like http://isabel.dit.upm.es/component/option,com_docman/task,doc_download/gid,831/Itemid,74/
+* Get most important image querying Facebook
 
-Copyright (c) 2009 Jaime Iniesta, released under the MIT license
+Copyright (c) 2009-2011 Jaime Iniesta, released under the MIT license
