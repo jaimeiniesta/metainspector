@@ -1,2 +1,4 @@
+# -*- encoding: utf-8 -*-
+
 $: << File.join(File.dirname(__FILE__), "/../lib")
-require 'metainspector'
+require 'meta_inspector'

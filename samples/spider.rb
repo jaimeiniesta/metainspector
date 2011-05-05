@@ -1,5 +1,5 @@
 # A basic spider that will follow links on an infinite loop
-require '../lib/metainspector.rb'
+require_relative '../lib/meta_inspector.rb'
 
 q = Queue.new
 visited_links=[]

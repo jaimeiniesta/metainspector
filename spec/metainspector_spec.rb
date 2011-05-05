@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 require File.join(File.dirname(__FILE__), "/spec_helper")
 
 describe MetaInspector do
@@ -70,20 +72,6 @@ describe MetaInspector do
     it "should detect utf-8 charset" do
       @m = MetaInspector.new('http://www.pagerankalert.com')
       @m.charset.should == "utf-8"
-    end
-  end
-
-  context 'Deprecated methods still work' do
-    before(:each) do
-      @m = MetaInspector.new('http://pagerankalert.com')
-    end
-
-    it "should get the description as the meta_description" do
-      @m.description.should == @m.meta_description
-    end
-
-    it "should get the keywords as the meta_keywords" do
-      @m.keywords.should == @m.meta_keywords
     end
   end
 end

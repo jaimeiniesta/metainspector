@@ -1,6 +1,6 @@
 # Some basic MetaInspector samples
 
-require '../lib/metainspector.rb'
+require_relative '../lib/meta_inspector.rb'
 
 puts "Enter a valid http address to scrape it"
 address = gets.strip
