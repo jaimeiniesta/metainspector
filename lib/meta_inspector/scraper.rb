@@ -14,9 +14,11 @@ module MetaInspector
     # Initializes a new instance of MetaInspector, setting the URL address to the one given
     # TODO: validate address as http URL, dont initialize it if wrong format
     def initialize(address)
-      @address = address
-
-      @document = @title = @description = @keywords = @links = nil
+      # rromanchuk: I added the most basic validation for missing schemes by assuming the client 
+      # is using http if none is provided. Lack of scheme would cause a fatal. It's probably the  
+      # clients responsibilty to validate this url but adding missing scheme would be a nice convenience 
+      @address = URI.parse(address).scheme.nil? ? 'http://' + address : address
+      @document = @title = @description = @keywords = @image = @links = nil
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -28,6 +30,12 @@ module MetaInspector
     # Returns the parsed document links
     def links
       @links ||= parsed_document.search("//a").map {|link| link.attributes["href"].to_s.strip} rescue nil
+    end
+    
+    # Returns the parsed image from Facebook's open graph property tags
+    # Most all major websites now define this property and is usually very relevant
+    def image
+      @image ||= parsed_document.document.css("meta[@property='og:image']").first['content'] rescue nil
     end
 
     # Returns the charset
@@ -70,8 +78,7 @@ module MetaInspector
     def method_missing(method_name)
       if method_name.to_s =~ /^meta_(.*)/
         content = parsed_document.css("meta[@name='#{$1}']").first['content'] rescue nil
-        content = parsed_document.css("meta[@http-equiv='#{$1.gsub("_", "-")}']").first['content'] rescue nil if content.nil?
-
+        content = parsed_document.css("meta[@http-equiv='#{$1.gsub("_", "-")}']").first['content'] rescue nil if content.nil?          
         content
       else
         super

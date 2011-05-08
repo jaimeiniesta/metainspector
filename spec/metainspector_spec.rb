@@ -5,12 +5,28 @@ require File.join(File.dirname(__FILE__), "/spec_helper")
 describe MetaInspector do
 
   context 'Doing a basic scrape' do
+    EXPECTED_TITLE = 'PageRankAlert.com :: Track your PageRank changes'
+    
     before(:each) do
       @m = MetaInspector.new('http://pagerankalert.com')
     end
+    
+    it "should not fatal if you forget to use a scheme" do
+      @m = MetaInspector.new('pagerankalert.com')
+      @m.title.should == EXPECTED_TITLE
+    end
 
     it "should get the title" do
-      @m.title.should == 'PageRankAlert.com :: Track your PageRank changes'
+      @m.title.should == EXPECTED_TITLE
+    end
+    
+    it "should not find an image" do 
+      @m.image.should == nil
+    end
+          
+    it "should find an image" do 
+      @m = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
+      @m.image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
     end
 
     it "should get the links" do
