@@ -16,7 +16,7 @@ module MetaInspector
     def initialize(address)
       # rromanchuk: I added the most basic validation for missing schemes by assuming the client 
       # is using http if none is provided. Lack of scheme would cause a fatal. It's probably the  
-      # clients responsibilty to validate this url but adding missing scheme would be a nice convienence 
+      # clients responsibilty to validate this url but adding missing scheme would be a nice convenience 
       @address = URI.parse(address).scheme.nil? ? 'http://' + address : address
       @document = @title = @description = @keywords = @image = @links = nil
     end
