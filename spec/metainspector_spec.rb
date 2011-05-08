@@ -12,6 +12,15 @@ describe MetaInspector do
     it "should get the title" do
       @m.title.should == 'PageRankAlert.com :: Track your PageRank changes'
     end
+    
+    it "should not find an image" do 
+      @m.image.should == nil
+    end
+          
+    it "should find an image" do 
+      @m = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
+      @m.image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
+    end
 
     it "should get the links" do
       @m.links.size.should == 8
