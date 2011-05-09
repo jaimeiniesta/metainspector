@@ -9,12 +9,12 @@ require 'iconv'
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
-    attr_reader :address
+    attr_reader :url
 
-    # Initializes a new instance of MetaInspector, setting the URL address to the one given
+    # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
-    def initialize(address)
-      @address = URI.parse(address).scheme.nil? ? 'http://' + address : address
+    def initialize(url)
+      @url = URI.parse(url).scheme.nil? ? 'http://' + url : url
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -52,7 +52,7 @@ module MetaInspector
 
     # Returns the original, unparsed document
     def document
-      @document ||= open(@address).read
+      @document ||= open(@url).read
 
       rescue SocketError
         warn 'MetaInspector exception: The url provided does not exist or is temporarily unavailable (socket error)'

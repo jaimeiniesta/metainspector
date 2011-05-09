@@ -7,12 +7,12 @@ describe MetaInspector do
   context 'Initialization' do
     it 'should accept an URL with a scheme' do
       @m = MetaInspector.new('http://pagerankalert.com')
-      @m.address.should == 'http://pagerankalert.com'
+      @m.url.should == 'http://pagerankalert.com'
     end
 
     it "should use http:// as a default scheme" do
       @m = MetaInspector.new('pagerankalert.com')
-      @m.address.should == 'http://pagerankalert.com'
+      @m.url.should == 'http://pagerankalert.com'
     end
   end
 
