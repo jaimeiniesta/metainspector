@@ -18,6 +18,11 @@ or, for short, a convenience alias is also available:
 
   page = MetaInspector.new('http://pagerankalert.com')
 
+If you don't include the scheme on the URL, http:// will be used
+by defaul:
+
+  page = MetaInspector.new('pagerankalert.com')
+
 Then you can see the scraped data like this:
 
   page.address            # URL of the page
@@ -25,6 +30,7 @@ Then you can see the scraped data like this:
   page.links              # array of strings, with every link found on the page
   page.meta_description   # meta description, as string
   page.meta_keywords      # meta keywords, as string
+  page.image              # Most relevant image, if defined with og:image
 
 MetaInspector uses dynamic methods for meta_tag discovery, so all these will work, and will be converted to a search of a meta tag by the corresponding name, and return its content attribute
 
@@ -76,6 +82,10 @@ You can find some sample scripts on the samples folder, including a basic scrapi
   >> page.parsed_document.class
   => Nokogiri::HTML::Document
 
+= ZOMG Fork! Thank you!
+
+You're welcome to fork this project and send pull requests. I want to thank Ryan Romanchuk for his help https://github.com/rromanchuk
+
 = To Do
 
 * Get page.base_dir from the address
@@ -85,6 +95,5 @@ You can find some sample scripts on the samples folder, including a basic scrapi
 * If keywords seem to be separated by blank spaces, replace them with commas
 * Mocks
 * Check content type, process only HTML pages, don't try to scrape TAR files like http://ftp.ruby-lang.org/pub/ruby/ruby-1.9.1-p129.tar.bz2 or video files like http://isabel.dit.upm.es/component/option,com_docman/task,doc_download/gid,831/Itemid,74/
-* Get most important image querying Facebook
 
 Copyright (c) 2009-2011 Jaime Iniesta, released under the MIT license
