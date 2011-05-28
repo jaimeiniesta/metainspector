@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-require_relative 'meta_inspector/scraper'
+require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/scraper'))
 
 module MetaInspector
   extend self

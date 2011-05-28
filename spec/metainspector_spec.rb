@@ -37,7 +37,7 @@ describe MetaInspector do
     end
 
     it "should get the links" do
-      @m.links.size.should == 8
+      @m.links.size.should == 9
     end
 
     it "should have a Nokogiri::HTML::Document as parsed_document" do
@@ -46,6 +46,11 @@ describe MetaInspector do
 
     it "should have a String as document" do
       @m.document.class.should == String
+    end
+
+    it "should get rss feeds" do
+      @m = MetaInspector.new('http://www.iteh.at')
+      @m.rss.should == ['http://www.iteh.at/de/rss/']
     end
   end
 
