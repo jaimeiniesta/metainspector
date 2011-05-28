@@ -28,6 +28,15 @@ module MetaInspector
       @links ||= parsed_document.search("//a").map {|link| link.attributes["href"].to_s.strip} rescue nil
     end
 
+    # Returns the parsed document meta rss links
+    def rss
+      @rss ||= parsed_document.xpath("//link").select{ |link|
+          link.attributes["type"] && link.attributes["type"].value =~ /(atom|rss)/
+        }.map { |link|
+          absolutify_url(link.attributes["href"].value)
+        } #rescue nil
+    end
+
     # Returns the parsed image from Facebook's open graph property tags
     # Most all major websites now define this property and is usually very relevant
     # See doc at http://developers.facebook.com/docs/opengraph/
@@ -80,6 +89,12 @@ module MetaInspector
       else
         super
       end
+    end
+
+    private
+
+    def absolutify_url(url)
+      url =~ /^http.*/ ? url : File.join(@url,url)
     end
   end
 end
