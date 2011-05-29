@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Jaime Iniesta"]
   s.email       = ["jaimeiniesta@gmail.com"]
-  s.homepage    = "https://rubygems.org/gems/metainspector"
+  s.homepage    = "https://github.com/jaimeiniesta/metainspector"
   s.summary     = %q{MetaInspector is a ruby gem for web scraping purposes, that returns a hash with metadata from a given URL}
   s.description = %q{MetaInspector lets you scrape a web page and get its title, charset, link and meta tags}
 
