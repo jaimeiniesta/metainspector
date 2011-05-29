@@ -31,7 +31,7 @@ Then you can see the scraped data like this:
   page.meta_description   # meta description, as string
   page.meta_keywords      # meta keywords, as string
   page.image              # Most relevant image, if defined with og:image
-  page.rss                # Get rss or atom links in meta data fields as array
+  page.feed                # Get rss or atom links in meta data fields as array
 
 MetaInspector uses dynamic methods for meta_tag discovery, so all these will work, and will be converted to a search of a meta tag by the corresponding name, and return its content attribute
 
