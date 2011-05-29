@@ -48,9 +48,14 @@ describe MetaInspector do
       @m.document.class.should == String
     end
 
-    it "should get rss feeds" do
+    it "should get rss feed" do
       @m = MetaInspector.new('http://www.iteh.at')
-      @m.rss.should == ['http://www.iteh.at/de/rss/']
+      @m.feed.should == 'http://www.iteh.at/de/rss/'
+    end
+
+    it "should get atom feed" do
+      @m = MetaInspector.new('http://www.tea-tron.com/jbravo/blog/')
+      @m.feed.should == 'http://www.tea-tron.com/jbravo/blog/feed/'
     end
   end
 

@@ -29,12 +29,12 @@ module MetaInspector
     end
 
     # Returns the parsed document meta rss links
-    def rss
-      @rss ||= parsed_document.xpath("//link").select{ |link|
+    def feed
+      @feed ||= parsed_document.xpath("//link").select{ |link|
           link.attributes["type"] && link.attributes["type"].value =~ /(atom|rss)/
         }.map { |link|
           absolutify_url(link.attributes["href"].value)
-        } #rescue nil
+        }.first rescue nil
     end
 
     # Returns the parsed image from Facebook's open graph property tags
