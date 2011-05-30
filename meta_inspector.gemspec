@@ -23,4 +23,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'charguess', '1.3.20110226181011'
 
   s.add_development_dependency 'rspec', '~> 2.6.0'
+  s.add_development_dependency 'fakeweb', '~> 1.3.0'
+
 end

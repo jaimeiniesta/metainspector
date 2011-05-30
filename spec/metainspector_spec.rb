@@ -5,6 +5,9 @@ require File.join(File.dirname(__FILE__), "/spec_helper")
 describe MetaInspector do
 
   context 'Initialization' do
+
+    FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
+
     it 'should accept an URL with a scheme' do
       @m = MetaInspector.new('http://pagerankalert.com')
       @m.url.should == 'http://pagerankalert.com'
@@ -17,6 +20,12 @@ describe MetaInspector do
   end
 
   context 'Doing a basic scrape' do
+
+    FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
+    FakeWeb.register_uri(:get, "http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/", :response => fixture_file("theonion.com.response"))
+    FakeWeb.register_uri(:get, "http://www.iteh.at", :response => fixture_file("iteh.at.response"))
+    FakeWeb.register_uri(:get, "http://www.tea-tron.com/jbravo/blog/", :response => fixture_file("tea-tron.com.response"))
+
     EXPECTED_TITLE = 'PageRankAlert.com :: Track your PageRank changes'
 
     before(:each) do
@@ -123,6 +132,10 @@ describe MetaInspector do
   end
 
   context 'Charset detection' do
+
+    FakeWeb.register_uri(:get, "http://www.pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
+    FakeWeb.register_uri(:get, "http://www.alazan.com", :response => fixture_file("alazan.com.response"))
+
     it "should detect windows-1252 charset" do
       @m = MetaInspector.new('http://www.alazan.com')
       @m.charset.should == "windows-1252"
