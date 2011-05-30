@@ -28,6 +28,7 @@ Then you can see the scraped data like this:
   page.url                # URL of the page
   page.title              # title of the page, as string
   page.links              # array of strings, with every link found on the page
+  page.absolute_links     # array of all the links converted to absolute urls
   page.meta_description   # meta description, as string
   page.meta_keywords      # meta keywords, as string
   page.image              # Most relevant image, if defined with og:image

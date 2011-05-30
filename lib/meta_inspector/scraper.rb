@@ -25,7 +25,14 @@ module MetaInspector
 
     # Returns the parsed document links
     def links
-      @links ||= parsed_document.search("//a").map {|link| link.attributes["href"].to_s.strip} rescue nil
+      @links ||= remove_mailto(parsed_document.search("//a")
+                                .map {|link| link.attributes["href"]
+                                .to_s.strip}.uniq) rescue nil
+    end
+
+    # Returns the links converted to absolute urls
+    def absolute_links
+      @absolute_links ||= links.map { |l| absolutify_url(l) }
     end
 
     # Returns the parsed document meta rss links
@@ -93,8 +100,15 @@ module MetaInspector
 
     private
 
+    # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
     def absolutify_url(url)
       url =~ /^http.*/ ? url : File.join(@url,url)
+    end
+
+    # Remove mailto links
+    # TODO: convert this to a more generic filter to remove all non-http[s] like ftp, telnet, etc.
+    def remove_mailto(links)
+      links.reject {|l| l.index('mailto')}
     end
   end
 end

@@ -36,10 +36,6 @@ describe MetaInspector do
       @m.image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
     end
 
-    it "should get the links" do
-      @m.links.size.should == 9
-    end
-
     it "should have a Nokogiri::HTML::Document as parsed_document" do
       @m.parsed_document.class.should == Nokogiri::HTML::Document
     end
@@ -56,6 +52,36 @@ describe MetaInspector do
     it "should get atom feed" do
       @m = MetaInspector.new('http://www.tea-tron.com/jbravo/blog/')
       @m.feed.should == 'http://www.tea-tron.com/jbravo/blog/feed/'
+    end
+  end
+
+  context 'Links' do
+    before(:each) do
+      @m = MetaInspector.new('http://pagerankalert.com')
+    end
+
+    it "should get the links" do
+      @m.links.should == [
+                          "/",
+                          "/es?language=es",
+                          "/users/sign_up",
+                          "/users/sign_in",
+                          "http://pagerankalert.posterous.com",
+                          "http://twitter.com/pagerankalert",
+                          "http://twitter.com/share"
+                          ]
+    end
+
+    it "should convert links to absolute urls" do
+      @m.absolute_links.should == [
+                                    "http://pagerankalert.com/",
+                                    "http://pagerankalert.com/es?language=es",
+                                    "http://pagerankalert.com/users/sign_up",
+                                    "http://pagerankalert.com/users/sign_in",
+                                    "http://pagerankalert.posterous.com",
+                                    "http://twitter.com/pagerankalert",
+                                    "http://twitter.com/share"
+                                  ]
     end
   end
 
