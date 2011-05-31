@@ -5,12 +5,13 @@ require 'rubygems'
 require 'nokogiri'
 require 'charguess'
 require 'iconv'
+require 'hashie'
 
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
     attr_reader :url
-
+    @data = Hashie::Mash.new
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
     def initialize(url)
@@ -25,8 +26,8 @@ module MetaInspector
 
     # Returns the parsed document links
     def links
-      @links ||= remove_mailto(parsed_document.search("//a")
-                                .map {|link| link.attributes["href"]
+      @links ||= remove_mailto(parsed_document.search("//a") \
+                                .map {|link| link.attributes["href"] \
                                 .to_s.strip}.uniq) rescue nil
     end
 
