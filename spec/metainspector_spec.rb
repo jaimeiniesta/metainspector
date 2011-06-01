@@ -43,6 +43,7 @@ describe MetaInspector do
     it "should find an image" do
       @m = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
       @m.image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
+      @m.meta_og_image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
     end
 
     it "should have a Nokogiri::HTML::Document as parsed_document" do
@@ -132,6 +133,17 @@ describe MetaInspector do
     it "should return nil for nonfound meta_tags" do
       @m.meta_lollypop.should == nil
     end
+
+    it "should find a meta_og_title" do
+      @m = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
+      @m.meta_og_title.should == "Apple Claims New iPhone Only Visible To Most Loyal Of Customers"
+    end
+
+    it "should not find a meta_og_something" do
+      @m = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
+      @m.meta_og_something.should == nil
+    end
+
   end
 
   context 'Charset detection' do

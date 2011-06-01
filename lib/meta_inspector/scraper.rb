@@ -95,6 +95,11 @@ module MetaInspector
     # TODO: define respond_to? to return true on the meta_name methods
     def method_missing(method_name)
       if method_name.to_s =~ /^meta_(.*)/
+        key = $1
+        #special treatment for og:
+        if key =~ /^og_(.*)/
+          key = "og:#{$1}"
+        end
         unless @data.meta
           @data.meta!.name!
           @data.meta!.property!
@@ -103,7 +108,7 @@ module MetaInspector
             @data.meta.property[element.attributes["property"].value.downcase] = element.attributes["content"].value if element.attributes["property"]
           }
         end
-        @data.meta.name && (@data.meta.name[$1.downcase]) || (@data.meta.property && @data.meta.property[$1.downcase])
+        @data.meta.name && (@data.meta.name[key.downcase]) || (@data.meta.property && @data.meta.property[key.downcase])
       else
         super
       end
