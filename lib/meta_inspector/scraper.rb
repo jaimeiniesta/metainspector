@@ -5,40 +5,40 @@ require 'rubygems'
 require 'nokogiri'
 require 'charguess'
 require 'iconv'
-require 'hashie'
+require 'hashie/rash'
 
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
     attr_reader :url
-    @data = Hashie::Mash.new
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
     def initialize(url)
       @url = URI.parse(url).scheme.nil? ? 'http://' + url : url
+      @data = Hashie::Rash.new('url' => @url)
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
     # This is not the same as the meta_tite tag
     def title
-      @title ||= parsed_document.css('title').inner_html rescue nil
+      @data.title ||= parsed_document.css('title').inner_html rescue nil
     end
 
     # Returns the parsed document links
     def links
-      @links ||= remove_mailto(parsed_document.search("//a") \
+      @data.links ||= remove_mailto(parsed_document.search("//a") \
                                 .map {|link| link.attributes["href"] \
                                 .to_s.strip}.uniq) rescue nil
     end
 
     # Returns the links converted to absolute urls
     def absolute_links
-      @absolute_links ||= links.map { |l| absolutify_url(l) }
+      @data.absolute_links ||= links.map { |l| absolutify_url(l) }
     end
 
     # Returns the parsed document meta rss links
     def feed
-      @feed ||= parsed_document.xpath("//link").select{ |link|
+      @data.feed ||= parsed_document.xpath("//link").select{ |link|
           link.attributes["type"] && link.attributes["type"].value =~ /(atom|rss)/
         }.map { |link|
           absolutify_url(link.attributes["href"].value)
@@ -49,14 +49,20 @@ module MetaInspector
     # Most all major websites now define this property and is usually very relevant
     # See doc at http://developers.facebook.com/docs/opengraph/
     def image
-      @image ||= parsed_document.document.css("meta[@property='og:image']").first['content'] rescue nil
+      @data.image ||= parsed_document.document.css("meta[@property='og:image']").first['content'] rescue nil
     end
 
     # Returns the charset
     # TODO: We should trust the charset expressed on the Content-Type meta tag
     # and only guess it if none given
     def charset
-      @charset ||= CharGuess.guess(document).downcase
+      @data.charset ||= CharGuess.guess(document).downcase
+    end
+    # Returns all parsed data as a nested Hash
+    def to_hash
+      # TODO: find a better option to populate the data to the Hash
+      image;feed;links;charset;absolute_links;title;meta_keywords
+      @data.to_hash
     end
 
     # Returns the whole parsed document
@@ -86,14 +92,18 @@ module MetaInspector
     #
     # It will first try with meta name="..." and if nothing found,
     # with meta http-equiv="...", substituting "_" by "-"
-    # TODO: this should be case unsensitive, so meta_robots gets the results from the HTML for robots, Robots, ROBOTS...
-    # TODO: cache results on instance variables, using ||=
     # TODO: define respond_to? to return true on the meta_name methods
     def method_missing(method_name)
       if method_name.to_s =~ /^meta_(.*)/
-        content = parsed_document.css("meta[@name='#{$1}']").first['content'] rescue nil
-        content = parsed_document.css("meta[@http-equiv='#{$1.gsub("_", "-")}']").first['content'] rescue nil if content.nil?
-        content
+        unless @data.meta
+          @data.meta!.name!
+          @data.meta!.property!
+          parsed_document.xpath("//meta").each { |element|
+            @data.meta.name[element.attributes["name"].value.downcase] = element.attributes["content"].value if element.attributes["name"]
+            @data.meta.property[element.attributes["property"].value.downcase] = element.attributes["content"].value if element.attributes["property"]
+          }
+        end
+        @data.meta.name && (@data.meta.name[$1.downcase]) || (@data.meta.property && @data.meta.property[$1.downcase])
       else
         super
       end

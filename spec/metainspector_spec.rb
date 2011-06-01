@@ -103,6 +103,10 @@ describe MetaInspector do
       @m.meta_robots.should == 'all,follow'
     end
 
+    it "should get the robots meta tag" do
+      @m.meta_RoBoTs.should == 'all,follow'
+    end
+
     it "should get the description meta tag" do
       @m.meta_description.should == 'Track your PageRank(TM) changes and receive alerts by email'
     end
@@ -116,9 +120,8 @@ describe MetaInspector do
       @m.meta_content_language.should == "en"
     end
 
-    it "should get the Content-Type meta tag" do
-      pending "mocks"
-      @m.meta_Content_Type.should == "text/html; charset=utf-8"
+    it "should get the Csrf_pAram meta tag" do
+      @m.meta_Csrf_pAram.should == "authenticity_token"
     end
 
     it "should get the generator meta tag" do
@@ -146,4 +149,17 @@ describe MetaInspector do
       @m.charset.should == "utf-8"
     end
   end
+
+  context 'to_hash' do
+
+    FakeWeb.register_uri(:get, "http://www.pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
+
+    it "should return a hash with all the values set" do
+      @m = MetaInspector.new('http://www.pagerankalert.com')
+      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://www.pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "links"=>["/", "/es?language=es", "/users/sign_up", "/users/sign_in", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "absolute_links"=>["http://www.pagerankalert.com/", "http://www.pagerankalert.com/es?language=es", "http://www.pagerankalert.com/users/sign_up", "http://www.pagerankalert.com/users/sign_in", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
+    end
+
+  end
+
+
 end
