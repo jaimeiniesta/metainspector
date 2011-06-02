@@ -1,19 +1,20 @@
 # A basic spider that will follow links on an infinite loop
-require_relative '../lib/meta_inspector.rb'
+$: << File.join(File.dirname(__FILE__), "/../lib")
+require 'meta_inspector'
 
 q = Queue.new
 visited_links=[]
 
-puts "Enter a valid http address to spider it following external links"
-address = gets.strip
+puts "Enter a valid http url to spider it following external links"
+url = gets.strip
 
-page = MetaInspector.new(address)
-q.push(address)
+page = MetaInspector.new(url)
+q.push(url)
 
 while q.size > 0
-  visited_links << address = q.pop
-  page = MetaInspector.new(address)
-  puts "Spidering #{page.address}"
+  visited_links << url = q.pop
+  page = MetaInspector.new(url)
+  puts "Spidering #{page.url}"
 
   puts "TITLE: #{page.title}"
   puts "META DESCRIPTION: #{page.meta_description}"

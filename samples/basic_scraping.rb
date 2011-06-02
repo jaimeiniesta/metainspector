@@ -4,9 +4,9 @@ $: << File.join(File.dirname(__FILE__), "/../lib")
 require 'meta_inspector'
 require 'ap'
 
-puts "Enter a valid http address to scrape it"
-address = gets.strip
-page = MetaInspector.new(address)
+puts "Enter a valid http url to scrape it"
+url = gets.strip
+page = MetaInspector.new(url)
 puts "...please wait while scraping the page..."
 
 puts "Scraping #{page.url} returned these results:"
@@ -18,4 +18,5 @@ page.links.each do |link|
   puts " ==> #{link}"
 end
 
+puts "to_hash..."
 ap page.to_hash
