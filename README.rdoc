@@ -32,7 +32,9 @@ Then you can see the scraped data like this:
   page.meta_description   # meta description, as string
   page.meta_keywords      # meta keywords, as string
   page.image              # Most relevant image, if defined with og:image
-  page.feed                # Get rss or atom links in meta data fields as array
+  page.feed               # Get rss or atom links in meta data fields as array
+  page.meta_og_title      # opengraph title
+  page.meta_og_image      # opengraph image
 
 MetaInspector uses dynamic methods for meta_tag discovery, so all these will work, and will be converted to a search of a meta tag by the corresponding name, and return its content attribute
 
@@ -47,6 +49,10 @@ It will also work for the meta tags of the form <meta http-equiv="name" ... />, 
   page.meta_Content_Type      # <meta http-equiv="Content-Type" content="..." />
 
 Please notice that MetaInspector is case sensitive, so page.meta_Content_Type is not the same as page.meta_content_type
+
+You can also access most of the scraped data as a hash:
+
+  page.to_hash               # { "url"=>"http://pagerankalert.com", "title" => "PageRankAlert.com", ... }
 
 The full scraped document if accessible from:
 
@@ -100,5 +106,6 @@ You're welcome to fork this project and send pull requests. I want to thank spec
 * If keywords seem to be separated by blank spaces, replace them with commas
 * Mocks
 * Check content type, process only HTML pages, don't try to scrape TAR files like http://ftp.ruby-lang.org/pub/ruby/ruby-1.9.1-p129.tar.bz2 or video files like http://isabel.dit.upm.es/component/option,com_docman/task,doc_download/gid,831/Itemid,74/
+* Autodiscover all available meta tags
 
 Copyright (c) 2009-2011 Jaime Iniesta, released under the MIT license
