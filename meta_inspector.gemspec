@@ -25,5 +25,5 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'rspec', '~> 2.6.0'
   s.add_development_dependency 'fakeweb', '~> 1.3.0'
-
+  s.add_development_dependency 'awesome_print', '~> 0.4.0'
 end
