@@ -49,7 +49,7 @@ module MetaInspector
     # Most all major websites now define this property and is usually very relevant
     # See doc at http://developers.facebook.com/docs/opengraph/
     def image
-      @data.image ||= parsed_document.document.css("meta[@property='og:image']").first['content'] rescue nil
+      meta_og_image
     end
 
     # Returns the charset
@@ -58,6 +58,7 @@ module MetaInspector
     def charset
       @data.charset ||= CharGuess.guess(document).downcase
     end
+
     # Returns all parsed data as a nested Hash
     def to_hash
       # TODO: find a better option to populate the data to the Hash
