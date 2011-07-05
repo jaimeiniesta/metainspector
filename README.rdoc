@@ -32,6 +32,8 @@ Then you can see the scraped data like this:
   page.meta_description   # meta description, as string
   page.meta_keywords      # meta keywords, as string
   page.image              # Most relevant image, if defined with og:image
+  page.images             # array of strings, with every img found on the page
+  page.absolute_images    # array of all the images converted to absolute urls
   page.feed               # Get rss or atom links in meta data fields as array
   page.meta_og_title      # opengraph title
   page.meta_og_image      # opengraph image
@@ -101,7 +103,6 @@ You're welcome to fork this project and send pull requests. I want to thank spec
 
 * Get page.base_dir from the URL
 * Distinguish between external and internal links, returning page.links for all of them as found, page.external_links and page.internal_links converted to absolute URLs
-* Return array of images in page as absolute URLs
 * Be able to set a timeout in seconds
 * If keywords seem to be separated by blank spaces, replace them with commas
 * Mocks
