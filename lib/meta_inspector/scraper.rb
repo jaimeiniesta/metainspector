@@ -30,10 +30,18 @@ module MetaInspector
                                 .map {|link| link.attributes["href"] \
                                 .to_s.strip}.uniq) rescue nil
     end
+    
+    def images
+      @data.images ||= parsed_document.search('//img').map{ |i| i.attributes['src'].value }.uniq
+    end
 
     # Returns the links converted to absolute urls
     def absolute_links
       @data.absolute_links ||= links.map { |l| absolutify_url(l) }
+    end
+    
+    def absolute_images
+      @data.absolute_images ||= images.map{ |i| absolutify_url(i) }
     end
 
     # Returns the parsed document meta rss links
