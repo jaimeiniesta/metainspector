@@ -45,6 +45,11 @@ describe MetaInspector do
       @m.image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
       @m.meta_og_image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
     end
+    
+    it "should find all page images" do 
+      @m.absolute_images == ["http://pagerankalert.com/images/pagerank_alert.png?1309512337"]
+      @m.images == ["/images/pagerank_alert.png?1309512337"]
+    end
 
     it "should have a Nokogiri::HTML::Document as parsed_document" do
       @m.parsed_document.class.should == Nokogiri::HTML::Document
