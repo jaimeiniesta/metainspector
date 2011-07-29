@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency 'nokogiri', '1.4.4'
+  s.add_dependency 'nokogiri', '1.5.0'
   s.add_dependency 'charguess', '1.3.20110226181011'
   s.add_dependency "rash", "~> 0.3.0"
 
