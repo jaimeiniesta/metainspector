@@ -23,6 +23,12 @@ module MetaInspector
     def title
       @data.title ||= parsed_document.css('title').inner_html rescue nil
     end
+    
+    # A description getter that first checks for a meta description and if not present will 
+    # guess a description by taking looking for paragraph blocks
+    def description
+      self.meta_description.blank? ? secondary_description : self.meta_description
+    end
 
     # Returns the parsed document links
     def links
@@ -135,5 +141,11 @@ module MetaInspector
     def remove_mailto(links)
       links.reject {|l| l.index('mailto')}
     end
+    
+    # Look for the first <p> block with 120 characters or more
+    def secondary_description
+      (p = parsed_document.search('//p').first(4).map(&:text).select{|p| p.length > 120}.first).blank? ? '' : p.text
+    end
+    
   end
 end
