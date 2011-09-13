@@ -27,7 +27,7 @@ module MetaInspector
     # A description getter that first checks for a meta description and if not present will 
     # guess by looking grabbing the first paragraph > 120 characters
     def description
-      self.meta_description.blank? ? secondary_description : self.meta_description
+      self.meta_description.nil? ? secondary_description : self.meta_description
     end
 
     # Returns the parsed document links
@@ -144,7 +144,7 @@ module MetaInspector
     
     # Look for the first <p> block with 120 characters or more
     def secondary_description
-      (p = parsed_document.search('//p').first(4).map(&:text).select{ |p| p.length > 120 }.first).blank? ? '' : p.text
+      (p = parsed_document.search('//p').map(&:text).select{ |p| p.length > 120 }.first).nil? ? '' : p
     end
     
   end
