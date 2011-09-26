@@ -25,7 +25,8 @@ describe MetaInspector do
     FakeWeb.register_uri(:get, "http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/", :response => fixture_file("theonion.com.response"))
     FakeWeb.register_uri(:get, "http://www.iteh.at", :response => fixture_file("iteh.at.response"))
     FakeWeb.register_uri(:get, "http://www.tea-tron.com/jbravo/blog/", :response => fixture_file("tea-tron.com.response"))
-
+    FakeWeb.register_uri(:get, "http://www.guardian.co.uk/media/pda/2011/sep/15/techcrunch-arrington-startups", :response => fixture_file("gardian.co.uk.response"))
+    
     EXPECTED_TITLE = 'PageRankAlert.com :: Track your PageRank changes'
 
     before(:each) do
@@ -49,6 +50,12 @@ describe MetaInspector do
     it "should find all page images" do 
       @m.absolute_images == ["http://pagerankalert.com/images/pagerank_alert.png?1309512337"]
       @m.images == ["/images/pagerank_alert.png?1309512337"]
+    end
+    
+    it "should handle malformed image tags" do 
+      # There is an image tag without a source. The scraper should not fatal. 
+      @m = MetaInspector.new("http://www.guardian.co.uk/media/pda/2011/sep/15/techcrunch-arrington-startups")
+      @m.images
     end
 
     it "should have a Nokogiri::HTML::Document as parsed_document" do

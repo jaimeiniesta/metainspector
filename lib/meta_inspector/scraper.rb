@@ -32,7 +32,9 @@ module MetaInspector
     end
     
     def images
-      @data.images ||= parsed_document.search('//img').map{ |i| i.attributes['src'].value }.uniq
+      @data.images ||= parsed_document.search('//img')
+                                      .reject{|i| i.attributes['src'].blank? }
+                                      .map{ |i| i.attributes['src'].value }.uniq
     end
 
     # Returns the links converted to absolute urls
