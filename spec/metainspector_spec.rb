@@ -52,10 +52,10 @@ describe MetaInspector do
       @m.images == ["/images/pagerank_alert.png?1309512337"]
     end
 
-    it "should handle malformed image tags" do
+    it "should ignore malformed image tags" do
       # There is an image tag without a source. The scraper should not fatal.
       @m = MetaInspector.new("http://www.guardian.co.uk/media/pda/2011/sep/15/techcrunch-arrington-startups")
-      @m.images
+      @m.images.size.should == 11
     end
 
     it "should have a Nokogiri::HTML::Document as parsed_document" do
