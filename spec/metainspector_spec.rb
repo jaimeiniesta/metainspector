@@ -76,7 +76,19 @@ describe MetaInspector do
       @m.feed.should == 'http://www.tea-tron.com/jbravo/blog/feed/'
     end
   end
-
+  
+  context 'Page with missing meta description' do
+    FakeWeb.register_uri(:get, "http://theonion-no-description.com", :response => fixture_file("theonion-no-description.com.response"))
+    
+    it "should find secondary description" do 
+      @m = MetaInspector.new('http://theonion-no-description.com')
+      @m.description == "SAN FRANCISCO&#8212;In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday,"+
+      " an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description."
+    end
+    
+  end
+  
+  
   context 'Links' do
     before(:each) do
       @m = MetaInspector.new('http://pagerankalert.com')

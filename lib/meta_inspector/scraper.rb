@@ -21,7 +21,13 @@ module MetaInspector
     # Returns the parsed document title, from the content of the <title> tag.
     # This is not the same as the meta_tite tag
     def title
-      @data.title ||= parsed_document.css('title').inner_html rescue nil
+      @data.title ||= parsed_document.css('title').inner_html.gsub(/\t|\n|\r/, '') rescue nil
+    end
+    
+    # A description getter that first checks for a meta description and if not present will 
+    # guess by looking grabbing the first paragraph > 120 characters
+    def description
+      self.meta_description.nil? ? secondary_description : self.meta_description
     end
 
     # Returns the parsed document links
@@ -137,5 +143,11 @@ module MetaInspector
     def remove_mailto(links)
       links.reject {|l| l.index('mailto')}
     end
+    
+    # Look for the first <p> block with 120 characters or more
+    def secondary_description
+      (p = parsed_document.search('//p').map(&:text).select{ |p| p.length > 120 }.first).nil? ? '' : p
+    end
+    
   end
 end
