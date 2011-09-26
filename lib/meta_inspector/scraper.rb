@@ -23,11 +23,11 @@ module MetaInspector
     def title
       @data.title ||= parsed_document.css('title').inner_html.gsub(/\t|\n|\r/, '') rescue nil
     end
-    
-    # A description getter that first checks for a meta description and if not present will 
+
+    # A description getter that first checks for a meta description and if not present will
     # guess by looking grabbing the first paragraph > 120 characters
     def description
-      self.meta_description.nil? ? secondary_description : self.meta_description
+      meta_description.nil? ? secondary_description : meta_description
     end
 
     # Returns the parsed document links
@@ -36,7 +36,7 @@ module MetaInspector
                                 .map {|link| link.attributes["href"] \
                                 .to_s.strip}.uniq) rescue nil
     end
-    
+
     def images
       @data.images ||= parsed_document.search('//img')
                                       .reject{|i| i.attributes['src'].blank? }
@@ -47,7 +47,7 @@ module MetaInspector
     def absolute_links
       @data.absolute_links ||= links.map { |l| absolutify_url(l) }
     end
-    
+
     def absolute_images
       @data.absolute_images ||= images.map{ |i| absolutify_url(i) }
     end
@@ -143,11 +143,11 @@ module MetaInspector
     def remove_mailto(links)
       links.reject {|l| l.index('mailto')}
     end
-    
+
     # Look for the first <p> block with 120 characters or more
     def secondary_description
       (p = parsed_document.search('//p').map(&:text).select{ |p| p.length > 120 }.first).nil? ? '' : p
     end
-    
+
   end
 end
