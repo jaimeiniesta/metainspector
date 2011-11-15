@@ -8,6 +8,8 @@ Install the gem from RubyGems:
 
   gem install metainspector
 
+This gem is tested on Ruby versions 1.8.7, 1.9.2 and 1.9.3.
+
 = Usage
 
 Initialize a scraper instance for an URL, like this:
@@ -99,6 +101,7 @@ You're welcome to fork this project and send pull requests. I want to thank spec
 
 * Ryan Romanchuk https://github.com/rromanchuk
 * Edmund Haselwanter https://github.com/ehaselwanter
+* Jonathan Hernández https://github.com/ionmx
 
 = To Do
 
