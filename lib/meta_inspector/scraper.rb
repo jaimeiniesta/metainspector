@@ -37,8 +37,8 @@ module MetaInspector
     end
 
     def images
-      @data.images ||= parsed_document.search('//img')
-                                      .reject{|i| i.attributes['src'].blank? }
+      @data.images ||= parsed_document.search('//img') \
+                                      .reject{|i| i.attributes['src'].blank? } \
                                       .map{ |i| i.attributes['src'].value }.uniq
     end
 
