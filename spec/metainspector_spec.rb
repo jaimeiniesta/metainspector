@@ -17,6 +17,11 @@ describe MetaInspector do
       @m = MetaInspector.new('pagerankalert.com')
       @m.url.should == 'http://pagerankalert.com'
     end
+
+    it "should store the scheme" do
+      MetaInspector.new('http://pagerankalert.com').scheme.should   == 'http'
+      MetaInspector.new('https://pagerankalert.com').scheme.should  == 'https'
+    end
   end
 
   context 'Doing a basic scrape' do
@@ -76,19 +81,19 @@ describe MetaInspector do
       @m.feed.should == 'http://www.tea-tron.com/jbravo/blog/feed/'
     end
   end
-  
+
   context 'Page with missing meta description' do
     FakeWeb.register_uri(:get, "http://theonion-no-description.com", :response => fixture_file("theonion-no-description.com.response"))
-    
-    it "should find secondary description" do 
+
+    it "should find secondary description" do
       @m = MetaInspector.new('http://theonion-no-description.com')
       @m.description == "SAN FRANCISCO&#8212;In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday,"+
       " an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description."
     end
-    
+
   end
-  
-  
+
+
   context 'Links' do
     before(:each) do
       @m = MetaInspector.new('http://pagerankalert.com')
@@ -118,6 +123,28 @@ describe MetaInspector do
                                   ]
     end
   end
+
+
+  context 'Protocol-relative URLs' do
+    FakeWeb.register_uri(:get, "http://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
+    FakeWeb.register_uri(:get, "https://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
+
+    before(:each) do
+      @m_http   = MetaInspector.new('http://protocol-relative.com')
+      @m_https  = MetaInspector.new('https://protocol-relative.com')
+    end
+
+    it "should convert protocol-relative links to http" do
+      @m_http.absolute_links.should include('http://protocol-relative.com/contact')
+      @m_http.absolute_links.should include('http://yahoo.com')
+    end
+
+    it "should convert protocol-relative links to https" do
+      @m_https.absolute_links.should include('https://protocol-relative.com/contact')
+      @m_https.absolute_links.should include('https://yahoo.com')
+    end
+  end
+
 
   context 'Getting meta tags by ghost methods' do
     before(:each) do

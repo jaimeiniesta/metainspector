@@ -9,12 +9,13 @@ require 'hashie/rash'
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
-    attr_reader :url
+    attr_reader :url, :scheme
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
     def initialize(url)
-      @url = URI.parse(url).scheme.nil? ? 'http://' + url : url
-      @data = Hashie::Rash.new('url' => @url)
+      @url    = URI.parse(url).scheme.nil? ? 'http://' + url : url
+      @scheme = URI.parse(url).scheme || 'http'
+      @data   = Hashie::Rash.new('url' => @url)
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -44,7 +45,7 @@ module MetaInspector
 
     # Returns the links converted to absolute urls
     def absolute_links
-      @data.absolute_links ||= links.map { |l| absolutify_url(l) }
+      @data.absolute_links ||= links.map { |l| absolutify_url(unrelativize_url(l)) }
     end
 
     def absolute_images
@@ -135,6 +136,11 @@ module MetaInspector
     # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
     def absolutify_url(url)
       url =~ /^http.*/ ? url : File.join(@url,url)
+    end
+
+    # Convert a protocol-relative url to its full form, depending on the scheme of the page that contains it
+    def unrelativize_url(url)
+      url =~ /^\/\// ? "#{scheme}://#{url[2..-1]}" : url
     end
 
     # Remove mailto links

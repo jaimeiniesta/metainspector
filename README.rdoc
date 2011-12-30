@@ -28,6 +28,7 @@ by defaul:
 Then you can see the scraped data like this:
 
   page.url                # URL of the page
+  page.scheme             # Scheme of the page (http, https)
   page.title              # title of the page, as string
   page.links              # array of strings, with every link found on the page
   page.absolute_links     # array of all the links converted to absolute urls
