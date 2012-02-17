@@ -1,5 +1,6 @@
 # A basic spider that will follow links on an infinite loop
 $: << File.join(File.dirname(__FILE__), "/../lib")
+require 'rubygems'
 require 'meta_inspector'
 
 q = Queue.new
