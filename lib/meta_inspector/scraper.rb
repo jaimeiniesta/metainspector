@@ -86,8 +86,9 @@ module MetaInspector
     def parsed_document
       @parsed_document ||= Nokogiri::HTML(document)
 
-      rescue
+      rescue Exception => e
         warn 'An exception occurred while trying to scrape the page!'
+        warn e.message
     end
 
     # Returns the original, unparsed document
@@ -99,8 +100,9 @@ module MetaInspector
         @scraped = false
       rescue TimeoutError
         warn 'Timeout!!!'
-      rescue
+      rescue Exception => e
         warn 'An exception occurred while trying to fetch the page!'
+        warn e.message
     end
 
     # Scrapers for all meta_tags in the form of "meta_name" are automatically defined. This has been tested for
