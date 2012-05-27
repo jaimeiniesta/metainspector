@@ -100,9 +100,11 @@ module MetaInspector
         @scraped = false
       rescue TimeoutError
         warn 'Timeout!!!'
+        @scraped = false
       rescue Exception => e
         warn 'An exception occurred while trying to fetch the page!'
         warn e.message
+        @scraped = false
     end
 
     # Scrapers for all meta_tags in the form of "meta_name" are automatically defined. This has been tested for
