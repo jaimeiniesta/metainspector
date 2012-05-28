@@ -3,7 +3,6 @@
 require 'open-uri'
 require 'nokogiri'
 require 'charguess'
-require 'iconv'
 require 'hashie/rash'
 
 # MetaInspector provides an easy way to scrape web pages and get its elements
