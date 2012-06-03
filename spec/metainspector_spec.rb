@@ -12,6 +12,7 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "http://www.guardian.co.uk/media/pda/2011/sep/15/techcrunch-arrington-startups", :response => fixture_file("guardian.co.uk.response"))
   FakeWeb.register_uri(:get, "http://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
   FakeWeb.register_uri(:get, "https://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
+  FakeWeb.register_uri(:get, "http://example.com/nonhttp", :response => fixture_file("nonhttp.response"))
 
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
@@ -100,6 +101,7 @@ describe MetaInspector do
                           "/es?language=es",
                           "/users/sign_up",
                           "/users/sign_in",
+                          "mailto:pagerankalert@gmail.com",
                           "http://pagerankalert.posterous.com",
                           "http://twitter.com/pagerankalert",
                           "http://twitter.com/share"
@@ -112,10 +114,32 @@ describe MetaInspector do
                                     "http://pagerankalert.com/es?language=es",
                                     "http://pagerankalert.com/users/sign_up",
                                     "http://pagerankalert.com/users/sign_in",
+                                    "mailto:pagerankalert@gmail.com",
                                     "http://pagerankalert.posterous.com",
                                     "http://twitter.com/pagerankalert",
                                     "http://twitter.com/share"
                                   ]
+    end
+  end
+
+  describe 'Non-HTTP links' do
+    before(:each) do
+      @m = MetaInspector.new('http://example.com/nonhttp')
+    end
+
+    it "should get the links" do
+      @m.links.sort.should == [
+                                "FTP://FTP.CDROM.COM",
+                                "ftp://ftp.cdrom.com",
+                                "javascript:alert('hey');",
+                                "mailto:user@example.com",
+                                "skype:joeuser?call",
+                                "telnet://telnet.cdrom.com"
+                              ]
+    end
+
+    it "should return the same links as absolute links do" do
+      @m.absolute_links.should == @m.links
     end
   end
 
@@ -202,7 +226,7 @@ describe MetaInspector do
   describe 'to_hash' do
     it "should return a hash with all the values set" do
       @m = MetaInspector.new('http://pagerankalert.com')
-      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "links"=>["/", "/es?language=es", "/users/sign_up", "/users/sign_in", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "absolute_links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
+      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "links"=>["/", "/es?language=es", "/users/sign_up", "/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "absolute_links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
     end
   end
 end

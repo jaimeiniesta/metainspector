@@ -31,9 +31,9 @@ module MetaInspector
 
     # Returns the parsed document links
     def links
-      @data.links ||= remove_mailto(parsed_document.search("//a") \
-                                .map {|link| link.attributes["href"] \
-                                .to_s.strip}.uniq) rescue nil
+      @data.links ||= parsed_document.search("//a") \
+                        .map {|link| link.attributes["href"] \
+                        .to_s.strip}.uniq rescue nil
     end
 
     def images
@@ -137,19 +137,14 @@ module MetaInspector
     private
 
     # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
+    # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
     def absolutify_url(url)
-      url =~ /^http.*/ ? url : File.join(@url,url)
+      url =~ /^\w*\:/i ? url : File.join(@url,url)
     end
 
     # Convert a protocol-relative url to its full form, depending on the scheme of the page that contains it
     def unrelativize_url(url)
       url =~ /^\/\// ? "#{scheme}://#{url[2..-1]}" : url
-    end
-
-    # Remove mailto links
-    # TODO: convert this to a more generic filter to remove all non-http[s] like ftp, telnet, etc.
-    def remove_mailto(links)
-      links.reject {|l| l.index('mailto')}
     end
 
     # Look for the first <p> block with 120 characters or more
