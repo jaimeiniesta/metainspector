@@ -3,11 +3,17 @@
 require File.join(File.dirname(__FILE__), "/spec_helper")
 
 describe MetaInspector do
+  FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
+  FakeWeb.register_uri(:get, "http://www.alazan.com", :response => fixture_file("alazan.com.response"))
+  FakeWeb.register_uri(:get, "http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/", :response => fixture_file("theonion.com.response"))
+  FakeWeb.register_uri(:get, "http://theonion-no-description.com", :response => fixture_file("theonion-no-description.com.response"))
+  FakeWeb.register_uri(:get, "http://www.iteh.at", :response => fixture_file("iteh.at.response"))
+  FakeWeb.register_uri(:get, "http://www.tea-tron.com/jbravo/blog/", :response => fixture_file("tea-tron.com.response"))
+  FakeWeb.register_uri(:get, "http://www.guardian.co.uk/media/pda/2011/sep/15/techcrunch-arrington-startups", :response => fixture_file("guardian.co.uk.response"))
+  FakeWeb.register_uri(:get, "http://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
+  FakeWeb.register_uri(:get, "https://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
 
-  context 'Initialization' do
-
-    FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
-
+  describe 'Initialization' do
     it 'should accept an URL with a scheme' do
       @m = MetaInspector.new('http://pagerankalert.com')
       @m.url.should == 'http://pagerankalert.com'
@@ -24,14 +30,7 @@ describe MetaInspector do
     end
   end
 
-  context 'Doing a basic scrape' do
-
-    FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
-    FakeWeb.register_uri(:get, "http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/", :response => fixture_file("theonion.com.response"))
-    FakeWeb.register_uri(:get, "http://www.iteh.at", :response => fixture_file("iteh.at.response"))
-    FakeWeb.register_uri(:get, "http://www.tea-tron.com/jbravo/blog/", :response => fixture_file("tea-tron.com.response"))
-    FakeWeb.register_uri(:get, "http://www.guardian.co.uk/media/pda/2011/sep/15/techcrunch-arrington-startups", :response => fixture_file("guardian.co.uk.response"))
-
+  describe 'Doing a basic scrape' do
     EXPECTED_TITLE = 'PageRankAlert.com :: Track your PageRank changes'
 
     before(:each) do
@@ -82,19 +81,15 @@ describe MetaInspector do
     end
   end
 
-  context 'Page with missing meta description' do
-    FakeWeb.register_uri(:get, "http://theonion-no-description.com", :response => fixture_file("theonion-no-description.com.response"))
-
+  describe 'Page with missing meta description' do
     it "should find secondary description" do
       @m = MetaInspector.new('http://theonion-no-description.com')
       @m.description == "SAN FRANCISCO&#8212;In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday,"+
       " an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description."
     end
-
   end
 
-
-  context 'Links' do
+  describe 'Links' do
     before(:each) do
       @m = MetaInspector.new('http://pagerankalert.com')
     end
@@ -124,11 +119,7 @@ describe MetaInspector do
     end
   end
 
-
-  context 'Protocol-relative URLs' do
-    FakeWeb.register_uri(:get, "http://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
-    FakeWeb.register_uri(:get, "https://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
-
+  describe 'Protocol-relative URLs' do
     before(:each) do
       @m_http   = MetaInspector.new('http://protocol-relative.com')
       @m_https  = MetaInspector.new('https://protocol-relative.com')
@@ -145,8 +136,7 @@ describe MetaInspector do
     end
   end
 
-
-  context 'Getting meta tags by ghost methods' do
+  describe 'Getting meta tags by ghost methods' do
     before(:each) do
       @m = MetaInspector.new('http://pagerankalert.com')
     end
@@ -197,32 +187,22 @@ describe MetaInspector do
 
   end
 
-  context 'Charset detection' do
-
-    FakeWeb.register_uri(:get, "http://www.pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
-    FakeWeb.register_uri(:get, "http://www.alazan.com", :response => fixture_file("alazan.com.response"))
-
+  describe 'Charset detection' do
     it "should detect windows-1252 charset" do
       @m = MetaInspector.new('http://www.alazan.com')
       @m.charset.should == "windows-1252"
     end
 
     it "should detect utf-8 charset" do
-      @m = MetaInspector.new('http://www.pagerankalert.com')
+      @m = MetaInspector.new('http://pagerankalert.com')
       @m.charset.should == "utf-8"
     end
   end
 
-  context 'to_hash' do
-
-    FakeWeb.register_uri(:get, "http://www.pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
-
+  describe 'to_hash' do
     it "should return a hash with all the values set" do
-      @m = MetaInspector.new('http://www.pagerankalert.com')
-      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://www.pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "links"=>["/", "/es?language=es", "/users/sign_up", "/users/sign_in", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "absolute_links"=>["http://www.pagerankalert.com/", "http://www.pagerankalert.com/es?language=es", "http://www.pagerankalert.com/users/sign_up", "http://www.pagerankalert.com/users/sign_in", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
+      @m = MetaInspector.new('http://pagerankalert.com')
+      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "links"=>["/", "/es?language=es", "/users/sign_up", "/users/sign_in", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "absolute_links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
     end
-
   end
-
-
 end
