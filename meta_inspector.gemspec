@@ -14,7 +14,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = MetaInspector::VERSION
 
-  gem.add_dependency 'nokogiri', '1.5.3'
+  gem.add_dependency 'nokogiri', '~> 1.5'
   gem.add_dependency 'charguess', '1.3.20111021164500'
   gem.add_dependency 'rash', '0.3.2'
 
