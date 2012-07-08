@@ -15,6 +15,8 @@ module MetaInspector
       @url    = URI.parse(url).scheme.nil? ? 'http://' + url : url
       @scheme = URI.parse(url).scheme || 'http'
       @data   = Hashie::Rash.new('url' => @url)
+      @parsed = false
+      @errors = []
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -84,7 +86,7 @@ module MetaInspector
     # Returns the whole parsed document
     def parsed_document
       @parsed_document ||= Nokogiri::HTML(document)
-
+      @parsed = true
       rescue Exception => e
         warn 'An exception occurred while trying to scrape the page!'
         warn e.message
@@ -95,15 +97,11 @@ module MetaInspector
       @document ||= open(@url).read
 
       rescue SocketError
-        warn 'MetaInspector exception: The url provided does not exist or is temporarily unavailable (socket error)'
-        @scraped = false
+        add_fatal_error 'MetaInspector exception: The url provided does not exist or is temporarily unavailable (socket error)'
       rescue TimeoutError
-        warn 'Timeout!!!'
-        @scraped = false
+        add_fatal_error 'Timeout!!!'
       rescue Exception => e
-        warn 'An exception occurred while trying to fetch the page!'
-        warn e.message
-        @scraped = false
+        add_fatal_error 'An exception occurred while trying to fetch the page!'
     end
 
     # Scrapers for all meta_tags in the form of "meta_name" are automatically defined. This has been tested for
@@ -136,6 +134,12 @@ module MetaInspector
 
     private
 
+    def add_fatal_error(error)
+      warn error
+      @scraped = false
+      @errors << error
+    end
+    
     # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
     # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
     def absolutify_url(url)
