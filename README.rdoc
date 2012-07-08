@@ -14,11 +14,11 @@ This gem is tested on Ruby versions 1.8.7, 1.9.2 and 1.9.3.
 
 Initialize a scraper instance for an URL, like this:
 
-  page = MetaInspector::Scraper.new('http://pagerankalert.com')
+  page = MetaInspector::Scraper.new('http://w3clove.com')
 
 or, for short, a convenience alias is also available:
 
-  page = MetaInspector.new('http://pagerankalert.com')
+  page = MetaInspector.new('http://w3clove.com')
 
 If you don't include the scheme on the URL, http:// will be used
 by defaul:
@@ -58,7 +58,7 @@ Please notice that MetaInspector is case sensitive, so page.meta_Content_Type is
 
 You can also access most of the scraped data as a hash:
 
-  page.to_hash               # { "url"=>"http://pagerankalert.com", "title" => "PageRankAlert.com", ... }
+  page.to_hash               # { "url"=>"http://w3clove.com", "title" => "W3CLove :: site-wide markup validation tool", ... }
 
 The full scraped document if accessible from:
 
@@ -72,23 +72,23 @@ You can find some sample scripts on the samples folder, including a basic scrapi
   >> require 'metainspector'
   => true
 
-  >> page = MetaInspector.new('http://pagerankalert.com')
-  => #<MetaInspector:0x11330c0 @url="http://pagerankalert.com">
+  >> page = MetaInspector.new('http://w3clove.com')
+  => #<MetaInspector:0x11330c0 @url="http://w3clove.com">
 
   >> page.title
-  => "PageRankAlert.com :: Track your PageRank changes"
+  => "W3CLove :: site-wide markup validation tool"
 
   >> page.meta_description
-  => "Track your PageRank(TM) changes and receive alerts by email"
+  => "Site-wide markup validation tool. Validate the markup of your whole site with just one click."
 
   >> page.meta_keywords
-  => "pagerank, seo, optimization, google"
+  => "html, markup, validation, validator, tool, w3c, development, standards, free"
 
   >> page.links.size
-  => 8
+  => 15
 
-  >> page.links[5]
-  => "http://pagerankalert.posterous.com"
+  >> page.links[4]
+  => "/plans-and-pricing"
 
   >> page.document.class
   => String
@@ -103,6 +103,7 @@ You're welcome to fork this project and send pull requests. I want to thank spec
 * Ryan Romanchuk https://github.com/rromanchuk
 * Edmund Haselwanter https://github.com/ehaselwanter
 * Jonathan Hernández https://github.com/ionmx
+* Oriol Gual https://github.com/oriolgual
 
 = To Do
 
