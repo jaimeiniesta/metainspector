@@ -23,7 +23,7 @@ or, for short, a convenience alias is also available:
 If you don't include the scheme on the URL, http:// will be used
 by defaul:
 
-  page = MetaInspector.new('pagerankalert.com')
+  page = MetaInspector.new('w3clove.com')
 
 Then you can see the scraped data like this:
 
