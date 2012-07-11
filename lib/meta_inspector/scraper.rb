@@ -4,6 +4,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'charguess'
 require 'hashie/rash'
+require 'timeout'
 
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
@@ -11,10 +12,11 @@ module MetaInspector
     attr_reader :url, :scheme
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
-    def initialize(url)
-      @url    = URI.parse(url).scheme.nil? ? 'http://' + url : url
-      @scheme = URI.parse(url).scheme || 'http'
-      @data   = Hashie::Rash.new('url' => @url)
+    def initialize(url, timeout = 20)
+      @url      = URI.parse(url).scheme.nil? ? 'http://' + url : url
+      @scheme   = URI.parse(url).scheme || 'http'
+      @timeout  = timeout
+      @data     = Hashie::Rash.new('url' => @url)
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -92,7 +94,7 @@ module MetaInspector
 
     # Returns the original, unparsed document
     def document
-      @document ||= open(@url).read
+      @document ||= Timeout::timeout(@timeout) { open(@url).read }
 
       rescue SocketError
         warn 'MetaInspector exception: The url provided does not exist or is temporarily unavailable (socket error)'

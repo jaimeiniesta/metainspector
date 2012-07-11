@@ -25,6 +25,11 @@ by defaul:
 
   page = MetaInspector.new('w3clove.com')
 
+By default, MetaInspector times out after 20 seconds of waiting for a page to respond.
+You can set a different timeout with a second parameter, like this:
+
+  page = MetaInspector.new('w3clove.com', 5) # this would wait just 5 seconds to timeout
+
 Then you can see the scraped data like this:
 
   page.url                # URL of the page
