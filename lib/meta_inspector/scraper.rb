@@ -125,10 +125,17 @@ module MetaInspector
         unless @data.meta
           @data.meta!.name!
           @data.meta!.property!
-          parsed_document.xpath("//meta").each { |element|
-            @data.meta.name[element.attributes["name"].value.downcase] = element.attributes["content"].value if element.attributes["name"]
-            @data.meta.property[element.attributes["property"].value.downcase] = element.attributes["content"].value if element.attributes["property"]
-          }
+          parsed_document.xpath("//meta").each do |element|
+            if element.attributes["content"]
+              if element.attributes["name"]
+                @data.meta.name[element.attributes["name"].value.downcase] = element.attributes["content"].value
+              end
+
+              if element.attributes["property"]
+                @data.meta.property[element.attributes["property"].value.downcase] = element.attributes["content"].value
+              end
+            end
+          end
         end
         @data.meta.name && (@data.meta.name[key.downcase]) || (@data.meta.property && @data.meta.property[key.downcase])
       else
