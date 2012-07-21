@@ -112,9 +112,7 @@ You're welcome to fork this project and send pull requests. I want to thank spec
 
 * Get page.base_dir from the URL
 * Distinguish between external and internal links, returning page.links for all of them as found, page.external_links and page.internal_links converted to absolute URLs
-* Be able to set a timeout in seconds
 * If keywords seem to be separated by blank spaces, replace them with commas
-* Mocks
 * Check content type, process only HTML pages, don't try to scrape TAR files like http://ftp.ruby-lang.org/pub/ruby/ruby-1.9.1-p129.tar.bz2 or video files like http://isabel.dit.upm.es/component/option,com_docman/task,doc_download/gid,831/Itemid,74/
 * Autodiscover all available meta tags
 
