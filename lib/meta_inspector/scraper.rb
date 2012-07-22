@@ -9,7 +9,7 @@ require 'timeout'
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
-    attr_reader :url, :scheme
+    attr_reader :url, :scheme, :errors
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
 
@@ -85,6 +85,11 @@ module MetaInspector
       @data.to_hash
     end
 
+    # Returns true if parsing has been successful
+    def parsed?
+      !@parsed_document.nil?
+    end
+
     # Returns the whole parsed document
     def parsed_document
       @parsed_document ||= Nokogiri::HTML(document)
@@ -141,9 +146,8 @@ module MetaInspector
 
     private
 
-    # Warns about the error and stores it
+    # Stores the error for later inspection
     def add_fatal_error(error)
-      warn error
       @errors << error
     end
 

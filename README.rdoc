@@ -67,6 +67,16 @@ The full scraped document if accessible from:
 
   page.document # Nokogiri doc that you can use it to get any element from the page
 
+= Errors handling
+
+You can check if the page has been succesfully parsed with:
+
+  page.parsed?                # Will return true if everything looks OK
+
+In case there have been any errors, you can check them with:
+
+  page.errors                 # Will return an array with the error messages
+
 = Examples
 
 You can find some sample scripts on the samples folder, including a basic scraping and a spider that will follow external links using a queue. What follows is an example of use from irb:

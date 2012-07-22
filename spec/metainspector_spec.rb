@@ -231,6 +231,52 @@ describe MetaInspector do
     end
   end
 
+  describe 'exception handling' do
+    before(:each) do
+      FakeWeb.allow_net_connect = true
+    end
+
+    after(:each) do
+      FakeWeb.allow_net_connect = false
+    end
+
+    it "should handle timeouts" do
+      impatient = MetaInspector.new('http://w3clove.com', 0.0000000000001)
+
+      expect {
+        title = impatient.title
+      }.to change { impatient.errors.size }
+
+      impatient.errors.first.should == "Timeout!!!"
+    end
+
+    it "should handle socket errors" do
+      nowhere = MetaInspector.new('http://caca232dsdsaer3sdsd-asd343.org')
+
+      expect {
+        title = nowhere.title
+      }.to change { nowhere.errors.size }
+
+      nowhere.errors.first.should == "Socket error: The url provided does not exist or is temporarily unavailable"
+    end
+
+    describe "parsed?" do
+      it "should return true if we have a parsed document" do
+        good  = MetaInspector.new('http://w3clove.com')
+        title = good.title
+
+        good.parsed?.should == true
+      end
+
+      it "should return false if we don't have a parsed document" do
+        bad  = MetaInspector.new('http://fdsfdferewrewewewdesdf.com', 0.00000000000001)
+        title = bad.title
+
+        bad.parsed?.should == false
+      end
+    end
+  end
+
   describe "regression tests" do
     describe "get image" do
       it "should find image on youtube" do
