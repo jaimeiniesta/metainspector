@@ -18,7 +18,6 @@ module MetaInspector
       @scheme   = URI.parse(url).scheme || 'http'
       @timeout  = timeout
       @data     = Hashie::Rash.new('url' => @url)
-      @parsed   = false
       @errors   = []
     end
 
@@ -89,10 +88,8 @@ module MetaInspector
     # Returns the whole parsed document
     def parsed_document
       @parsed_document ||= Nokogiri::HTML(document)
-      @parsed = true
       rescue Exception => e
-        warn 'An exception occurred while trying to scrape the page!'
-        warn e.message
+        add_fatal_error "Parsing exception: #{e.message}"
     end
 
     # Returns the original, unparsed document
@@ -100,11 +97,11 @@ module MetaInspector
       @document ||= Timeout::timeout(@timeout) { open(@url).read }
 
       rescue SocketError
-        add_fatal_error 'MetaInspector exception: The url provided does not exist or is temporarily unavailable (socket error)'
+        add_fatal_error 'Socket error: The url provided does not exist or is temporarily unavailable'
       rescue TimeoutError
         add_fatal_error 'Timeout!!!'
       rescue Exception => e
-        add_fatal_error 'An exception occurred while trying to fetch the page!'
+        add_fatal_error "Scraping exception: #{e.message}"
     end
 
     # Scrapers for all meta_tags in the form of "meta_name" are automatically defined. This has been tested for
@@ -144,9 +141,9 @@ module MetaInspector
 
     private
 
+    # Warns about the error and stores it
     def add_fatal_error(error)
       warn error
-      @scraped = false
       @errors << error
     end
 
