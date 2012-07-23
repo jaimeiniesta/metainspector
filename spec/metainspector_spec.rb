@@ -15,6 +15,7 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "http://example.com/nonhttp", :response => fixture_file("nonhttp.response"))
   FakeWeb.register_uri(:get, "http://www.youtube.com/watch?v=iaGSSrp49uc", :response => fixture_file("youtube.response"))
   FakeWeb.register_uri(:get, "http://w3clove.com/faqs", :response => fixture_file("w3clove_faqs.response"))
+  FakeWeb.register_uri(:get, "https://twitter.com/w3clove", :response => fixture_file("twitter_w3clove.response"))
 
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
@@ -58,14 +59,28 @@ describe MetaInspector do
       @m.image.should == nil
     end
 
-    it "should find an image" do
-      @m = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
-      @m.image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
-      @m.meta_og_image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
+    describe "get image" do
+      it "should find the og image" do
+        @m = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
+        @m.image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
+        @m.meta_og_image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
+      end
+
+      it "should find image on youtube" do
+        MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc').image.should == "http://i2.ytimg.com/vi/iaGSSrp49uc/mqdefault.jpg"
+      end
     end
 
-    it "should find all page images" do
-      @m.images == ["http://pagerankalert.com/images/pagerank_alert.png?1309512337"]
+    describe "get images" do
+      it "should find all page images" do
+        @m.images == ["http://pagerankalert.com/images/pagerank_alert.png?1309512337"]
+      end
+
+      it "should find images on twitter" do
+        m = MetaInspector.new('https://twitter.com/w3clove')
+        m.images.length.should == 6
+        m.images.join("; ").should == "https://twimg0-a.akamaihd.net/profile_images/2380086215/fcu46ozay5f5al9kdfvq_reasonably_small.png; https://twimg0-a.akamaihd.net/profile_images/2380086215/fcu46ozay5f5al9kdfvq_normal.png; https://twimg0-a.akamaihd.net/profile_images/2293774732/v0pgo4xpdd9rou2xq5h0_normal.png; https://twimg0-a.akamaihd.net/profile_images/1538528659/jaime_nov_08_normal.jpg; https://si0.twimg.com/sticky/default_profile_images/default_profile_6_mini.png; https://twimg0-a.akamaihd.net/a/1342841381/images/bigger_spinner.gif"
+      end
     end
 
     it "should ignore malformed image tags" do
@@ -90,6 +105,12 @@ describe MetaInspector do
     it "should get atom feed" do
       @m = MetaInspector.new('http://www.tea-tron.com/jbravo/blog/')
       @m.feed.should == 'http://www.tea-tron.com/jbravo/blog/feed/'
+    end
+
+    describe "get description" do
+      it "should find description on youtube" do
+        MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc').description.should == ""
+      end
     end
   end
 
@@ -295,17 +316,4 @@ describe MetaInspector do
     end
   end
 
-  describe "regression tests" do
-    describe "get image" do
-      it "should find image on youtube" do
-        MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc').image.should == "http://i2.ytimg.com/vi/iaGSSrp49uc/mqdefault.jpg"
-      end
-    end
-
-    describe "get description" do
-      it "should find description on youtube" do
-        MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc').description.should == ""
-      end
-    end
-  end
 end

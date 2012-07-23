@@ -154,12 +154,13 @@ module MetaInspector
 
     def parsed_images
       @parsed_images ||= parsed_document.search('//img') \
-                                        .reject{|i| i.attributes['src'].blank? } \
+                                        .reject{|i| (i.attributes['src'].nil? || i.attributes['src'].value.empty?) } \
                                         .map{ |i| i.attributes['src'].value }.uniq
     end
 
     # Stores the error for later inspection
     def add_fatal_error(error)
+      warn error
       @errors << error
     end
 
