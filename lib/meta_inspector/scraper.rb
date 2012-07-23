@@ -35,26 +35,24 @@ module MetaInspector
       meta_description.nil? ? secondary_description : meta_description
     end
 
-    # Returns the parsed document links
+    # Links found on the page, as absolute URLs
     def links
-      @data.links ||= parsed_document.search("//a") \
-                        .map {|link| link.attributes["href"] \
-                        .to_s.strip}.uniq rescue nil
+      @data.links ||= parsed_links.map { |l| absolutify_url(unrelativize_url(l)) }
     end
 
-    def images
-      @data.images ||= parsed_document.search('//img') \
-                                      .reject{|i| i.attributes['src'].blank? } \
-                                      .map{ |i| i.attributes['src'].value }.uniq
-    end
-
-    # Returns the links converted to absolute urls
     def absolute_links
-      @data.absolute_links ||= links.map { |l| absolutify_url(unrelativize_url(l)) }
+      warn "absolute_links is deprecated since 1.9.4 and will be removed, use links instead"
+      links
+    end
+
+    # Images found on the page, as absolute URLs
+    def images
+      @data.images ||= parsed_images.map{ |i| absolutify_url(i) }
     end
 
     def absolute_images
-      @data.absolute_images ||= images.map{ |i| absolutify_url(i) }
+      warn "absolute_images is deprecated since 1.9.4 and will be removed, use images instead"
+      images
     end
 
     # Returns the parsed document meta rss links
@@ -83,7 +81,7 @@ module MetaInspector
     # Returns all parsed data as a nested Hash
     def to_hash
       # TODO: find a better option to populate the data to the Hash
-      image;feed;links;charset;absolute_links;title;meta_keywords
+      image;images;feed;links;charset;title;meta_keywords
       @data.to_hash
     end
 
@@ -147,6 +145,18 @@ module MetaInspector
     end
 
     private
+
+    def parsed_links
+      @parsed_links ||= parsed_document.search("//a") \
+                        .map {|link| link.attributes["href"] \
+                        .to_s.strip}.uniq rescue nil
+    end
+
+    def parsed_images
+      @parsed_images ||= parsed_document.search('//img') \
+                                        .reject{|i| i.attributes['src'].blank? } \
+                                        .map{ |i| i.attributes['src'].value }.uniq
+    end
 
     # Stores the error for later inspection
     def add_fatal_error(error)

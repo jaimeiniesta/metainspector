@@ -65,8 +65,7 @@ describe MetaInspector do
     end
 
     it "should find all page images" do
-      @m.absolute_images == ["http://pagerankalert.com/images/pagerank_alert.png?1309512337"]
-      @m.images == ["/images/pagerank_alert.png?1309512337"]
+      @m.images == ["http://pagerankalert.com/images/pagerank_alert.png?1309512337"]
     end
 
     it "should ignore malformed image tags" do
@@ -108,56 +107,41 @@ describe MetaInspector do
     end
 
     it "should get the links" do
-      @m.links.should == [
-                          "/",
-                          "/es?language=es",
-                          "/users/sign_up",
-                          "/users/sign_in",
-                          "mailto:pagerankalert@gmail.com",
-                          "http://pagerankalert.posterous.com",
-                          "http://twitter.com/pagerankalert",
-                          "http://twitter.com/share"
-                          ]
-    end
-
-    it "should convert links to absolute urls" do
-      @m.absolute_links.should == [
-                                    "http://pagerankalert.com/",
-                                    "http://pagerankalert.com/es?language=es",
-                                    "http://pagerankalert.com/users/sign_up",
-                                    "http://pagerankalert.com/users/sign_in",
-                                    "mailto:pagerankalert@gmail.com",
-                                    "http://pagerankalert.posterous.com",
-                                    "http://twitter.com/pagerankalert",
-                                    "http://twitter.com/share"
-                                  ]
+      @m.links.should == [ "http://pagerankalert.com/",
+                           "http://pagerankalert.com/es?language=es",
+                           "http://pagerankalert.com/users/sign_up",
+                           "http://pagerankalert.com/users/sign_in",
+                           "mailto:pagerankalert@gmail.com",
+                           "http://pagerankalert.posterous.com",
+                           "http://twitter.com/pagerankalert",
+                           "http://twitter.com/share" ]
     end
 
     it "should get correct absolute links for internal pages" do
       m = MetaInspector.new('http://w3clove.com/faqs')
-      m.absolute_links.should == ["http://w3clove.com/faqs/#",
-                                  "http://w3clove.com/",
-                                  "http://w3clove.com/faqs",
-                                  "http://w3clove.com/plans-and-pricing",
-                                  "http://w3clove.com/contact",
-                                  "http://w3clove.com/charts/errors",
-                                  "http://w3clove.com/credits",
-                                  "http://w3clove.com/signin",
-                                  "http://validator.w3.org",
-                                  "http://www.sitemaps.org/",
-                                  "http://jaimeiniesta.com/",
-                                  "http://mendicantuniversity.org/",
-                                  "http://jaimeiniesta.posterous.com/rbmu-a-better-way-to-learn-ruby",
-                                  "http://majesticseacreature.com/",
-                                  "http://school.mendicantuniversity.org/alumni/2011",
-                                  "https://github.com/jaimeiniesta/w3clove",
-                                  "http://w3clove.com",
-                                  "http://w3clove.com/api_v1_reference",
-                                  "https://twitter.com/w3clove",
-                                  "http://twitter.com/share",
-                                  "http://w3clove.com/terms_of_service",
-                                  "http://twitter.com/W3CLove",
-                                  "http://us4.campaign-archive1.com/home/?u=6af3ab69c286561d0f0f25671&id=04a0dab609"]
+      m.links.should == [ "http://w3clove.com/faqs/#",
+                          "http://w3clove.com/",
+                          "http://w3clove.com/faqs",
+                          "http://w3clove.com/plans-and-pricing",
+                          "http://w3clove.com/contact",
+                          "http://w3clove.com/charts/errors",
+                          "http://w3clove.com/credits",
+                          "http://w3clove.com/signin",
+                          "http://validator.w3.org",
+                          "http://www.sitemaps.org/",
+                          "http://jaimeiniesta.com/",
+                          "http://mendicantuniversity.org/",
+                          "http://jaimeiniesta.posterous.com/rbmu-a-better-way-to-learn-ruby",
+                          "http://majesticseacreature.com/",
+                          "http://school.mendicantuniversity.org/alumni/2011",
+                          "https://github.com/jaimeiniesta/w3clove",
+                          "http://w3clove.com",
+                          "http://w3clove.com/api_v1_reference",
+                          "https://twitter.com/w3clove",
+                          "http://twitter.com/share",
+                          "http://w3clove.com/terms_of_service",
+                          "http://twitter.com/W3CLove",
+                          "http://us4.campaign-archive1.com/home/?u=6af3ab69c286561d0f0f25671&id=04a0dab609" ]
     end
   end
 
@@ -176,10 +160,6 @@ describe MetaInspector do
                                 "telnet://telnet.cdrom.com"
                               ]
     end
-
-    it "should return the same links as absolute links do" do
-      @m.absolute_links.should == @m.links
-    end
   end
 
   describe 'Protocol-relative URLs' do
@@ -189,13 +169,13 @@ describe MetaInspector do
     end
 
     it "should convert protocol-relative links to http" do
-      @m_http.absolute_links.should include('http://protocol-relative.com/contact')
-      @m_http.absolute_links.should include('http://yahoo.com')
+      @m_http.links.should include('http://protocol-relative.com/contact')
+      @m_http.links.should include('http://yahoo.com')
     end
 
     it "should convert protocol-relative links to https" do
-      @m_https.absolute_links.should include('https://protocol-relative.com/contact')
-      @m_https.absolute_links.should include('https://yahoo.com')
+      @m_https.links.should include('https://protocol-relative.com/contact')
+      @m_https.links.should include('https://yahoo.com')
     end
   end
 
@@ -265,7 +245,7 @@ describe MetaInspector do
   describe 'to_hash' do
     it "should return a hash with all the values set" do
       @m = MetaInspector.new('http://pagerankalert.com')
-      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "links"=>["/", "/es?language=es", "/users/sign_up", "/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "absolute_links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
+      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "images"=>["http://pagerankalert.com/images/pagerank_alert.png?1305794559"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
     end
   end
 
