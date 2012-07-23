@@ -9,13 +9,15 @@ require 'timeout'
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
-    attr_reader :url, :scheme, :errors
+    attr_reader :url, :scheme, :host, :root_url, :errors
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
 
     def initialize(url, timeout = 20)
       @url      = URI.parse(url).scheme.nil? ? 'http://' + url : url
       @scheme   = URI.parse(url).scheme || 'http'
+      @host     = URI.parse(url).host
+      @root_url = "#{@scheme}://#{@host}/"
       @timeout  = timeout
       @data     = Hashie::Rash.new('url' => @url)
       @errors   = []
@@ -154,7 +156,15 @@ module MetaInspector
     # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
     # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
     def absolutify_url(url)
-      url =~ /^\w*\:/i ? url : File.join(@url,url)
+      if url =~ /^\w*\:/i
+        url
+      else
+        if url[0] == "/"
+          File.join(@root_url, url)
+        else
+          File.join(@url, url)
+        end
+      end
     end
 
     # Convert a protocol-relative url to its full form, depending on the scheme of the page that contains it

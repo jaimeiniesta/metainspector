@@ -32,6 +32,8 @@ Then you can see the scraped data like this:
 
   page.url                # URL of the page
   page.scheme             # Scheme of the page (http, https)
+  page.host               # Hostname of the page (like, w3clove.com, without the scheme)
+  page.root_url           # Root url (scheme + host, like http://w3clove.com/)
   page.title              # title of the page, as string
   page.links              # array of strings, with every link found on the page
   page.absolute_links     # array of all the links converted to absolute urls

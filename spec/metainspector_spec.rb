@@ -14,6 +14,7 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "https://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
   FakeWeb.register_uri(:get, "http://example.com/nonhttp", :response => fixture_file("nonhttp.response"))
   FakeWeb.register_uri(:get, "http://www.youtube.com/watch?v=iaGSSrp49uc", :response => fixture_file("youtube.response"))
+  FakeWeb.register_uri(:get, "http://w3clove.com/faqs", :response => fixture_file("w3clove_faqs.response"))
 
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
@@ -29,6 +30,16 @@ describe MetaInspector do
     it "should store the scheme" do
       MetaInspector.new('http://pagerankalert.com').scheme.should   == 'http'
       MetaInspector.new('https://pagerankalert.com').scheme.should  == 'https'
+    end
+
+    it "should store the host" do
+      MetaInspector.new('http://pagerankalert.com').host.should   == 'pagerankalert.com'
+      MetaInspector.new('https://pagerankalert.com').host.should  == 'pagerankalert.com'
+    end
+
+    it "should store the root url" do
+      MetaInspector.new('http://pagerankalert.com').root_url.should   == 'http://pagerankalert.com/'
+      MetaInspector.new('https://pagerankalert.com').root_url.should  == 'https://pagerankalert.com/'
     end
   end
 
@@ -120,6 +131,33 @@ describe MetaInspector do
                                     "http://twitter.com/pagerankalert",
                                     "http://twitter.com/share"
                                   ]
+    end
+
+    it "should get correct absolute links for internal pages" do
+      m = MetaInspector.new('http://w3clove.com/faqs')
+      m.absolute_links.should == ["http://w3clove.com/faqs/#",
+                                  "http://w3clove.com/",
+                                  "http://w3clove.com/faqs",
+                                  "http://w3clove.com/plans-and-pricing",
+                                  "http://w3clove.com/contact",
+                                  "http://w3clove.com/charts/errors",
+                                  "http://w3clove.com/credits",
+                                  "http://w3clove.com/signin",
+                                  "http://validator.w3.org",
+                                  "http://www.sitemaps.org/",
+                                  "http://jaimeiniesta.com/",
+                                  "http://mendicantuniversity.org/",
+                                  "http://jaimeiniesta.posterous.com/rbmu-a-better-way-to-learn-ruby",
+                                  "http://majesticseacreature.com/",
+                                  "http://school.mendicantuniversity.org/alumni/2011",
+                                  "https://github.com/jaimeiniesta/w3clove",
+                                  "http://w3clove.com",
+                                  "http://w3clove.com/api_v1_reference",
+                                  "https://twitter.com/w3clove",
+                                  "http://twitter.com/share",
+                                  "http://w3clove.com/terms_of_service",
+                                  "http://twitter.com/W3CLove",
+                                  "http://us4.campaign-archive1.com/home/?u=6af3ab69c286561d0f0f25671&id=04a0dab609"]
     end
   end
 
