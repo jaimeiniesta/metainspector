@@ -259,14 +259,14 @@ describe MetaInspector do
 
     it "should detect utf-8 charset" do
       @m = MetaInspector.new('http://pagerankalert.com')
-      @m.charset.should == "utf-8"
+      @m.charset.should == "UTF-8"
     end
   end
 
   describe 'to_hash' do
     it "should return a hash with all the values set" do
       @m = MetaInspector.new('http://pagerankalert.com')
-      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "images"=>["http://pagerankalert.com/images/pagerank_alert.png?1305794559"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
+      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "images"=>["http://pagerankalert.com/images/pagerank_alert.png?1305794559"], "charset"=>"UTF-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
     end
   end
 
@@ -301,7 +301,7 @@ describe MetaInspector do
 
     describe "parsed?" do
       it "should return true if we have a parsed document" do
-        good  = MetaInspector.new('http://w3clove.com')
+        good  = MetaInspector.new('https://www.w3clove.com')
         title = good.title
 
         good.parsed?.should == true

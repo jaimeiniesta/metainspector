@@ -75,7 +75,7 @@ module MetaInspector
     # TODO: We should trust the charset expressed on the Content-Type meta tag
     # and only guess it if none given
     def charset
-      @data.charset ||= CharGuess.guess(document).downcase
+      @data.charset ||= CharGuess.guess(document)
     end
 
     # Returns all parsed data as a nested Hash
