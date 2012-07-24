@@ -2,7 +2,7 @@ MetaInspector is a gem for web scraping purposes. You give it an URL, and it let
 
 = See it in action!
 
-You can try MetaInspector live at this little demo: https://metainspector.herokuapp.com
+You can try MetaInspector live at this little demo: https://metainspectordemo.herokuapp.com
 
 = Installation
 
