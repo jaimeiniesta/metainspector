@@ -170,11 +170,7 @@ module MetaInspector
       if url =~ /^\w*\:/i
         url
       else
-        if url[0] == "/"
-          File.join(@root_url, url)
-        else
-          File.join(@url, url)
-        end
+        URI.parse(@root_url).merge(url).to_s
       end
     end
 

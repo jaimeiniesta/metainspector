@@ -5,6 +5,7 @@ require File.join(File.dirname(__FILE__), "/spec_helper")
 describe MetaInspector do
   FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
   FakeWeb.register_uri(:get, "http://www.alazan.com", :response => fixture_file("alazan.com.response"))
+  FakeWeb.register_uri(:get, "http://alazan.com/websolution.asp", :response => fixture_file("alazan_websolution.response"))
   FakeWeb.register_uri(:get, "http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/", :response => fixture_file("theonion.com.response"))
   FakeWeb.register_uri(:get, "http://theonion-no-description.com", :response => fixture_file("theonion-no-description.com.response"))
   FakeWeb.register_uri(:get, "http://www.iteh.at", :response => fixture_file("iteh.at.response"))
@@ -141,7 +142,7 @@ describe MetaInspector do
 
     it "should get correct absolute links for internal pages" do
       m = MetaInspector.new('http://w3clove.com/faqs')
-      m.links.should == [ "http://w3clove.com/faqs/#",
+      m.links.should == [ "http://w3clove.com/#",
                           "http://w3clove.com/",
                           "http://w3clove.com/faqs",
                           "http://w3clove.com/plans-and-pricing",
@@ -164,6 +165,12 @@ describe MetaInspector do
                           "http://w3clove.com/terms_of_service",
                           "http://twitter.com/W3CLove",
                           "http://us4.campaign-archive1.com/home/?u=6af3ab69c286561d0f0f25671&id=04a0dab609" ]
+    end
+
+    it "should get correct absolute links, correcting relative links from URL not ending with slash" do
+      m = MetaInspector.new('http://alazan.com/websolution.asp')
+      m.links.should == [ "http://alazan.com/index.asp",
+                          "http://alazan.com/faqs.asp" ]
     end
 
     it "should return empty array if no links found" do
