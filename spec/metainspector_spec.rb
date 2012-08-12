@@ -16,6 +16,7 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "http://www.youtube.com/watch?v=iaGSSrp49uc", :response => fixture_file("youtube.response"))
   FakeWeb.register_uri(:get, "http://w3clove.com/faqs", :response => fixture_file("w3clove_faqs.response"))
   FakeWeb.register_uri(:get, "https://twitter.com/w3clove", :response => fixture_file("twitter_w3clove.response"))
+  FakeWeb.register_uri(:get, "https://example.com/empty", :response => fixture_file("empty_page.response"))
 
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
@@ -163,6 +164,11 @@ describe MetaInspector do
                           "http://w3clove.com/terms_of_service",
                           "http://twitter.com/W3CLove",
                           "http://us4.campaign-archive1.com/home/?u=6af3ab69c286561d0f0f25671&id=04a0dab609" ]
+    end
+
+    it "should return empty array if no links found" do
+      m = MetaInspector.new('http://example.com/empty')
+      m.links.should == []
     end
   end
 

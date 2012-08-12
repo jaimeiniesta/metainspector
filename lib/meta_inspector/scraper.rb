@@ -149,7 +149,7 @@ module MetaInspector
     def parsed_links
       @parsed_links ||= parsed_document.search("//a") \
                         .map {|link| link.attributes["href"] \
-                        .to_s.strip}.uniq rescue nil
+                        .to_s.strip}.uniq rescue []
     end
 
     def parsed_images
