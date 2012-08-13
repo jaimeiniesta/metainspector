@@ -18,6 +18,7 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "http://w3clove.com/faqs", :response => fixture_file("w3clove_faqs.response"))
   FakeWeb.register_uri(:get, "https://twitter.com/w3clove", :response => fixture_file("twitter_w3clove.response"))
   FakeWeb.register_uri(:get, "https://example.com/empty", :response => fixture_file("empty_page.response"))
+  FakeWeb.register_uri(:get, "http://international.com", :response => fixture_file("international.response"))
 
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
@@ -171,6 +172,15 @@ describe MetaInspector do
       m = MetaInspector.new('http://alazan.com/websolution.asp')
       m.links.should == [ "http://alazan.com/index.asp",
                           "http://alazan.com/faqs.asp" ]
+    end
+
+    it "should get correct absolute links, encoding the URLs as needed but respecting # and ?" do
+      m = MetaInspector.new('http://international.com')
+      m.links.should == [ "http://international.com/espa%C3%B1a.asp",
+                          "http://international.com/roman%C3%A9e",
+                          "http://international.com/faqs#cami%C3%B3n",
+                          "http://international.com/search?q=cami%C3%B3n",
+                          "http://international.com/search?q=espa%C3%B1a#top"]
     end
 
     it "should return empty array if no links found" do

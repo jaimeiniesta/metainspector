@@ -170,7 +170,7 @@ module MetaInspector
       if url =~ /^\w*\:/i
         url
       else
-        URI.parse(@root_url).merge(url).to_s
+        URI.parse(@root_url).merge(URI.encode(url)).to_s.gsub("%23", "#")
       end
     end
 
