@@ -15,7 +15,6 @@ Gem::Specification.new do |gem|
   gem.version       = MetaInspector::VERSION
 
   gem.add_dependency 'nokogiri', '~> 1.5'
-  gem.add_dependency 'charguess', '1.3.20111021164500'
   gem.add_dependency 'rash', '0.3.2'
 
   gem.add_development_dependency 'rspec', '2.11.0'

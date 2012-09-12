@@ -2,7 +2,6 @@
 
 require 'open-uri'
 require 'nokogiri'
-require 'charguess'
 require 'hashie/rash'
 require 'timeout'
 
@@ -71,11 +70,11 @@ module MetaInspector
       meta_og_image
     end
 
-    # Returns the charset
-    # TODO: We should trust the charset expressed on the Content-Type meta tag
-    # and only guess it if none given
+    # Returns the charset from the meta tags, looking for it in the following order:
+    # <meta charset='utf-8' />
+    # <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
     def charset
-      @data.charset ||= CharGuess.guess(document)
+      @data.charset ||= (charset_from_meta_charset || charset_from_content_type)
     end
 
     # Returns all parsed data as a nested Hash
@@ -184,5 +183,12 @@ module MetaInspector
       (p = parsed_document.search('//p').map(&:text).select{ |p| p.length > 120 }.first).nil? ? '' : p
     end
 
+    def charset_from_meta_charset
+      parsed_document.css("meta[charset]")[0].attributes['charset'].value rescue nil
+    end
+
+    def charset_from_content_type
+      parsed_document.css("meta[http-equiv='Content-Type']")[0].attributes['content'].value.split(";")[1].split("=")[1] rescue nil
+    end
   end
 end

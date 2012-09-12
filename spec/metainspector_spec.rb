@@ -19,6 +19,9 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "https://twitter.com/w3clove", :response => fixture_file("twitter_w3clove.response"))
   FakeWeb.register_uri(:get, "https://example.com/empty", :response => fixture_file("empty_page.response"))
   FakeWeb.register_uri(:get, "http://international.com", :response => fixture_file("international.response"))
+  FakeWeb.register_uri(:get, "http://charset000.com", :response => fixture_file("charset_000.response"))
+  FakeWeb.register_uri(:get, "http://charset001.com", :response => fixture_file("charset_001.response"))
+  FakeWeb.register_uri(:get, "http://charset002.com", :response => fixture_file("charset_002.response"))
 
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
@@ -275,21 +278,26 @@ describe MetaInspector do
   end
 
   describe 'Charset detection' do
-    it "should detect windows-1252 charset" do
-      @m = MetaInspector.new('http://www.alazan.com')
+    it "should get the charset from <meta charset />" do
+      @m = MetaInspector.new('http://charset001.com')
+      @m.charset.should == "utf-8"
+    end
+
+    it "should get the charset from meta content type" do
+      @m = MetaInspector.new('http://charset002.com')
       @m.charset.should == "windows-1252"
     end
 
-    it "should detect utf-8 charset" do
-      @m = MetaInspector.new('http://pagerankalert.com')
-      @m.charset.should == "UTF-8"
+    it "should get nil if no declared charset is found" do
+      @m = MetaInspector.new('http://charset000.com')
+      @m.charset.should == nil
     end
   end
 
   describe 'to_hash' do
     it "should return a hash with all the values set" do
       @m = MetaInspector.new('http://pagerankalert.com')
-      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "images"=>["http://pagerankalert.com/images/pagerank_alert.png?1305794559"], "charset"=>"UTF-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
+      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "images"=>["http://pagerankalert.com/images/pagerank_alert.png?1305794559"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
     end
   end
 
