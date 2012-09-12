@@ -1,3 +1,5 @@
+= MetaInspector {<img src="http://travis-ci.org/jaimeiniesta/metainspector.png" />}[http://travis-ci.org/jaimeiniesta/metainspector]
+
 MetaInspector is a gem for web scraping purposes. You give it an URL, and it lets you easily get its title, links, images, charset, description, keywords, meta tags...
 
 = See it in action!
@@ -48,6 +50,7 @@ Then you can see the scraped data like this:
   page.feed               # Get rss or atom links in meta data fields as array
   page.meta_og_title      # opengraph title
   page.meta_og_image      # opengraph image
+  page.charset            # UTF-8
 
 MetaInspector uses dynamic methods for meta_tag discovery, so all these will work, and will be converted to a search of a meta tag by the corresponding name, and return its content attribute
 
