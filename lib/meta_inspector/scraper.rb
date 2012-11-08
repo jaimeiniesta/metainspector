@@ -14,8 +14,8 @@ module MetaInspector
 
     def initialize(url, timeout = 20)
       @url      = URI.parse(url).scheme.nil? ? 'http://' + url : url
-      @scheme   = URI.parse(url).scheme || 'http'
-      @host     = URI.parse(url).host
+      @scheme   = URI.parse(@url).scheme
+      @host     = URI.parse(@url).host
       @root_url = "#{@scheme}://#{@host}/"
       @timeout  = timeout
       @data     = Hashie::Rash.new('url' => @url)
