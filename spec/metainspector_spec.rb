@@ -38,20 +38,20 @@ describe MetaInspector do
 
     it "should store the scheme" do
       MetaInspector.new('http://pagerankalert.com').scheme.should   == 'http'
-      MetaInspector.new('pagerankalert.com').scheme.should   == 'http'
       MetaInspector.new('https://pagerankalert.com').scheme.should  == 'https'
+      MetaInspector.new('pagerankalert.com').scheme.should          == 'http'
     end
 
     it "should store the host" do
       MetaInspector.new('http://pagerankalert.com').host.should   == 'pagerankalert.com'
       MetaInspector.new('https://pagerankalert.com').host.should  == 'pagerankalert.com'
-      MetaInspector.new('pagerankalert.com').host.should   == 'pagerankalert.com'
+      MetaInspector.new('pagerankalert.com').host.should          == 'pagerankalert.com'
     end
 
     it "should store the root url" do
       MetaInspector.new('http://pagerankalert.com').root_url.should   == 'http://pagerankalert.com/'
-      MetaInspector.new('pagerankalert.com').root_url.should   == 'http://pagerankalert.com/'
       MetaInspector.new('https://pagerankalert.com').root_url.should  == 'https://pagerankalert.com/'
+      MetaInspector.new('pagerankalert.com').root_url.should          == 'http://pagerankalert.com/'
     end
   end
 
