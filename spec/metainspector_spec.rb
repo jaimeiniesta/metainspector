@@ -332,7 +332,7 @@ describe MetaInspector do
 
     describe "parsed?" do
       it "should return true if we have a parsed document" do
-        good  = MetaInspector.new('https://www.w3clove.com')
+        good  = MetaInspector.new('http://pagerankalert.com')
         title = good.title
 
         good.parsed?.should == true
