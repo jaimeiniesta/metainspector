@@ -1,4 +1,4 @@
-= MetaInspector {<img src="http://travis-ci.org/jaimeiniesta/metainspector.png" />}[http://travis-ci.org/jaimeiniesta/metainspector] {<img src="https://codeclimate.com/badge.png" />}[https://codeclimate.com/github/jaimeiniesta/metainspector]
+= MetaInspector {<img src="https://secure.travis-ci.org/jaimeiniesta/metainspector.png?branch=master" />}[http://travis-ci.org/jaimeiniesta/metainspector] {<img src="https://codeclimate.com/badge.png" />}[https://codeclimate.com/github/jaimeiniesta/metainspector]
 
 MetaInspector is a gem for web scraping purposes. You give it an URL, and it lets you easily get its title, links, images, charset, description, keywords, meta tags...
 
