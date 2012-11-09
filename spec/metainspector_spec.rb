@@ -4,6 +4,7 @@ require File.join(File.dirname(__FILE__), "/spec_helper")
 
 describe MetaInspector do
   FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
+  FakeWeb.register_uri(:get, "pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
   FakeWeb.register_uri(:get, "http://www.alazan.com", :response => fixture_file("alazan.com.response"))
   FakeWeb.register_uri(:get, "http://alazan.com/websolution.asp", :response => fixture_file("alazan_websolution.response"))
   FakeWeb.register_uri(:get, "http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/", :response => fixture_file("theonion.com.response"))
@@ -22,6 +23,7 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "http://charset000.com", :response => fixture_file("charset_000.response"))
   FakeWeb.register_uri(:get, "http://charset001.com", :response => fixture_file("charset_001.response"))
   FakeWeb.register_uri(:get, "http://charset002.com", :response => fixture_file("charset_002.response"))
+  FakeWeb.register_uri(:get, "http://www.inkthemes.com/", :response => fixture_file("wordpress_site.response"))
 
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
@@ -36,16 +38,19 @@ describe MetaInspector do
 
     it "should store the scheme" do
       MetaInspector.new('http://pagerankalert.com').scheme.should   == 'http'
+      MetaInspector.new('pagerankalert.com').scheme.should   == 'http'
       MetaInspector.new('https://pagerankalert.com').scheme.should  == 'https'
     end
 
     it "should store the host" do
       MetaInspector.new('http://pagerankalert.com').host.should   == 'pagerankalert.com'
       MetaInspector.new('https://pagerankalert.com').host.should  == 'pagerankalert.com'
+      MetaInspector.new('pagerankalert.com').host.should   == 'pagerankalert.com'
     end
 
     it "should store the root url" do
       MetaInspector.new('http://pagerankalert.com').root_url.should   == 'http://pagerankalert.com/'
+      MetaInspector.new('pagerankalert.com').root_url.should   == 'http://pagerankalert.com/'
       MetaInspector.new('https://pagerankalert.com').root_url.should  == 'https://pagerankalert.com/'
     end
   end
@@ -256,13 +261,13 @@ describe MetaInspector do
       @m.meta_Csrf_pAram.should == "authenticity_token"
     end
 
-    it "should get the generator meta tag" do
-      pending "mocks"
-      @m.meta_generator.should == 'WordPress 2.8.4'
-    end
-
     it "should return nil for nonfound meta_tags" do
       @m.meta_lollypop.should == nil
+    end
+
+    it "should get the generator meta tag" do
+      @m = MetaInspector.new('http://www.inkthemes.com/')
+      @m.meta_generator.should == 'WordPress 3.4.2'
     end
 
     it "should find a meta_og_title" do
