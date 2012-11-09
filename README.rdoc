@@ -118,12 +118,11 @@ You can find some sample scripts on the samples folder, including a basic scrapi
 
 = ZOMG Fork! Thank you!
 
-You're welcome to fork this project and send pull requests. I want to thank specially:
+You're welcome to fork this project and send pull requests. Just remember to include specs.
 
-* Ryan Romanchuk https://github.com/rromanchuk
-* Edmund Haselwanter https://github.com/ehaselwanter
-* Jonathan Hernández https://github.com/ionmx
-* Oriol Gual https://github.com/oriolgual
+Thanks to all the contributors:
+
+https://github.com/jaimeiniesta/metainspector/graphs/contributors
 
 = To Do
 
