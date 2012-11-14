@@ -18,28 +18,28 @@ This gem is tested on Ruby versions 1.8.7, 1.9.2 and 1.9.3.
 
 Initialize a scraper instance for an URL, like this:
 
-  page = MetaInspector::Scraper.new('http://w3clove.com')
+  page = MetaInspector::Scraper.new('http://markupvalidator.com')
 
 or, for short, a convenience alias is also available:
 
-  page = MetaInspector.new('http://w3clove.com')
+  page = MetaInspector.new('http://markupvalidator.com')
 
 If you don't include the scheme on the URL, http:// will be used
 by defaul:
 
-  page = MetaInspector.new('w3clove.com')
+  page = MetaInspector.new('markupvalidator.com')
 
 By default, MetaInspector times out after 20 seconds of waiting for a page to respond.
 You can set a different timeout with a second parameter, like this:
 
-  page = MetaInspector.new('w3clove.com', 5) # this would wait just 5 seconds to timeout
+  page = MetaInspector.new('markupvalidator.com', 5) # this would wait just 5 seconds to timeout
 
 Then you can see the scraped data like this:
 
   page.url                # URL of the page
   page.scheme             # Scheme of the page (http, https)
-  page.host               # Hostname of the page (like, w3clove.com, without the scheme)
-  page.root_url           # Root url (scheme + host, like http://w3clove.com/)
+  page.host               # Hostname of the page (like, markupvalidator.com, without the scheme)
+  page.root_url           # Root url (scheme + host, like http://markupvalidator.com/)
   page.title              # title of the page, as string
   page.links              # array of strings, with every link found on the page as an absolute URL
   page.meta_description   # meta description, as string
@@ -68,7 +68,7 @@ Please notice that MetaInspector is case sensitive, so page.meta_Content_Type is
 
 You can also access most of the scraped data as a hash:
 
-  page.to_hash               # { "url"=>"http://w3clove.com", "title" => "W3CLove :: site-wide markup validation tool", ... }
+  page.to_hash               # { "url"=>"http://markupvalidator.com", "title" => "MarkupValidator :: site-wide markup validation tool", ... }
 
 The full scraped document if accessible from:
 
@@ -92,11 +92,11 @@ You can find some sample scripts on the samples folder, including a basic scrapi
   >> require 'metainspector'
   => true
 
-  >> page = MetaInspector.new('http://w3clove.com')
-  => #<MetaInspector:0x11330c0 @url="http://w3clove.com">
+  >> page = MetaInspector.new('http://markupvalidator.com')
+  => #<MetaInspector:0x11330c0 @url="http://markupvalidator.com">
 
   >> page.title
-  => "W3CLove :: site-wide markup validation tool"
+  => "MarkupValidator :: site-wide markup validation tool"
 
   >> page.meta_description
   => "Site-wide markup validation tool. Validate the markup of your whole site with just one click."

@@ -16,8 +16,8 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "https://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
   FakeWeb.register_uri(:get, "http://example.com/nonhttp", :response => fixture_file("nonhttp.response"))
   FakeWeb.register_uri(:get, "http://www.youtube.com/watch?v=iaGSSrp49uc", :response => fixture_file("youtube.response"))
-  FakeWeb.register_uri(:get, "http://w3clove.com/faqs", :response => fixture_file("w3clove_faqs.response"))
-  FakeWeb.register_uri(:get, "https://twitter.com/w3clove", :response => fixture_file("twitter_w3clove.response"))
+  FakeWeb.register_uri(:get, "http://markupvalidator.com/faqs", :response => fixture_file("markupvalidator_faqs.response"))
+  FakeWeb.register_uri(:get, "https://twitter.com/markupvalidator", :response => fixture_file("twitter_markupvalidator.response"))
   FakeWeb.register_uri(:get, "https://example.com/empty", :response => fixture_file("empty_page.response"))
   FakeWeb.register_uri(:get, "http://international.com", :response => fixture_file("international.response"))
   FakeWeb.register_uri(:get, "http://charset000.com", :response => fixture_file("charset_000.response"))
@@ -88,7 +88,7 @@ describe MetaInspector do
       end
 
       it "should find images on twitter" do
-        m = MetaInspector.new('https://twitter.com/w3clove')
+        m = MetaInspector.new('https://twitter.com/markupvalidator')
         m.images.length.should == 6
         m.images.join("; ").should == "https://twimg0-a.akamaihd.net/profile_images/2380086215/fcu46ozay5f5al9kdfvq_reasonably_small.png; https://twimg0-a.akamaihd.net/profile_images/2380086215/fcu46ozay5f5al9kdfvq_normal.png; https://twimg0-a.akamaihd.net/profile_images/2293774732/v0pgo4xpdd9rou2xq5h0_normal.png; https://twimg0-a.akamaihd.net/profile_images/1538528659/jaime_nov_08_normal.jpg; https://si0.twimg.com/sticky/default_profile_images/default_profile_6_mini.png; https://twimg0-a.akamaihd.net/a/1342841381/images/bigger_spinner.gif"
       end
@@ -150,15 +150,15 @@ describe MetaInspector do
     end
 
     it "should get correct absolute links for internal pages" do
-      m = MetaInspector.new('http://w3clove.com/faqs')
-      m.links.should == [ "http://w3clove.com/#",
-                          "http://w3clove.com/",
-                          "http://w3clove.com/faqs",
-                          "http://w3clove.com/plans-and-pricing",
-                          "http://w3clove.com/contact",
-                          "http://w3clove.com/charts/errors",
-                          "http://w3clove.com/credits",
-                          "http://w3clove.com/signin",
+      m = MetaInspector.new('http://markupvalidator.com/faqs')
+      m.links.should == [ "http://markupvalidator.com/#",
+                          "http://markupvalidator.com/",
+                          "http://markupvalidator.com/faqs",
+                          "http://markupvalidator.com/plans-and-pricing",
+                          "http://markupvalidator.com/contact",
+                          "http://markupvalidator.com/charts/errors",
+                          "http://markupvalidator.com/credits",
+                          "http://markupvalidator.com/signin",
                           "http://validator.w3.org",
                           "http://www.sitemaps.org/",
                           "http://jaimeiniesta.com/",
@@ -166,13 +166,13 @@ describe MetaInspector do
                           "http://jaimeiniesta.posterous.com/rbmu-a-better-way-to-learn-ruby",
                           "http://majesticseacreature.com/",
                           "http://school.mendicantuniversity.org/alumni/2011",
-                          "https://github.com/jaimeiniesta/w3clove",
-                          "http://w3clove.com",
-                          "http://w3clove.com/api_v1_reference",
-                          "https://twitter.com/w3clove",
+                          "https://github.com/jaimeiniesta/site_validator",
+                          "http://markupvalidator.com",
+                          "http://markupvalidator.com/api_v1_reference",
+                          "https://twitter.com/markupvalidator",
                           "http://twitter.com/share",
-                          "http://w3clove.com/terms_of_service",
-                          "http://twitter.com/W3CLove",
+                          "http://markupvalidator.com/terms_of_service",
+                          "http://twitter.com/MarkupValidator",
                           "http://us4.campaign-archive1.com/home/?u=6af3ab69c286561d0f0f25671&id=04a0dab609" ]
     end
 
@@ -316,7 +316,7 @@ describe MetaInspector do
     end
 
     it "should handle timeouts" do
-      impatient = MetaInspector.new('http://w3clove.com', 0.0000000000001)
+      impatient = MetaInspector.new('http://markupvalidator.com', 0.0000000000001)
 
       expect {
         title = impatient.title
