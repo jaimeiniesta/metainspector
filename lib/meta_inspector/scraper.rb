@@ -39,6 +39,16 @@ module MetaInspector
       @data.links ||= parsed_links.map { |l| absolutify_url(unrelativize_url(l)) }
     end
 
+    # Internal links found on the page, as absolute URLs
+    def internal_links
+      @data.internal_links ||= links.select {|link| URI.parse(link).host == @host }
+    end
+
+    # External links found on the page, as absolute URLs
+    def external_links
+      @data.external_links ||= links.select {|link| URI.parse(link).host != @host }
+    end
+
     def absolute_links
       warn "absolute_links is deprecated since 1.9.4 and will be removed, use links instead"
       links

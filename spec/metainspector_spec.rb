@@ -150,30 +150,17 @@ describe MetaInspector do
     end
 
     it "should get correct absolute links for internal pages" do
-      m = MetaInspector.new('http://markupvalidator.com/faqs')
-      m.links.should == [ "http://markupvalidator.com/#",
-                          "http://markupvalidator.com/",
-                          "http://markupvalidator.com/faqs",
-                          "http://markupvalidator.com/plans-and-pricing",
-                          "http://markupvalidator.com/contact",
-                          "http://markupvalidator.com/charts/errors",
-                          "http://markupvalidator.com/credits",
-                          "http://markupvalidator.com/signin",
-                          "http://validator.w3.org",
-                          "http://www.sitemaps.org/",
-                          "http://jaimeiniesta.com/",
-                          "http://mendicantuniversity.org/",
-                          "http://jaimeiniesta.posterous.com/rbmu-a-better-way-to-learn-ruby",
-                          "http://majesticseacreature.com/",
-                          "http://school.mendicantuniversity.org/alumni/2011",
-                          "https://github.com/jaimeiniesta/site_validator",
-                          "http://markupvalidator.com",
-                          "http://markupvalidator.com/api_v1_reference",
-                          "https://twitter.com/markupvalidator",
-                          "http://twitter.com/share",
-                          "http://markupvalidator.com/terms_of_service",
-                          "http://twitter.com/MarkupValidator",
-                          "http://us4.campaign-archive1.com/home/?u=6af3ab69c286561d0f0f25671&id=04a0dab609" ]
+      @m.internal_links.should == [ "http://pagerankalert.com/",
+                           "http://pagerankalert.com/es?language=es",
+                           "http://pagerankalert.com/users/sign_up",
+                           "http://pagerankalert.com/users/sign_in" ]
+    end
+
+    it "should get correct absolute links for external pages" do
+      @m.external_links.should == [ "mailto:pagerankalert@gmail.com",
+                           "http://pagerankalert.posterous.com",
+                           "http://twitter.com/pagerankalert",
+                           "http://twitter.com/share" ]
     end
 
     it "should get correct absolute links, correcting relative links from URL not ending with slash" do
