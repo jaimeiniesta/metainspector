@@ -32,7 +32,11 @@ by defaul:
 By default, MetaInspector times out after 20 seconds of waiting for a page to respond.
 You can set a different timeout with a second parameter, like this:
 
-  page = MetaInspector.new('markupvalidator.com', 5) # this would wait just 5 seconds to timeout
+  page = MetaInspector.new('markupvalidator.com', :timeout => 5) # this would wait just 5 seconds to timeout
+
+Metainspector will try to parse all URLs by default. If you want to parse only those URLs that have text/html as content-type you can specify it like this:
+
+  page = MetaInspector.new('markupvalidator.com', :html_content_only => true)
 
 Then you can see the scraped data like this:
 
@@ -42,6 +46,8 @@ Then you can see the scraped data like this:
   page.root_url           # Root url (scheme + host, like http://markupvalidator.com/)
   page.title              # title of the page, as string
   page.links              # array of strings, with every link found on the page as an absolute URL
+  page.internal_links     # array of strings, with every internal link found on the page as an absolute URL
+  page.extrenal_links     # array of strings, with every external link found on the page as an absolute URL
   page.meta_description   # meta description, as string
   page.description        # returns the meta description, or the first long paragraph if no meta description is found
   page.meta_keywords      # meta keywords, as string
@@ -51,6 +57,7 @@ Then you can see the scraped data like this:
   page.meta_og_title      # opengraph title
   page.meta_og_image      # opengraph image
   page.charset            # UTF-8
+  page.content_type       # content-type returned by the server when the url was requested
 
 MetaInspector uses dynamic methods for meta_tag discovery, so all these will work, and will be converted to a search of a meta tag by the corresponding name, and return its content attribute
 
@@ -127,9 +134,7 @@ https://github.com/jaimeiniesta/metainspector/graphs/contributors
 = To Do
 
 * Get page.base_dir from the URL
-* Distinguish between external and internal links, returning page.links for all of them as found, page.external_links and page.internal_links converted to absolute URLs
 * If keywords seem to be separated by blank spaces, replace them with commas
-* Check content type, process only HTML pages, don't try to scrape TAR files like http://ftp.ruby-lang.org/pub/ruby/ruby-1.9.1-p129.tar.bz2 or video files like http://isabel.dit.upm.es/component/option,com_docman/task,doc_download/gid,831/Itemid,74/
 * Autodiscover all available meta tags
 
-Copyright (c) 2009-2011 Jaime Iniesta, released under the MIT license
+Copyright (c) 2009-2012 Jaime Iniesta, released under the MIT license
