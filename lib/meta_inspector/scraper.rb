@@ -12,7 +12,9 @@ module MetaInspector
 
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
-    # If html_content_type_only is passed as true an exception will be raised if the url content is not text/html
+    # Options:
+    # => timeout: defaults to 20 seconds
+    # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
     def initialize(url, options = {})
       @url      = URI.parse(url).scheme.nil? ? 'http://' + url : url
       @scheme   = URI.parse(@url).scheme
