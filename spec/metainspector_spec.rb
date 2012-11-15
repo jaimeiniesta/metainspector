@@ -24,6 +24,8 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "http://charset001.com", :response => fixture_file("charset_001.response"))
   FakeWeb.register_uri(:get, "http://charset002.com", :response => fixture_file("charset_002.response"))
   FakeWeb.register_uri(:get, "http://www.inkthemes.com/", :response => fixture_file("wordpress_site.response"))
+  FakeWeb.register_uri(:get, "http://pagerankalert.com/image.png", :body => "Image", :content_type => "image/jpeg")
+  FakeWeb.register_uri(:get, "http://pagerankalert.com/file.tar.gz", :body => "Image", :content_type => "application/x-gzip")
 
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
@@ -150,30 +152,17 @@ describe MetaInspector do
     end
 
     it "should get correct absolute links for internal pages" do
-      m = MetaInspector.new('http://markupvalidator.com/faqs')
-      m.links.should == [ "http://markupvalidator.com/#",
-                          "http://markupvalidator.com/",
-                          "http://markupvalidator.com/faqs",
-                          "http://markupvalidator.com/plans-and-pricing",
-                          "http://markupvalidator.com/contact",
-                          "http://markupvalidator.com/charts/errors",
-                          "http://markupvalidator.com/credits",
-                          "http://markupvalidator.com/signin",
-                          "http://validator.w3.org",
-                          "http://www.sitemaps.org/",
-                          "http://jaimeiniesta.com/",
-                          "http://mendicantuniversity.org/",
-                          "http://jaimeiniesta.posterous.com/rbmu-a-better-way-to-learn-ruby",
-                          "http://majesticseacreature.com/",
-                          "http://school.mendicantuniversity.org/alumni/2011",
-                          "https://github.com/jaimeiniesta/site_validator",
-                          "http://markupvalidator.com",
-                          "http://markupvalidator.com/api_v1_reference",
-                          "https://twitter.com/markupvalidator",
-                          "http://twitter.com/share",
-                          "http://markupvalidator.com/terms_of_service",
-                          "http://twitter.com/MarkupValidator",
-                          "http://us4.campaign-archive1.com/home/?u=6af3ab69c286561d0f0f25671&id=04a0dab609" ]
+      @m.internal_links.should == [ "http://pagerankalert.com/",
+                           "http://pagerankalert.com/es?language=es",
+                           "http://pagerankalert.com/users/sign_up",
+                           "http://pagerankalert.com/users/sign_in" ]
+    end
+
+    it "should get correct absolute links for external pages" do
+      @m.external_links.should == [ "mailto:pagerankalert@gmail.com",
+                           "http://pagerankalert.posterous.com",
+                           "http://twitter.com/pagerankalert",
+                           "http://twitter.com/share" ]
     end
 
     it "should get correct absolute links, correcting relative links from URL not ending with slash" do
@@ -302,7 +291,7 @@ describe MetaInspector do
   describe 'to_hash' do
     it "should return a hash with all the values set" do
       @m = MetaInspector.new('http://pagerankalert.com')
-      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "images"=>["http://pagerankalert.com/images/pagerank_alert.png?1305794559"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"]}
+      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "images"=>["http://pagerankalert.com/images/pagerank_alert.png?1305794559"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"], "internal_links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in"], "external_links" => ["mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"], "content_type" => "text/html"}
     end
   end
 
@@ -316,7 +305,7 @@ describe MetaInspector do
     end
 
     it "should handle timeouts" do
-      impatient = MetaInspector.new('http://markupvalidator.com', 0.0000000000001)
+      impatient = MetaInspector.new('http://markupvalidator.com', :timeout => 0.0000000000001)
 
       expect {
         title = impatient.title
@@ -335,6 +324,42 @@ describe MetaInspector do
       nowhere.errors.first.should == "Socket error: The url provided does not exist or is temporarily unavailable"
     end
 
+    it "should parse images when parse_html_content_type_only is not specified" do
+      image_url = MetaInspector.new('http://pagerankalert.com/image.png')
+      desc = image_url.description
+
+      image_url.errors == nil
+      image_url.parsed? == true
+    end
+
+    it "should parse images when parse_html_content_type_only is false" do
+      image_url = MetaInspector.new('http://pagerankalert.com/image.png', :timeout => 20, :html_content_only => false)
+      desc = image_url.description
+
+      image_url.errors == nil
+      image_url.parsed? == true
+    end
+
+    it "should handle errors when content is image/jpeg and html_content_type_only is true" do
+      image_url = MetaInspector.new('http://pagerankalert.com/image.png', :timeout => 20, :html_content_only => true)
+      
+      expect {
+        title = image_url.title
+      }.to change { image_url.errors.size }
+
+      image_url.errors.first.should == "Scraping exception: The url provided contains image/jpeg content instead of text/html content"
+    end
+
+    it "should handle errors when content is not text/html and html_content_type_only is true" do
+      tar_url = MetaInspector.new('http://pagerankalert.com/file.tar.gz', :timeout => 20, :html_content_only => true)
+      
+      expect {
+        title = tar_url.title
+      }.to change { tar_url.errors.size }
+
+      tar_url.errors.first.should == "Scraping exception: The url provided contains application/x-gzip content instead of text/html content"
+    end
+
     describe "parsed?" do
       it "should return true if we have a parsed document" do
         good  = MetaInspector.new('http://pagerankalert.com')
@@ -344,12 +369,46 @@ describe MetaInspector do
       end
 
       it "should return false if we don't have a parsed document" do
-        bad  = MetaInspector.new('http://fdsfdferewrewewewdesdf.com', 0.00000000000001)
+        bad  = MetaInspector.new('http://fdsfdferewrewewewdesdf.com', :timout => 0.00000000000001)
         title = bad.title
 
         bad.parsed?.should == false
       end
+
+      it "should return false if we try to parse a page which content type is not html and html_content_type_only is set to true" do
+        tar = MetaInspector.new('http://pagerankalert.com/file.tar.gz', :timeout => 20, :html_content_only => true)
+        title = tar.title
+
+        tar.parsed?.should == false
+      end
     end
+  end
+
+  describe "content_type" do
+    it "should return the correct content type of the url if it is parsed correctly even for non html pages" do
+      good = MetaInspector.new('http://pagerankalert.com/image.png')
+      title = good.title
+
+      good.parsed?.should == true
+      good.content_type == "image/jpeg"
+    end
+
+    it "should return the correct content type of the url if it is parsed correctly even for html pages" do
+      good = MetaInspector.new('http://pagerankalert.com')
+      title = good.title
+
+      good.parsed?.should == true
+      good.content_type == "text/html"
+    end
+
+    it "should return the correct content type of the url if it is not parsed correctly" do
+      bad = MetaInspector.new('http://pagerankalert.com/image.png', :timeout => 20, :html_content_only => true)
+      title = bad.title
+
+      bad.parsed?.should == false
+      bad.content_type == "image/jpeg"
+    end
+
   end
 
 end

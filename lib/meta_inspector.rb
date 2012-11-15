@@ -6,7 +6,7 @@ module MetaInspector
   extend self
 
   # Sugar method to be able to create a scraper in a shorter way
-  def new(url, timeout = 20)
-    Scraper.new(url, timeout)
+  def new(url, options = {})
+    Scraper.new(url, options)
   end
 end

@@ -8,18 +8,22 @@ require 'timeout'
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
-    attr_reader :url, :scheme, :host, :root_url, :errors
+    attr_reader :url, :scheme, :host, :root_url, :errors, :content_type
+
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
-
-    def initialize(url, timeout = 20)
+    # Options:
+    # => timeout: defaults to 20 seconds
+    # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
+    def initialize(url, options = {})
       @url      = URI.parse(url).scheme.nil? ? 'http://' + url : url
       @scheme   = URI.parse(@url).scheme
       @host     = URI.parse(@url).host
       @root_url = "#{@scheme}://#{@host}/"
-      @timeout  = timeout
+      @timeout  = options[:timeout] || 20
       @data     = Hashie::Rash.new('url' => @url)
       @errors   = []
+      @html_content_only = options[:html_content_only] || false
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -37,6 +41,16 @@ module MetaInspector
     # Links found on the page, as absolute URLs
     def links
       @data.links ||= parsed_links.map { |l| absolutify_url(unrelativize_url(l)) }
+    end
+
+    # Internal links found on the page, as absolute URLs
+    def internal_links
+      @data.internal_links ||= links.select {|link| URI.parse(link).host == @host }
+    end
+
+    # External links found on the page, as absolute URLs
+    def external_links
+      @data.external_links ||= links.select {|link| URI.parse(link).host != @host }
     end
 
     def absolute_links
@@ -80,7 +94,7 @@ module MetaInspector
     # Returns all parsed data as a nested Hash
     def to_hash
       # TODO: find a better option to populate the data to the Hash
-      image;images;feed;links;charset;title;meta_keywords
+      image;images;feed;links;charset;title;meta_keywords;internal_links;external_links
       @data.to_hash
     end
 
@@ -98,7 +112,16 @@ module MetaInspector
 
     # Returns the original, unparsed document
     def document
-      @document ||= Timeout::timeout(@timeout) { open(@url).read }
+      @document ||= Timeout::timeout(@timeout) { 
+        req = open(@url)
+        @content_type = @data.content_type = req.content_type
+
+        if @html_content_only && @content_type != "text/html"
+           raise "The url provided contains #{@content_type} content instead of text/html content"
+        end
+
+        req.read
+      }
 
       rescue SocketError
         add_fatal_error 'Socket error: The url provided does not exist or is temporarily unavailable'
