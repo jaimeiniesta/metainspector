@@ -13,15 +13,15 @@ module MetaInspector
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
     # If html_content_type_only is passed as true an exception will be raised if the url content is not text/html
-    def initialize(url, timeout = 20, html_content_only = false)
+    def initialize(url, options = {})
       @url      = URI.parse(url).scheme.nil? ? 'http://' + url : url
       @scheme   = URI.parse(@url).scheme
       @host     = URI.parse(@url).host
       @root_url = "#{@scheme}://#{@host}/"
-      @timeout  = timeout
+      @timeout  = options[:timeout] || 20
       @data     = Hashie::Rash.new('url' => @url)
       @errors   = []
-      @html_content_only = html_content_only
+      @html_content_only = options[:html_content_only] || false
     end
 
     # Returns the parsed document title, from the content of the <title> tag.

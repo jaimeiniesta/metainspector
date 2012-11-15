@@ -305,7 +305,7 @@ describe MetaInspector do
     end
 
     it "should handle timeouts" do
-      impatient = MetaInspector.new('http://markupvalidator.com', 0.0000000000001)
+      impatient = MetaInspector.new('http://markupvalidator.com', :timeout => 0.0000000000001)
 
       expect {
         title = impatient.title
@@ -333,7 +333,7 @@ describe MetaInspector do
     end
 
     it "should parse images when parse_html_content_type_only is false" do
-      image_url = MetaInspector.new('http://pagerankalert.com/image.png', 20, false)
+      image_url = MetaInspector.new('http://pagerankalert.com/image.png', :timeout => 20, :html_content_only => false)
       desc = image_url.description
 
       image_url.errors == nil
@@ -341,7 +341,7 @@ describe MetaInspector do
     end
 
     it "should handle errors when content is image/jpeg and html_content_type_only is true" do
-      image_url = MetaInspector.new('http://pagerankalert.com/image.png', 20, true)
+      image_url = MetaInspector.new('http://pagerankalert.com/image.png', :timeout => 20, :html_content_only => true)
       
       expect {
         title = image_url.title
@@ -351,7 +351,7 @@ describe MetaInspector do
     end
 
     it "should handle errors when content is not text/html and html_content_type_only is true" do
-      tar_url = MetaInspector.new('http://pagerankalert.com/file.tar.gz', 20, true)
+      tar_url = MetaInspector.new('http://pagerankalert.com/file.tar.gz', :timeout => 20, :html_content_only => true)
       
       expect {
         title = tar_url.title
@@ -369,14 +369,14 @@ describe MetaInspector do
       end
 
       it "should return false if we don't have a parsed document" do
-        bad  = MetaInspector.new('http://fdsfdferewrewewewdesdf.com', 0.00000000000001)
+        bad  = MetaInspector.new('http://fdsfdferewrewewewdesdf.com', :timout => 0.00000000000001)
         title = bad.title
 
         bad.parsed?.should == false
       end
 
       it "should return false if we try to parse a page which content type is not html and html_content_type_only is set to true" do
-        tar = MetaInspector.new('http://pagerankalert.com/file.tar.gz', 20, true)
+        tar = MetaInspector.new('http://pagerankalert.com/file.tar.gz', :timeout => 20, :html_content_only => true)
         title = tar.title
 
         tar.parsed?.should == false
@@ -402,7 +402,7 @@ describe MetaInspector do
     end
 
     it "should return the correct content type of the url if it is not parsed correctly" do
-      bad = MetaInspector.new('http://pagerankalert.com/image.png', 20, true)
+      bad = MetaInspector.new('http://pagerankalert.com/image.png', :timeout => 20, :html_content_only => true)
       title = bad.title
 
       bad.parsed?.should == false
