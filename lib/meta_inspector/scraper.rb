@@ -8,11 +8,12 @@ require 'timeout'
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
-    attr_reader :url, :scheme, :host, :root_url, :errors
+    attr_reader :url, :scheme, :host, :root_url, :errors, :content_type
+
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # If no scheme given, set it to http:// by default
-
-    def initialize(url, timeout = 20)
+    # If html_content_type_only is passed as true an exception will be raised if the url content is not text/html
+    def initialize(url, timeout = 20, html_content_only = false)
       @url      = URI.parse(url).scheme.nil? ? 'http://' + url : url
       @scheme   = URI.parse(@url).scheme
       @host     = URI.parse(@url).host
@@ -20,6 +21,7 @@ module MetaInspector
       @timeout  = timeout
       @data     = Hashie::Rash.new('url' => @url)
       @errors   = []
+      @html_content_only = html_content_only
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -108,7 +110,16 @@ module MetaInspector
 
     # Returns the original, unparsed document
     def document
-      @document ||= Timeout::timeout(@timeout) { open(@url).read }
+      @document ||= Timeout::timeout(@timeout) { 
+        req = open(@url)
+        @content_type = req.content_type
+
+        if @html_content_only && @content_type != "text/html"
+           raise "The url provided contains #{@content_type} content instead of text/html content"
+        end
+
+        req.read
+      }
 
       rescue SocketError
         add_fatal_error 'Socket error: The url provided does not exist or is temporarily unavailable'
