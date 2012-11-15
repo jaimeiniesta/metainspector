@@ -112,7 +112,7 @@ module MetaInspector
     def document
       @document ||= Timeout::timeout(@timeout) { 
         req = open(@url)
-        @content_type = req.content_type
+        @content_type = @data.content_type = req.content_type
 
         if @html_content_only && @content_type != "text/html"
            raise "The url provided contains #{@content_type} content instead of text/html content"
