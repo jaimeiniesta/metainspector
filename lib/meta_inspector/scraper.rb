@@ -90,7 +90,7 @@ module MetaInspector
     # Returns all parsed data as a nested Hash
     def to_hash
       # TODO: find a better option to populate the data to the Hash
-      image;images;feed;links;charset;title;meta_keywords
+      image;images;feed;links;charset;title;meta_keywords;internal_links;external_links
       @data.to_hash
     end
 
