@@ -34,7 +34,7 @@ You can set a different timeout with a second parameter, like this:
 
   page = MetaInspector.new('markupvalidator.com', :timeout => 5) # this would wait just 5 seconds to timeout
 
-Metainspector will try to parse all URLs by default. If you want to parse only those URLs that have text/html as content-type you can specify it like this:
+MetaInspector will try to parse all URLs by default. If you want to parse only those URLs that have text/html as content-type you can specify it like this:
 
   page = MetaInspector.new('markupvalidator.com', :html_content_only => true)
 
