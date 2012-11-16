@@ -54,19 +54,9 @@ module MetaInspector
       @data.external_links ||= links.select {|link| URI.parse(link).host != @host }
     end
 
-    def absolute_links
-      warn "absolute_links is deprecated since 1.9.4 and will be removed, use links instead"
-      links
-    end
-
     # Images found on the page, as absolute URLs
     def images
       @data.images ||= parsed_images.map{ |i| absolutify_url(i) }
-    end
-
-    def absolute_images
-      warn "absolute_images is deprecated since 1.9.4 and will be removed, use images instead"
-      images
     end
 
     # Returns the parsed document meta rss links
