@@ -16,6 +16,7 @@ module MetaInspector
     # => timeout: defaults to 20 seconds
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
     def initialize(url, options = {})
+      url       = encode_url(url)
       @url      = URI.parse(url).scheme.nil? ? 'http://' + url : url
       @scheme   = URI.parse(@url).scheme
       @host     = URI.parse(@url).host
@@ -186,13 +187,18 @@ module MetaInspector
       @errors << error
     end
 
+    # Encode url to deal with international characters
+    def encode_url(url)
+      URI.encode(url).to_s.gsub("%23", "#")
+    end
+
     # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
     # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
     def absolutify_url(url)
       if url =~ /^\w*\:/i
-        URI.encode(url).to_s.gsub("%23", "#")
+        encode_url(url)
       else
-        URI.parse(@root_url).merge(URI.encode(url)).to_s.gsub("%23", "#")
+        URI.parse(@root_url).merge(encode_url(url)).to_s
       end
     end
 

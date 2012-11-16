@@ -29,13 +29,15 @@ describe MetaInspector do
 
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
-      @m = MetaInspector.new('http://pagerankalert.com')
-      @m.url.should == 'http://pagerankalert.com'
+      MetaInspector.new('http://pagerankalert.com').url.should == 'http://pagerankalert.com'
     end
 
     it "should use http:// as a default scheme" do
-      @m = MetaInspector.new('pagerankalert.com')
-      @m.url.should == 'http://pagerankalert.com'
+      MetaInspector.new('pagerankalert.com').url.should == 'http://pagerankalert.com'
+    end
+
+    it "should accept an URL with international characters" do
+      MetaInspector.new('http://international.com/olé').url.should == 'http://international.com/ol%C3%A9'
     end
 
     it "should store the scheme" do
@@ -51,9 +53,10 @@ describe MetaInspector do
     end
 
     it "should store the root url" do
-      MetaInspector.new('http://pagerankalert.com').root_url.should   == 'http://pagerankalert.com/'
-      MetaInspector.new('https://pagerankalert.com').root_url.should  == 'https://pagerankalert.com/'
-      MetaInspector.new('pagerankalert.com').root_url.should          == 'http://pagerankalert.com/'
+      MetaInspector.new('http://pagerankalert.com').root_url.should     == 'http://pagerankalert.com/'
+      MetaInspector.new('https://pagerankalert.com').root_url.should    == 'https://pagerankalert.com/'
+      MetaInspector.new('pagerankalert.com').root_url.should            == 'http://pagerankalert.com/'
+      MetaInspector.new('http://international.com/olé').root_url.should == 'http://international.com/'
     end
   end
 
