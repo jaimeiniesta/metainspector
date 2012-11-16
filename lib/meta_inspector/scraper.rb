@@ -112,7 +112,7 @@ module MetaInspector
 
     # Returns the original, unparsed document
     def document
-      @document ||= Timeout::timeout(@timeout) { 
+      @document ||= Timeout::timeout(@timeout) {
         req = open(@url)
         @content_type = @data.content_type = req.content_type
 
@@ -190,7 +190,7 @@ module MetaInspector
     # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
     def absolutify_url(url)
       if url =~ /^\w*\:/i
-        url
+        URI.encode(url).to_s.gsub("%23", "#")
       else
         URI.parse(@root_url).merge(URI.encode(url)).to_s.gsub("%23", "#")
       end

@@ -17,10 +17,18 @@ Cache-control: private
   <title>International chars</title>
 </head>
 <body>
+  <h1>Internal links:</h1>
   <a href="/españa.asp">España</a>
   <a href="/romanée">Romanée</a>
   <a href="/faqs#camión">FAQs camión</a>
   <a href="/search?q=camión">Search camión</a>
   <a href="/search?q=españa#top">Search España at top</a>
+
+  <h1>External links:</h1>
+  <a href="http://example.com/españa.asp">España</a>
+  <a href="http://example.com/romanée">Romanée</a>
+  <a href="http://example.com/faqs#camión">FAQs camión</a>
+  <a href="http://example.com/search?q=camión">Search camión</a>
+  <a href="http://example.com/search?q=españa#top">Search España at top</a>
 </body>
 </html>

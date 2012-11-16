@@ -171,18 +171,43 @@ describe MetaInspector do
                           "http://alazan.com/faqs.asp" ]
     end
 
-    it "should get correct absolute links, encoding the URLs as needed but respecting # and ?" do
-      m = MetaInspector.new('http://international.com')
-      m.links.should == [ "http://international.com/espa%C3%B1a.asp",
-                          "http://international.com/roman%C3%A9e",
-                          "http://international.com/faqs#cami%C3%B3n",
-                          "http://international.com/search?q=cami%C3%B3n",
-                          "http://international.com/search?q=espa%C3%B1a#top"]
-    end
-
     it "should return empty array if no links found" do
       m = MetaInspector.new('http://example.com/empty')
       m.links.should == []
+    end
+
+    describe "links with international characters" do
+      it "should get correct absolute links, encoding the URLs as needed but respecting # and ?" do
+        m = MetaInspector.new('http://international.com')
+        m.links.should == [ "http://international.com/espa%C3%B1a.asp",
+                            "http://international.com/roman%C3%A9e",
+                            "http://international.com/faqs#cami%C3%B3n",
+                            "http://international.com/search?q=cami%C3%B3n",
+                            "http://international.com/search?q=espa%C3%B1a#top",
+                            "http://example.com/espa%C3%B1a.asp",
+                            "http://example.com/roman%C3%A9e",
+                            "http://example.com/faqs#cami%C3%B3n",
+                            "http://example.com/search?q=cami%C3%B3n",
+                            "http://example.com/search?q=espa%C3%B1a#top"]
+      end
+
+      it "should get correct internal links, encoding the URLs as needed but respecting # and ?" do
+        m = MetaInspector.new('http://international.com')
+        m.internal_links.should == [ "http://international.com/espa%C3%B1a.asp",
+                                     "http://international.com/roman%C3%A9e",
+                                     "http://international.com/faqs#cami%C3%B3n",
+                                     "http://international.com/search?q=cami%C3%B3n",
+                                     "http://international.com/search?q=espa%C3%B1a#top"]
+      end
+
+      it "should get correct external links, encoding the URLs as needed but respecting # and ?" do
+        m = MetaInspector.new('http://international.com')
+        m.external_links.should == [ "http://example.com/espa%C3%B1a.asp",
+                                     "http://example.com/roman%C3%A9e",
+                                     "http://example.com/faqs#cami%C3%B3n",
+                                     "http://example.com/search?q=cami%C3%B3n",
+                                     "http://example.com/search?q=espa%C3%B1a#top"]
+      end
     end
   end
 
@@ -342,7 +367,7 @@ describe MetaInspector do
 
     it "should handle errors when content is image/jpeg and html_content_type_only is true" do
       image_url = MetaInspector.new('http://pagerankalert.com/image.png', :timeout => 20, :html_content_only => true)
-      
+
       expect {
         title = image_url.title
       }.to change { image_url.errors.size }
@@ -352,7 +377,7 @@ describe MetaInspector do
 
     it "should handle errors when content is not text/html and html_content_type_only is true" do
       tar_url = MetaInspector.new('http://pagerankalert.com/file.tar.gz', :timeout => 20, :html_content_only => true)
-      
+
       expect {
         title = tar_url.title
       }.to change { tar_url.errors.size }
