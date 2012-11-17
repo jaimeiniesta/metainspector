@@ -41,7 +41,7 @@ module MetaInspector
 
     # Links found on the page, as absolute URLs
     def links
-      @data.links ||= parsed_links.map { |l| absolutify_url(unrelativize_url(l)) }
+      @data.links ||= parsed_links.map{ |l| absolutify_url(unrelativize_url(l)) }.reject{|l| l.nil? }
     end
 
     # Internal links found on the page, as absolute URLs
@@ -190,6 +190,8 @@ module MetaInspector
       else
         URI.parse(@root_url).merge(encode_url(url)).to_s
       end
+    rescue URI::InvalidURIError => e
+      add_fatal_error "Link parsing exception: #{e.message}" and nil
     end
 
     # Convert a protocol-relative url to its full form, depending on the scheme of the page that contains it
