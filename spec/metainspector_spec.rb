@@ -217,15 +217,15 @@ describe MetaInspector do
     it "should avoid links that contain invalid links as href value" do
       m = MetaInspector.new('http://example.com/invalid_href')
       m.links.should == [ "skype:joeuser?call",
-                                    "telnet://telnet.cdrom.com"]
+                          "telnet://telnet.cdrom.com"]
     end
 
-    it "should throw errors when links contain invalid href values" do
+    it "should store errors when links contain invalid href values" do
       m = MetaInspector.new('http://example.com/invalid_href')
 
       expect {
         links = m.links
-      }.to change { m.errors.size }
+      }.to change { m.errors.size }.from(0).to(1)
 
       m.errors.first.should == "Link parsing exception: bad URI(is not URI?): %3Cp%3Eftp://ftp.cdrom.com"
     end

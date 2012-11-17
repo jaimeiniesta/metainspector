@@ -41,7 +41,7 @@ module MetaInspector
 
     # Links found on the page, as absolute URLs
     def links
-      @data.links ||= parsed_links.map{ |l| absolutify_url(unrelativize_url(l)) }.reject{|l| l.nil? }
+      @data.links ||= parsed_links.map{ |l| absolutify_url(unrelativize_url(l)) }.compact
     end
 
     # Internal links found on the page, as absolute URLs
