@@ -15,6 +15,7 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "http://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
   FakeWeb.register_uri(:get, "https://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
   FakeWeb.register_uri(:get, "http://example.com/nonhttp", :response => fixture_file("nonhttp.response"))
+  FakeWeb.register_uri(:get, "http://example.com/invalid_href", :response => fixture_file("invalid_href.response"))
   FakeWeb.register_uri(:get, "http://www.youtube.com/watch?v=iaGSSrp49uc", :response => fixture_file("youtube.response"))
   FakeWeb.register_uri(:get, "http://markupvalidator.com/faqs", :response => fixture_file("markupvalidator_faqs.response"))
   FakeWeb.register_uri(:get, "https://twitter.com/markupvalidator", :response => fixture_file("twitter_markupvalidator.response"))
@@ -211,6 +212,22 @@ describe MetaInspector do
                                      "http://example.com/search?q=cami%C3%B3n",
                                      "http://example.com/search?q=espa%C3%B1a#top"]
       end
+    end
+
+    it "should avoid links that contain invalid links as href value" do
+      m = MetaInspector.new('http://example.com/invalid_href')
+      m.links.should == [ "skype:joeuser?call",
+                                    "telnet://telnet.cdrom.com"]
+    end
+
+    it "should throw errors when links contain invalid href values" do
+      m = MetaInspector.new('http://example.com/invalid_href')
+
+      expect {
+        links = m.links
+      }.to change { m.errors.size }
+
+      m.errors.first.should == "Link parsing exception: bad URI(is not URI?): %3Cp%3Eftp://ftp.cdrom.com"
     end
   end
 
