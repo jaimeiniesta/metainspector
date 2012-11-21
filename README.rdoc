@@ -47,7 +47,7 @@ Then you can see the scraped data like this:
   page.title              # title of the page, as string
   page.links              # array of strings, with every link found on the page as an absolute URL
   page.internal_links     # array of strings, with every internal link found on the page as an absolute URL
-  page.extrenal_links     # array of strings, with every external link found on the page as an absolute URL
+  page.external_links     # array of strings, with every external link found on the page as an absolute URL
   page.meta_description   # meta description, as string
   page.description        # returns the meta description, or the first long paragraph if no meta description is found
   page.meta_keywords      # meta keywords, as string
