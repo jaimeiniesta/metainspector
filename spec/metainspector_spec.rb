@@ -25,7 +25,7 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "http://charset001.com", :response => fixture_file("charset_001.response"))
   FakeWeb.register_uri(:get, "http://charset002.com", :response => fixture_file("charset_002.response"))
   FakeWeb.register_uri(:get, "http://www.inkthemes.com/", :response => fixture_file("wordpress_site.response"))
-  FakeWeb.register_uri(:get, "http://pagerankalert.com/image.png", :body => "Image", :content_type => "image/jpeg")
+  FakeWeb.register_uri(:get, "http://pagerankalert.com/image.png", :body => "Image", :content_type => "image/png")
   FakeWeb.register_uri(:get, "http://pagerankalert.com/file.tar.gz", :body => "Image", :content_type => "application/x-gzip")
 
   describe 'Initialization' do
@@ -373,16 +373,14 @@ describe MetaInspector do
       image_url = MetaInspector.new('http://pagerankalert.com/image.png')
       desc = image_url.description
 
-      image_url.errors == nil
-      image_url.parsed? == true
+      image_url.should be_ok
     end
 
     it "should parse images when parse_html_content_type_only is false" do
       image_url = MetaInspector.new('http://pagerankalert.com/image.png', :timeout => 20, :html_content_only => false)
       desc = image_url.description
 
-      image_url.errors == nil
-      image_url.parsed? == true
+      image_url.should be_ok
     end
 
     it "should handle errors when content is image/jpeg and html_content_type_only is true" do
@@ -392,7 +390,7 @@ describe MetaInspector do
         title = image_url.title
       }.to change { image_url.errors.size }
 
-      image_url.errors.first.should == "Scraping exception: The url provided contains image/jpeg content instead of text/html content"
+      image_url.errors.first.should == "Scraping exception: The url provided contains image/png content instead of text/html content"
     end
 
     it "should handle errors when content is not text/html and html_content_type_only is true" do
@@ -405,55 +403,41 @@ describe MetaInspector do
       tar_url.errors.first.should == "Scraping exception: The url provided contains application/x-gzip content instead of text/html content"
     end
 
-    describe "parsed?" do
-      it "should return true if we have a parsed document" do
+    describe "ok?" do
+      it "should return true if we have no errors" do
         good  = MetaInspector.new('http://pagerankalert.com')
-        title = good.title
+        good.to_hash
 
-        good.parsed?.should == true
+        good.should be_ok
       end
 
-      it "should return false if we don't have a parsed document" do
-        bad  = MetaInspector.new('http://fdsfdferewrewewewdesdf.com', :timout => 0.00000000000001)
-        title = bad.title
+      it "should return false if there are errors" do
+        bad  = MetaInspector.new('http://fdsfdferewrewewewdesdf.com', :timeout => 0.00000000000001)
+        bad.title
 
-        bad.parsed?.should == false
+        bad.should_not be_ok
       end
 
       it "should return false if we try to parse a page which content type is not html and html_content_type_only is set to true" do
         tar = MetaInspector.new('http://pagerankalert.com/file.tar.gz', :timeout => 20, :html_content_only => true)
         title = tar.title
 
-        tar.parsed?.should == false
+        tar.should_not be_ok
       end
     end
   end
 
   describe "content_type" do
-    it "should return the correct content type of the url if it is parsed correctly even for non html pages" do
+    it "should return the correct content type of the url for non html pages" do
       good = MetaInspector.new('http://pagerankalert.com/image.png')
-      title = good.title
 
-      good.parsed?.should == true
-      good.content_type == "image/jpeg"
+      good.content_type.should == "image/png"
     end
 
-    it "should return the correct content type of the url if it is parsed correctly even for html pages" do
+    it "should return the correct content type of the url for html pages" do
       good = MetaInspector.new('http://pagerankalert.com')
-      title = good.title
 
-      good.parsed?.should == true
-      good.content_type == "text/html"
+      good.content_type.should == "text/html"
     end
-
-    it "should return the correct content type of the url if it is not parsed correctly" do
-      bad = MetaInspector.new('http://pagerankalert.com/image.png', :timeout => 20, :html_content_only => true)
-      title = bad.title
-
-      bad.parsed?.should == false
-      bad.content_type == "image/jpeg"
-    end
-
   end
-
 end
