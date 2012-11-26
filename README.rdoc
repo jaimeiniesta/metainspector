@@ -85,7 +85,7 @@ The full scraped document if accessible from:
 
 You can check if the page has been succesfully parsed with:
 
-  page.parsed?                # Will return true if everything looks OK
+  page.ok?                    # Will return true if everything looks OK
 
 In case there have been any errors, you can check them with:
 
