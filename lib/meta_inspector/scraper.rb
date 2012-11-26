@@ -15,14 +15,16 @@ module MetaInspector
     # => timeout: defaults to 20 seconds
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
     def initialize(url, options = {})
+      options   = defaults.merge(options)
+
       @url      = with_default_scheme(encode_url(url))
       @scheme   = URI.parse(@url).scheme
       @host     = URI.parse(@url).host
       @root_url = "#{@scheme}://#{@host}/"
-      @timeout  = options[:timeout] || 20
+      @timeout  = options[:timeout]
       @data     = Hashie::Rash.new
       @errors   = []
-      @html_content_only = options[:html_content_only] || false
+      @html_content_only = options[:html_content_only]
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -133,6 +135,10 @@ module MetaInspector
     ##### DEPRECATIONS ####
 
     private
+
+    def defaults
+      { :timeout => 20, :html_content_only => false }
+    end
 
     # Scrapers for all meta_tags in the form of "meta_name" are automatically defined. This has been tested for
     # meta name: keywords, description, robots, generator
