@@ -27,6 +27,8 @@ describe MetaInspector do
   FakeWeb.register_uri(:get, "http://www.inkthemes.com/", :response => fixture_file("wordpress_site.response"))
   FakeWeb.register_uri(:get, "http://pagerankalert.com/image.png", :body => "Image", :content_type => "image/png")
   FakeWeb.register_uri(:get, "http://pagerankalert.com/file.tar.gz", :body => "Image", :content_type => "application/x-gzip")
+  FakeWeb.register_uri(:get, "http://facebook.com/", :response => fixture_file("facebook.com.response"))
+  FakeWeb.register_uri(:get, "https://www.facebook.com/", :response => fixture_file("https.facebook.com.response"))
 
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
@@ -136,6 +138,29 @@ describe MetaInspector do
       @m = MetaInspector.new('http://theonion-no-description.com')
       @m.description == "SAN FRANCISCO&#8212;In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday,"+
       " an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description."
+    end
+  end
+
+  describe 'Page with redirect to https when allow_unsafe_redirects is set to false' do
+    it "should not be parsed" do
+      @m = MetaInspector.new('http://facebook.com', :allow_unsafe_redirects => false)
+      title = @m.title
+      @m.should_not be_ok
+    end
+  end
+
+  describe 'Page with redirect to https when allow_unsafe_redirects is not set' do
+    it "should not be parsed" do
+      @m = MetaInspector.new('http://facebook.com')
+      title = @m.title
+      @m.should_not be_ok
+    end
+  end
+
+  describe 'Page with redirect to https when allow_unsafe_redirects is set to true' do
+    it "should redirect to https page with no errors" do
+      @m = MetaInspector.new('http://facebook.com', :allow_unsafe_redirects => true)
+      @m.title.should == "Hello From Facebook"
     end
   end
 
