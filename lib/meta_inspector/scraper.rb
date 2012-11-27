@@ -14,6 +14,7 @@ module MetaInspector
     # Options:
     # => timeout: defaults to 20 seconds
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
+    # => allow_safe_redirections: if redirects from http to https sites on the same domain should be allowed or not
     def initialize(url, options = {})
       options   = defaults.merge(options)
 
@@ -25,7 +26,7 @@ module MetaInspector
       @data     = Hashie::Rash.new
       @errors   = []
       @html_content_only = options[:html_content_only]
-      @allow_unsafe_redirects = options[:allow_unsafe_redirects]
+      @allow_safe_redirections = options[:allow_safe_redirections]
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -138,7 +139,7 @@ module MetaInspector
     private
 
     def defaults
-      { :timeout => 20, :html_content_only => false, :allow_unsafe_redirects => false }
+      { :timeout => 20, :html_content_only => false, :allow_safe_redirections => false }
     end
 
     # Scrapers for all meta_tags in the form of "meta_name" are automatically defined. This has been tested for
@@ -163,7 +164,7 @@ module MetaInspector
 
     # Makes the request to the server
     def request
-      Timeout::timeout(timeout) { @request ||= open(url, {:allow_unsafe_redirects => @allow_unsafe_redirects}) }
+      Timeout::timeout(timeout) { @request ||= open(url, {:allow_safe_redirections => @allow_safe_redirections}) }
 
       rescue TimeoutError
         add_fatal_error 'Timeout!!!'

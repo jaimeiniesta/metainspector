@@ -19,7 +19,7 @@ module OpenURI
   # The original open_uri takes *args but then doesn't do anything with them.
   # Assume we can only handle a hash.
   def self.open_uri name, options = {}
-    value = options.delete :allow_unsafe_redirects
+    value = options.delete :allow_safe_redirections
 
     if value
       class <<self

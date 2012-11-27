@@ -38,9 +38,9 @@ MetaInspector will try to parse all URLs by default. If you want to parse only t
 
   page = MetaInspector.new('markupvalidator.com', :html_content_only => true)
 
-To enable redirects from http to https sites on the same domain (i.e: http://www.facebook.com -> https://www.facebook.com) you can pass allow_unsafe_redirects as an option. If this option is not specified or is false an exception is thrown on redirects.
+To enable redirects from http to https sites on the same domain (i.e: http://www.facebook.com -> https://www.facebook.com) you can pass allow_safe_redirections as an option. If this option is not specified or is false an exception is thrown on all redirects.
 
-  page = MetaInspector.new('facebook.com', :allow_unsafe_redirects => true)
+  page = MetaInspector.new('facebook.com', :allow_safe_redirections => true)
 
 Then you can see the scraped data like this:
 

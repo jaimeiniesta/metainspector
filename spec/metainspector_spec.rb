@@ -141,15 +141,15 @@ describe MetaInspector do
     end
   end
 
-  describe 'Page with redirect to https when allow_unsafe_redirects is set to false' do
+  describe 'Page with redirect to https when allow_safe_redirections is set to false' do
     it "should not be parsed" do
-      @m = MetaInspector.new('http://facebook.com', :allow_unsafe_redirects => false)
+      @m = MetaInspector.new('http://facebook.com', :allow_safe_redirections => false)
       title = @m.title
       @m.should_not be_ok
     end
   end
 
-  describe 'Page with redirect to https when allow_unsafe_redirects is not set' do
+  describe 'Page with redirect to https when allow_safe_redirections is not set' do
     it "should not be parsed" do
       @m = MetaInspector.new('http://facebook.com')
       title = @m.title
@@ -157,9 +157,9 @@ describe MetaInspector do
     end
   end
 
-  describe 'Page with redirect to https when allow_unsafe_redirects is set to true' do
+  describe 'Page with redirect to https when allow_safe_redirections is set to true' do
     it "should redirect to https page with no errors" do
-      @m = MetaInspector.new('http://facebook.com', :allow_unsafe_redirects => true)
+      @m = MetaInspector.new('http://facebook.com', :allow_safe_redirections => true)
       @m.title.should == "Hello From Facebook"
     end
   end
