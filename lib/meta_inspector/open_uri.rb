@@ -3,6 +3,8 @@
 # http://redmine.ruby-lang.org/issues/3719
 # Source here:
 # https://github.com/ruby/ruby/blob/trunk/lib/open-uri.rb
+# Original gist URL:
+# https://gist.github.com/1271420
 module OpenURI
   class <<self
     alias_method :open_uri_original, :open_uri
