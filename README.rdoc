@@ -38,7 +38,7 @@ MetaInspector will try to parse all URLs by default. If you want to parse only t
 
   page = MetaInspector.new('markupvalidator.com', :html_content_only => true)
 
-MetaInspector allows safe redirects from http to https sites by default (i.e: http://www.facebook.com -> https://www.facebook.com). Passing allow_safe_redirections as false will throw exceptions on such redirects.
+MetaInspector allows safe redirects from http to https sites by default (i.e: <pre>http://www.facebook.com</pre> -> <pre>https://www.facebook.com</pre>). Passing allow_safe_redirections as false will throw exceptions on such redirects.
 
   page = MetaInspector.new('facebook.com', :allow_safe_redirections => false)
 
