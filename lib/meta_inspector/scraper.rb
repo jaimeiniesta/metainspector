@@ -198,11 +198,16 @@ module MetaInspector
     end
 
     def parsed_links
-      @parsed_links ||= parsed_document.search("//a/@href").map { |a| a.value.strip }.reject { |s| s.empty? }.uniq
+      @parsed_links ||= cleanup_nokogiri_values(parsed_document.search("//a/@href"))
     end
 
     def parsed_images
-      @parsed_images ||= parsed_document.search('//img/@src').map{ |i| i.value.strip }.reject { |s| s.empty? }.uniq
+      @parsed_images ||= cleanup_nokogiri_values(parsed_document.search('//img/@src'))
+    end
+
+    # Takes a nokogiri search result, strips the values, rejects the empty ones, and removes duplicates
+    def cleanup_nokogiri_values(results)
+      results.map { |a| a.value.strip }.reject { |s| s.empty? }.uniq
     end
 
     # Stores the error for later inspection
