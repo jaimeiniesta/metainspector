@@ -190,16 +190,17 @@ module MetaInspector
         @data.meta!.name!
         @data.meta!.property!
         parsed_document.xpath("//meta").each do |element|
-          if element.attributes["content"]
-            if element.attributes["name"]
-              @data.meta.name[element.attributes["name"].value.downcase] = element.attributes["content"].value
-            end
-
-            if element.attributes["property"]
-              @data.meta.property[element.attributes["property"].value.downcase] = element.attributes["content"].value
-            end
-          end
+          get_meta_name_or_property(element)
         end
+      end
+    end
+
+    # Store meta tag value, looking at meta name or meta property
+    def get_meta_name_or_property(element)
+      if element.attributes["content"]
+        type = element.attributes["name"] ? "name" : (element.attributes["property"] ? "property" : nil)
+
+        @data.meta.name[element.attributes[type].value.downcase] = element.attributes["content"].value if type
       end
     end
 
