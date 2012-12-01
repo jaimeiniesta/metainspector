@@ -14,7 +14,8 @@ module MetaInspector
     # Options:
     # => timeout: defaults to 20 seconds
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
-    # => allow_safe_redirections: if redirects from http to https sites on the same domain should be allowed or not
+    # => allow_safe_redirections:   if redirects from http to https sites on the same domain should be allowed or not
+    # => allow_unsafe_redirections: if redirects from https to http sites on the same domain should be allowed or not
     def initialize(url, options = {})
       options   = defaults.merge(options)
 
@@ -25,9 +26,9 @@ module MetaInspector
       @timeout  = options[:timeout]
       @data     = Hashie::Rash.new
       @errors   = []
-      @html_content_only = options[:html_content_only]
-      @allow_safe_redirections = options[:allow_safe_redirections]
-      @allow_unsafe_redirections = options[:allow_unsafe_redirections]
+      @html_content_only          = options[:html_content_only]
+      @allow_safe_redirections    = options[:allow_safe_redirections]
+      @allow_unsafe_redirections  = options[:allow_unsafe_redirections]
     end
 
     # Returns the parsed document title, from the content of the <title> tag.

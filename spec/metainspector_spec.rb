@@ -114,55 +114,6 @@ describe MetaInspector do
     end
   end
 
-  describe 'Page with redirect from http to https' do
-    it "should redirect to https page with no errors when allow_safe_redirections is set to true" do
-      @m = MetaInspector.new('http://facebook.com', :allow_safe_redirections => true)
-      @m.title.should == "Hello From Facebook"
-    end
-
-    it "should not be parsed when allow_safe_redirections is not set" do
-      @m = MetaInspector.new('http://facebook.com')
-      @m.title.should == "Hello From Facebook"
-    end
-
-    it "should not be parsed when allow_safe_redirections is set to false" do
-      @m = MetaInspector.new('http://facebook.com', :allow_safe_redirections => false)
-      title = @m.title
-      @m.should_not be_ok
-    end
-
-    it "should redirect to https page with no errors when allow_safe_redirection is false but allow_unsafe_redirections is set to true" do
-      @m = MetaInspector.new('http://facebook.com', :allow_unsafe_redirections => true)
-      @m.title.should == "Hello From Facebook"
-    end
-  end
-
-  describe 'Page with unsafe redirect from https to http' do
-
-    it "should redirect to http page with no errors when allow_unsafe_redirections is set to true" do
-      @m = MetaInspector.new('https://unsafe-facebook.com', :allow_unsafe_redirections => true)
-      @m.title.should == "Hello From Facebook"
-    end
-
-    it "should not be parsed when allow_unsafe_redirections is not set" do
-      @m = MetaInspector.new('https://unsafe-facebook.com')
-      title = @m.title
-      @m.should_not be_ok
-    end
-
-    it "should not be parsed when allow_unsafe_redirections is set to false" do
-      @m = MetaInspector.new('https://unsafe-facebook.com', :allow_unsafe_redirections => false)
-      title = @m.title
-      @m.should_not be_ok
-    end
-
-    it "should not be parsed when allow_unsafe_redirections is not set and allow_safe_redirections is true" do
-      @m = MetaInspector.new('https://unsafe-facebook.com', :allow_safe_redirections => true)
-      title = @m.title
-      @m.should_not be_ok
-    end
-  end
-
   describe 'Links' do
     before(:each) do
       @m = MetaInspector.new('http://pagerankalert.com')

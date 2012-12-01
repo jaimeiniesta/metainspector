@@ -40,7 +40,12 @@ FakeWeb.register_uri(:get, "http://charset002.com", :response => fixture_file("c
 FakeWeb.register_uri(:get, "http://www.inkthemes.com/", :response => fixture_file("wordpress_site.response"))
 FakeWeb.register_uri(:get, "http://pagerankalert.com/image.png", :body => "Image", :content_type => "image/png")
 FakeWeb.register_uri(:get, "http://pagerankalert.com/file.tar.gz", :body => "Image", :content_type => "application/x-gzip")
-FakeWeb.register_uri(:get, "http://facebook.com/", :response => fixture_file("facebook.com.response"))
-FakeWeb.register_uri(:get, "https://www.facebook.com/", :response => fixture_file("https.facebook.com.response"))
-FakeWeb.register_uri(:get, "http://unsafe-facebook.com/", :response => fixture_file("unsafe_facebook.com.response"))
-FakeWeb.register_uri(:get, "https://unsafe-facebook.com/", :response => fixture_file("unsafe_https.facebook.com.response"))
+
+# These examples are used to test the redirections from HTTP to HTTPS and vice versa
+# http://facebook.com => https://facebook.com
+FakeWeb.register_uri(:get, "http://facebook.com/",          :response => fixture_file("facebook.com.response"))
+FakeWeb.register_uri(:get, "https://www.facebook.com/",     :response => fixture_file("https.facebook.com.response"))
+
+# https://unsafe-facebook.com => http://unsafe-facebook.com
+FakeWeb.register_uri(:get, "https://unsafe-facebook.com/",  :response => fixture_file("unsafe_https.facebook.com.response"))
+FakeWeb.register_uri(:get, "http://unsafe-facebook.com/",   :response => fixture_file("unsafe_facebook.com.response"))
