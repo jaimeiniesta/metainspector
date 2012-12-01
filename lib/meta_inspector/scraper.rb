@@ -8,7 +8,7 @@ require 'timeout'
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
-    attr_reader :url, :scheme, :host, :root_url, :errors, :content_type, :timeout, :html_content_only
+    attr_reader :url, :scheme, :host, :root_url, :errors, :content_type, :timeout, :html_content_only, :verbose
 
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # Options:
@@ -29,6 +29,7 @@ module MetaInspector
       @html_content_only          = options[:html_content_only]
       @allow_safe_redirections    = options[:allow_safe_redirections]
       @allow_unsafe_redirections  = options[:allow_unsafe_redirections]
+      @verbose                    = options[:verbose]
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -141,7 +142,13 @@ module MetaInspector
     private
 
     def defaults
-      { :timeout => 20, :html_content_only => false, :allow_safe_redirections => true, :allow_unsafe_redirections => false }
+      {
+        :timeout                    => 20,
+        :html_content_only          => false,
+        :allow_safe_redirections    => true,
+        :allow_unsafe_redirections  => false,
+        :verbose                    => false
+      }
     end
 
     # Scrapers for all meta_tags in the form of "meta_name" are automatically defined. This has been tested for
@@ -209,7 +216,7 @@ module MetaInspector
 
     # Stores the error for later inspection
     def add_fatal_error(error)
-      warn error
+      warn error if verbose
       @errors << error
     end
 
