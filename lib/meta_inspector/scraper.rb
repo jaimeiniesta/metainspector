@@ -245,7 +245,8 @@ module MetaInspector
 
     # Look for the first <p> block with 120 characters or more
     def secondary_description
-      (p = parsed_document.search('//p').map(&:text).select{ |p| p.length > 120 }.first).nil? ? '' : p
+      first_long_paragraph = parsed_document.search('//p[string-length() >= 120]').first
+      first_long_paragraph ? first_long_paragraph.text : ''
     end
 
     def charset_from_meta_charset
