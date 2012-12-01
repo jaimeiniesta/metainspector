@@ -3,35 +3,6 @@
 require File.join(File.dirname(__FILE__), "/spec_helper")
 
 describe MetaInspector do
-  FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
-  FakeWeb.register_uri(:get, "pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
-  FakeWeb.register_uri(:get, "http://www.alazan.com", :response => fixture_file("alazan.com.response"))
-  FakeWeb.register_uri(:get, "http://alazan.com/websolution.asp", :response => fixture_file("alazan_websolution.response"))
-  FakeWeb.register_uri(:get, "http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/", :response => fixture_file("theonion.com.response"))
-  FakeWeb.register_uri(:get, "http://theonion-no-description.com", :response => fixture_file("theonion-no-description.com.response"))
-  FakeWeb.register_uri(:get, "http://www.iteh.at", :response => fixture_file("iteh.at.response"))
-  FakeWeb.register_uri(:get, "http://www.tea-tron.com/jbravo/blog/", :response => fixture_file("tea-tron.com.response"))
-  FakeWeb.register_uri(:get, "http://www.guardian.co.uk/media/pda/2011/sep/15/techcrunch-arrington-startups", :response => fixture_file("guardian.co.uk.response"))
-  FakeWeb.register_uri(:get, "http://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
-  FakeWeb.register_uri(:get, "https://protocol-relative.com", :response => fixture_file("protocol_relative.response"))
-  FakeWeb.register_uri(:get, "http://example.com/nonhttp", :response => fixture_file("nonhttp.response"))
-  FakeWeb.register_uri(:get, "http://example.com/invalid_href", :response => fixture_file("invalid_href.response"))
-  FakeWeb.register_uri(:get, "http://www.youtube.com/watch?v=iaGSSrp49uc", :response => fixture_file("youtube.response"))
-  FakeWeb.register_uri(:get, "http://markupvalidator.com/faqs", :response => fixture_file("markupvalidator_faqs.response"))
-  FakeWeb.register_uri(:get, "https://twitter.com/markupvalidator", :response => fixture_file("twitter_markupvalidator.response"))
-  FakeWeb.register_uri(:get, "https://example.com/empty", :response => fixture_file("empty_page.response"))
-  FakeWeb.register_uri(:get, "http://international.com", :response => fixture_file("international.response"))
-  FakeWeb.register_uri(:get, "http://charset000.com", :response => fixture_file("charset_000.response"))
-  FakeWeb.register_uri(:get, "http://charset001.com", :response => fixture_file("charset_001.response"))
-  FakeWeb.register_uri(:get, "http://charset002.com", :response => fixture_file("charset_002.response"))
-  FakeWeb.register_uri(:get, "http://www.inkthemes.com/", :response => fixture_file("wordpress_site.response"))
-  FakeWeb.register_uri(:get, "http://pagerankalert.com/image.png", :body => "Image", :content_type => "image/png")
-  FakeWeb.register_uri(:get, "http://pagerankalert.com/file.tar.gz", :body => "Image", :content_type => "application/x-gzip")
-  FakeWeb.register_uri(:get, "http://facebook.com/", :response => fixture_file("facebook.com.response"))
-  FakeWeb.register_uri(:get, "https://www.facebook.com/", :response => fixture_file("https.facebook.com.response"))
-  FakeWeb.register_uri(:get, "http://unsafe-facebook.com/", :response => fixture_file("unsafe_facebook.com.response"))
-  FakeWeb.register_uri(:get, "https://unsafe-facebook.com/", :response => fixture_file("unsafe_https.facebook.com.response"))
-
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
       MetaInspector.new('http://pagerankalert.com').url.should == 'http://pagerankalert.com'
