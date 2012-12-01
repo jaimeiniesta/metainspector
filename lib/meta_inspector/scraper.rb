@@ -133,13 +133,6 @@ module MetaInspector
       errors.empty?
     end
 
-    ##### DEPRECATIONS ####
-    def parsed?
-      warn "the parsed? method has been deprecated, please use ok? instead"
-      !@parsed_document.nil?
-    end
-    ##### DEPRECATIONS ####
-
     private
 
     def defaults
