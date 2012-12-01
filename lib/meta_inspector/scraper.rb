@@ -8,7 +8,8 @@ require 'timeout'
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
-    attr_reader :url, :scheme, :host, :root_url, :errors, :content_type, :timeout, :html_content_only, :verbose
+    attr_reader :url, :scheme, :host, :root_url, :errors, :content_type, :timeout, :html_content_only
+    attr_reader :allow_safe_redirections, :allow_unsafe_redirections, :verbose
 
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # Options:
@@ -173,7 +174,7 @@ module MetaInspector
 
     # Makes the request to the server
     def request
-      Timeout::timeout(timeout) { @request ||= open(url, {:allow_safe_redirections => @allow_safe_redirections, :allow_unsafe_redirections => @allow_unsafe_redirections}) }
+      Timeout::timeout(timeout) { @request ||= open(url, {:allow_safe_redirections => allow_safe_redirections, :allow_unsafe_redirections => allow_unsafe_redirections}) }
 
       rescue TimeoutError
         add_fatal_error 'Timeout!!!'
