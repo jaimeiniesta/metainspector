@@ -198,15 +198,11 @@ module MetaInspector
     end
 
     def parsed_links
-      @parsed_links ||= parsed_document.search("//a") \
-                          .map {|link| link.attributes["href"] \
-                          .to_s.strip}.uniq rescue []
+      @parsed_links ||= parsed_document.search("//a/@href").map { |a| a.value.strip }.reject { |s| s.empty? }.uniq
     end
 
     def parsed_images
-      @parsed_images ||= parsed_document.search('//img') \
-                           .reject{|i| (i.attributes['src'].nil? || i.attributes['src'].value.empty?) } \
-                           .map{ |i| i.attributes['src'].value }.uniq
+      @parsed_images ||= parsed_document.search('//img/@src').map{ |i| i.value.strip }.reject { |s| s.empty? }.uniq
     end
 
     # Stores the error for later inspection

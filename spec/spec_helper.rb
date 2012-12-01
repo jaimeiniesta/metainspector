@@ -32,7 +32,7 @@ FakeWeb.register_uri(:get, "http://example.com/invalid_href", :response => fixtu
 FakeWeb.register_uri(:get, "http://www.youtube.com/watch?v=iaGSSrp49uc", :response => fixture_file("youtube.response"))
 FakeWeb.register_uri(:get, "http://markupvalidator.com/faqs", :response => fixture_file("markupvalidator_faqs.response"))
 FakeWeb.register_uri(:get, "https://twitter.com/markupvalidator", :response => fixture_file("twitter_markupvalidator.response"))
-FakeWeb.register_uri(:get, "https://example.com/empty", :response => fixture_file("empty_page.response"))
+FakeWeb.register_uri(:get, "http://example.com/empty", :response => fixture_file("empty_page.response"))
 FakeWeb.register_uri(:get, "http://international.com", :response => fixture_file("international.response"))
 FakeWeb.register_uri(:get, "http://charset000.com", :response => fixture_file("charset_000.response"))
 FakeWeb.register_uri(:get, "http://charset001.com", :response => fixture_file("charset_001.response"))
