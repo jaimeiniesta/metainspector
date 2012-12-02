@@ -72,13 +72,9 @@ module MetaInspector
       meta_og_image
     end
 
-    # Returns the parsed document meta rss links
+    # Returns the parsed document meta rss link
     def feed
-      @feed ||= parsed_document.xpath("//link").select{ |link|
-          link.attributes["type"] && link.attributes["type"].value =~ /(atom|rss)/
-        }.map { |link|
-          absolutify_url(link.attributes["href"].value)
-        }.first rescue nil
+      @feed ||= (parsed_feed('rss') || parsed_feed('atom'))
     end
 
     # Returns the charset from the meta tags, looking for it in the following order:
@@ -195,6 +191,11 @@ module MetaInspector
 
         @data.meta.name[element.attributes[type].value.downcase] = element.attributes["content"].value if type
       end
+    end
+
+    def parsed_feed(format)
+      feed = parsed_document.search("//link[@type='application/#{format}+xml']").first
+      absolutify_url feed.attributes['href'].value
     end
 
     def parsed_links
