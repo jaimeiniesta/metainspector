@@ -89,14 +89,21 @@ describe MetaInspector do
       @m.document.class.should == String
     end
 
-    it "should get rss feed" do
-      @m = MetaInspector.new('http://www.iteh.at')
-      @m.feed.should == 'http://www.iteh.at/de/rss/'
-    end
+    describe "Feed" do
+      it "should get rss feed" do
+        @m = MetaInspector.new('http://www.iteh.at')
+        @m.feed.should == 'http://www.iteh.at/de/rss/'
+      end
 
-    it "should get atom feed" do
-      @m = MetaInspector.new('http://www.tea-tron.com/jbravo/blog/')
-      @m.feed.should == 'http://www.tea-tron.com/jbravo/blog/feed/'
+      it "should get atom feed" do
+        @m = MetaInspector.new('http://www.tea-tron.com/jbravo/blog/')
+        @m.feed.should == 'http://www.tea-tron.com/jbravo/blog/feed/'
+      end
+
+      it "should return nil if no feed found" do
+        @m = MetaInspector.new('http://www.alazan.com')
+        @m.feed.should == nil
+      end
     end
 
     describe "get description" do

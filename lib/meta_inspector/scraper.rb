@@ -195,7 +195,7 @@ module MetaInspector
 
     def parsed_feed(format)
       feed = parsed_document.search("//link[@type='application/#{format}+xml']").first
-      absolutify_url feed.attributes['href'].value
+      feed ? absolutify_url(feed.attributes['href'].value) : nil
     end
 
     def parsed_links
