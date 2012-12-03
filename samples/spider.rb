@@ -6,7 +6,7 @@ require 'meta_inspector'
 q = Queue.new
 visited_links=[]
 
-puts "Enter a valid http url to spider it following external links"
+puts "Enter a valid http url to spider it following internal links"
 url = gets.strip
 
 page = MetaInspector.new(url)
@@ -20,9 +20,9 @@ while q.size > 0
   puts "TITLE: #{page.title}"
   puts "META DESCRIPTION: #{page.meta_description}"
   puts "META KEYWORDS: #{page.meta_keywords}"
-  puts "LINKS: #{page.links.size}"
-  page.links.each do |link|
-    if link[0..6] == 'http://' && !visited_links.include?(link)
+  puts "LINKS: #{page.internal_links.size}"
+  page.internal_links.each do |link|
+    if !visited_links.include?(link)
       q.push(link)
     end
   end
