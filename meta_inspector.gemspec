@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'nokogiri', '~> 1.5'
   gem.add_dependency 'rash', '0.3.2'
+  gem.add_dependency 'open_uri_redirections', '0.0.1'
 
   gem.add_development_dependency 'rspec', '2.12.0'
   gem.add_development_dependency 'fakeweb', '1.3.0'

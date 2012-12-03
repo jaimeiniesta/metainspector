@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'open-uri'
+require 'open_uri_redirections'
 require 'nokogiri'
 require 'hashie/rash'
 require 'timeout'
