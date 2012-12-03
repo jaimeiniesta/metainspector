@@ -17,8 +17,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'nokogiri', '~> 1.5'
   gem.add_dependency 'rash', '0.3.2'
 
-  gem.add_development_dependency 'rspec', '2.11.0'
+  gem.add_development_dependency 'rspec', '2.12.0'
   gem.add_development_dependency 'fakeweb', '1.3.0'
-  gem.add_development_dependency 'awesome_print', '1.0.2'
-  gem.add_development_dependency 'rake', '0.9.2.2'
+  gem.add_development_dependency 'awesome_print', '1.1.0'
+  gem.add_development_dependency 'rake', '10.0.2'
 end
