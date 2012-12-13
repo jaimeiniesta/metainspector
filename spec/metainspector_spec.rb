@@ -177,22 +177,44 @@ describe MetaInspector do
                             "http://example.com/search?q=espa%C3%B1a#top"]
       end
 
-      it "should get correct internal links, encoding the URLs as needed but respecting # and ?" do
-        m = MetaInspector.new('http://international.com')
-        m.internal_links.should == [ "http://international.com/espa%C3%B1a.asp",
-                                     "http://international.com/roman%C3%A9e",
-                                     "http://international.com/faqs#cami%C3%B3n",
-                                     "http://international.com/search?q=cami%C3%B3n",
-                                     "http://international.com/search?q=espa%C3%B1a#top"]
+      describe "internal links" do
+        it "should get correct internal links, encoding the URLs as needed but respecting # and ?" do
+          m = MetaInspector.new('http://international.com')
+          m.internal_links.should == [ "http://international.com/espa%C3%B1a.asp",
+                                       "http://international.com/roman%C3%A9e",
+                                       "http://international.com/faqs#cami%C3%B3n",
+                                       "http://international.com/search?q=cami%C3%B3n",
+                                       "http://international.com/search?q=espa%C3%B1a#top"]
+        end
+
+        it "should not crash when processing malformed hrefs" do
+          m = MetaInspector.new('http://example.com/malformed_href')
+          expect {
+            m.internal_links.should == [ "http://example.com/faqs" ]
+            m.should_not be_ok
+          }.to_not raise_error
+        end
       end
 
-      it "should get correct external links, encoding the URLs as needed but respecting # and ?" do
-        m = MetaInspector.new('http://international.com')
-        m.external_links.should == [ "http://example.com/espa%C3%B1a.asp",
-                                     "http://example.com/roman%C3%A9e",
-                                     "http://example.com/faqs#cami%C3%B3n",
-                                     "http://example.com/search?q=cami%C3%B3n",
-                                     "http://example.com/search?q=espa%C3%B1a#top"]
+      describe "external links" do
+        it "should get correct external links, encoding the URLs as needed but respecting # and ?" do
+          m = MetaInspector.new('http://international.com')
+          m.external_links.should == [ "http://example.com/espa%C3%B1a.asp",
+                                       "http://example.com/roman%C3%A9e",
+                                       "http://example.com/faqs#cami%C3%B3n",
+                                       "http://example.com/search?q=cami%C3%B3n",
+                                       "http://example.com/search?q=espa%C3%B1a#top"]
+        end
+
+        it "should not crash when processing malformed hrefs" do
+          m = MetaInspector.new('http://example.com/malformed_href')
+          expect {
+            m.external_links.should == ["skype:joeuser?call", "telnet://telnet.cdrom.com",
+                                        "javascript:alert('ok');", "javascript://",
+                                        "mailto:email(at)example.com"]
+            m.should_not be_ok
+          }.to_not raise_error
+        end
       end
     end
 
