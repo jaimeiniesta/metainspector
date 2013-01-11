@@ -126,11 +126,6 @@ describe MetaInspector do
     it "should get the title" do
       @m.title.should == "Hello From Passed Html"
     end
-
-    it "should have a String as document" do
-      @m.document.class.should == String
-    end
-
   end
 
   describe 'Page with missing meta description' do
