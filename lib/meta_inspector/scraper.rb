@@ -16,8 +16,10 @@ module MetaInspector
     # Options:
     # => timeout: defaults to 20 seconds
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
-    # => allow_safe_redirections:   if redirects from http to https sites on the same domain should be allowed or not
+    # => allow_safe_redirections: if redirects from http to https sites on the same domain should be allowed or not
     # => allow_unsafe_redirections: if redirects from https to http sites on the same domain should be allowed or not
+    # => document: the html of the url as a string
+    # => verbose: if the errors should be logged to the screen
     def initialize(url, options = {})
       options   = defaults.merge(options)
 
@@ -32,6 +34,7 @@ module MetaInspector
       @allow_safe_redirections    = options[:allow_safe_redirections]
       @allow_unsafe_redirections  = options[:allow_unsafe_redirections]
       @verbose                    = options[:verbose]
+      @document                   = options[:document]
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
