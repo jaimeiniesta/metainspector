@@ -70,9 +70,13 @@ You can also access most of the scraped data as a hash:
     page.to_hash  # { "url"   => "http://markupvalidator.com",
                       "title" => "MarkupValidator :: site-wide markup validation tool", ... }
 
-The full scraped document if accessible from:
+The original document is accessible from:
 
-    page.document  # Nokogiri doc that you can use it to get any element from the page
+    page.document         # A String with the contents of the HTML document
+
+And the full scraped document is accessible from:
+
+    page.parsed_document  # Nokogiri doc that you can use it to get any element from the page
     
 ## Options
 
