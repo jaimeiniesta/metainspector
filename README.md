@@ -28,6 +28,10 @@ If you don't include the scheme on the URL, http:// will be used by default:
 
     page = MetaInspector.new('markupvalidator.com')
 
+You can also include the html which will be used as the document to scrape:
+
+    page = MetaInspector.new("http://markupvalidator.com", :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>")
+
 ## Accessing scraped data
 
 Then you can see the scraped data like this:
