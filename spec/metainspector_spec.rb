@@ -113,6 +113,21 @@ describe MetaInspector do
     end
   end
 
+  describe 'Doing a basic scrape from passed url html' do
+    
+    before(:each) do
+      @m = MetaInspector.new("http://cnn.com", :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>")
+    end
+
+    it "should get correct links when the url html is passed as an option" do
+      @m.links.should == ["http://cnn.com/hello"]
+    end
+
+    it "should get the title" do
+      @m.title.should == "Hello From Passed Html"
+    end
+  end
+
   describe 'Page with missing meta description' do
     it "should find secondary description" do
       @m = MetaInspector.new('http://theonion-no-description.com')
