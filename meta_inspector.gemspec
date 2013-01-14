@@ -21,5 +21,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec', '2.12.0'
   gem.add_development_dependency 'fakeweb', '1.3.0'
   gem.add_development_dependency 'awesome_print', '1.1.0'
-  gem.add_development_dependency 'rake', '10.0.2'
+  gem.add_development_dependency 'rake', '~> 10.0.3'
 end
