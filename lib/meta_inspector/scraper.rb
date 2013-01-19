@@ -10,14 +10,13 @@ require 'timeout'
 module MetaInspector
   class Scraper
     attr_reader :url, :scheme, :host, :root_url, :errors, :content_type, :timeout, :html_content_only
-    attr_reader :allow_safe_redirections, :allow_unsafe_redirections, :verbose
+    attr_reader :allow_redirections, :verbose
 
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # Options:
     # => timeout: defaults to 20 seconds
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
-    # => allow_safe_redirections: if redirects from http to https sites on the same domain should be allowed or not
-    # => allow_unsafe_redirections: if redirects from https to http sites on the same domain should be allowed or not
+    # => allow_redirections: when :safe, allows HTTP => HTTPS redirections. When :all, it also allows HTTPS => HTTP
     # => document: the html of the url as a string
     # => verbose: if the errors should be logged to the screen
     def initialize(url, options = {})
@@ -30,11 +29,10 @@ module MetaInspector
       @timeout  = options[:timeout]
       @data     = Hashie::Rash.new
       @errors   = []
-      @html_content_only          = options[:html_content_only]
-      @allow_safe_redirections    = options[:allow_safe_redirections]
-      @allow_unsafe_redirections  = options[:allow_unsafe_redirections]
-      @verbose                    = options[:verbose]
-      @document                   = options[:document]
+      @html_content_only  = options[:html_content_only]
+      @allow_redirections = options[:allow_redirections]
+      @verbose            = options[:verbose]
+      @document           = options[:document]
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -139,8 +137,6 @@ module MetaInspector
       {
         :timeout                    => 20,
         :html_content_only          => false,
-        :allow_safe_redirections    => true,
-        :allow_unsafe_redirections  => false,
         :verbose                    => false
       }
     end
@@ -167,7 +163,7 @@ module MetaInspector
 
     # Makes the request to the server
     def request
-      Timeout::timeout(timeout) { @request ||= open(url, {:allow_safe_redirections => allow_safe_redirections, :allow_unsafe_redirections => allow_unsafe_redirections}) }
+      Timeout::timeout(timeout) { @request ||= open(url, {:allow_redirections => allow_redirections}) }
 
       rescue TimeoutError
         add_fatal_error 'Timeout!!!'

@@ -93,13 +93,15 @@ You can set a different timeout with a second parameter, like this:
 
 ### Redirections
 
-MetaInspector allows safe redirects from http to https (for example, [http://github.com](http://github.com) => [https://github.com](https://github.com)) by default. With the option `:allow_safe_redirections => false`, it will throw exceptions on such redirects.
+By default, redirections from HTTP to HTTPS, and from HTTPS to HTTP are disallowed.
 
-    page = MetaInspector.new('facebook.com', :allow_safe_redirections => false)
+However, you can tell MetaInspector to allow these redirections with the option `:allow_redirections`, like this:
 
-To enable unsafe redirects from https to http (like, [https://example.com](https://example.com) => [http://example.com](http://example.com)) you can pass the option `:allow_unsafe_redirections => true`. If this option is not specified or is false an exception is thrown on such redirects.
-
-    page = MetaInspector.new('facebook.com', :allow_unsafe_redirections => true)
+     # This will allow HTTP => HTTPS redirections
+     page = MetaInspector.new('facebook.com', :allow_redirections => :safe)
+     
+     # And this will allow HTTP => HTTPS ("safe") and HTTPS => HTTP ("unsafe") redirections
+     page = MetaInspector.new('facebook.com', :allow_redirections => :all)
 
 ### HTML Content Only
 
