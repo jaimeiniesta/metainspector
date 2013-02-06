@@ -23,6 +23,7 @@ Cache-control: private
   <a href="/faqs#camión">FAQs camión</a>
   <a href="/search?q=camión">Search camión</a>
   <a href="/search?q=españa#top">Search España at top</a>
+  <a href="/index.php?q=españa&url=aHR0zZQ%3D%3D&amp;cntnt01pageid=21">A link with an encoded param, %3D should not be double-escaped</a>
 
   <h1>External links:</h1>
   <a href="http://example.com/españa.asp">España</a>

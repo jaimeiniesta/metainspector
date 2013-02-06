@@ -5,7 +5,7 @@ require File.join(File.dirname(__FILE__), "/spec_helper")
 describe MetaInspector do
   describe 'Initialization' do
     it 'should accept an URL with a scheme' do
-      MetaInspector.new('http://pagerankalert.com').url.should == 'http://pagerankalert.com'
+      MetaInspector.new('http://pagerankalert.com').url.should == 'http://pagerankalert.com/'
     end
 
     it "should use http:// as a default scheme" do
@@ -114,7 +114,7 @@ describe MetaInspector do
   end
 
   describe 'Doing a basic scrape from passed url html' do
-    
+
     before(:each) do
       @m = MetaInspector.new("http://cnn.com", :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>")
     end
@@ -147,7 +147,7 @@ describe MetaInspector do
                            "http://pagerankalert.com/users/sign_up",
                            "http://pagerankalert.com/users/sign_in",
                            "mailto:pagerankalert@gmail.com",
-                           "http://pagerankalert.posterous.com",
+                           "http://pagerankalert.posterous.com/",
                            "http://twitter.com/pagerankalert",
                            "http://twitter.com/share" ]
     end
@@ -161,7 +161,7 @@ describe MetaInspector do
 
     it "should get correct absolute links for external pages" do
       @m.external_links.should == [ "mailto:pagerankalert@gmail.com",
-                           "http://pagerankalert.posterous.com",
+                           "http://pagerankalert.posterous.com/",
                            "http://twitter.com/pagerankalert",
                            "http://twitter.com/share" ]
     end
@@ -178,13 +178,14 @@ describe MetaInspector do
     end
 
     describe "links with international characters" do
-      it "should get correct absolute links, encoding the URLs as needed but respecting # and ?" do
+      it "should get correct absolute links, encoding the URLs as needed" do
         m = MetaInspector.new('http://international.com')
         m.links.should == [ "http://international.com/espa%C3%B1a.asp",
                             "http://international.com/roman%C3%A9e",
                             "http://international.com/faqs#cami%C3%B3n",
                             "http://international.com/search?q=cami%C3%B3n",
                             "http://international.com/search?q=espa%C3%B1a#top",
+                            "http://international.com/index.php?q=espa%C3%B1a&url=aHR0zZQ==&cntnt01pageid=21",
                             "http://example.com/espa%C3%B1a.asp",
                             "http://example.com/roman%C3%A9e",
                             "http://example.com/faqs#cami%C3%B3n",
@@ -199,7 +200,8 @@ describe MetaInspector do
                                        "http://international.com/roman%C3%A9e",
                                        "http://international.com/faqs#cami%C3%B3n",
                                        "http://international.com/search?q=cami%C3%B3n",
-                                       "http://international.com/search?q=espa%C3%B1a#top"]
+                                       "http://international.com/search?q=espa%C3%B1a#top",
+                                       "http://international.com/index.php?q=espa%C3%B1a&url=aHR0zZQ==&cntnt01pageid=21"]
         end
 
         it "should not crash when processing malformed hrefs" do
@@ -225,8 +227,7 @@ describe MetaInspector do
           m = MetaInspector.new('http://example.com/malformed_href')
           expect {
             m.external_links.should == ["skype:joeuser?call", "telnet://telnet.cdrom.com",
-                                        "javascript:alert('ok');", "javascript://",
-                                        "mailto:email(at)example.com"]
+                                        "javascript:alert('ok');", "mailto:email(at)example.com"]
             m.should_not be_ok
           }.to_not raise_error
         end
@@ -257,8 +258,7 @@ describe MetaInspector do
 
     it "should get the links" do
       @m.links.sort.should == [
-                                "FTP://FTP.CDROM.COM",
-                                "ftp://ftp.cdrom.com",
+                                "ftp://ftp.cdrom.com/",
                                 "javascript:alert('hey');",
                                 "mailto:user@example.com",
                                 "skype:joeuser?call",
@@ -275,12 +275,12 @@ describe MetaInspector do
 
     it "should convert protocol-relative links to http" do
       @m_http.links.should include('http://protocol-relative.com/contact')
-      @m_http.links.should include('http://yahoo.com')
+      @m_http.links.should include('http://yahoo.com/')
     end
 
     it "should convert protocol-relative links to https" do
       @m_https.links.should include('https://protocol-relative.com/contact')
-      @m_https.links.should include('https://yahoo.com')
+      @m_https.links.should include('https://yahoo.com/')
     end
   end
 
@@ -355,7 +355,40 @@ describe MetaInspector do
   describe 'to_hash' do
     it "should return a hash with all the values set" do
       @m = MetaInspector.new('http://pagerankalert.com')
-      @m.to_hash.should == {"title"=>"PageRankAlert.com :: Track your PageRank changes", "url"=>"http://pagerankalert.com", "meta"=>{"name"=>{"robots"=>"all,follow", "csrf_param"=>"authenticity_token", "description"=>"Track your PageRank(TM) changes and receive alerts by email", "keywords"=>"pagerank, seo, optimization, google", "csrf_token"=>"iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="}, "property"=>{}}, "images"=>["http://pagerankalert.com/images/pagerank_alert.png?1305794559"], "charset"=>"utf-8", "feed"=>"http://feeds.feedburner.com/PageRankAlert", "links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in", "mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"], "internal_links"=>["http://pagerankalert.com/", "http://pagerankalert.com/es?language=es", "http://pagerankalert.com/users/sign_up", "http://pagerankalert.com/users/sign_in"], "external_links" => ["mailto:pagerankalert@gmail.com", "http://pagerankalert.posterous.com", "http://twitter.com/pagerankalert", "http://twitter.com/share"], "content_type" => "text/html"}
+      @m.to_hash.should == {
+                              "url"             =>"http://pagerankalert.com/",
+                              "title"           =>"PageRankAlert.com :: Track your PageRank changes",
+                              "links"           => ["http://pagerankalert.com/",
+                                                    "http://pagerankalert.com/es?language=es",
+                                                    "http://pagerankalert.com/users/sign_up",
+                                                    "http://pagerankalert.com/users/sign_in",
+                                                    "mailto:pagerankalert@gmail.com",
+                                                    "http://pagerankalert.posterous.com/",
+                                                    "http://twitter.com/pagerankalert",
+                                                    "http://twitter.com/share"],
+                              "internal_links"  => ["http://pagerankalert.com/",
+                                                    "http://pagerankalert.com/es?language=es",
+                                                    "http://pagerankalert.com/users/sign_up",
+                                                    "http://pagerankalert.com/users/sign_in"],
+                              "external_links"  => ["mailto:pagerankalert@gmail.com",
+                                                    "http://pagerankalert.posterous.com/",
+                                                    "http://twitter.com/pagerankalert",
+                                                    "http://twitter.com/share"],
+                              "images"          => ["http://pagerankalert.com/images/pagerank_alert.png?1305794559"],
+                              "charset"         => "utf-8",
+                              "feed"            => "http://feeds.feedburner.com/PageRankAlert",
+                              "content_type"    =>"text/html",
+                              "meta"            => {
+                                                      "name" => {
+                                                                  "description"=> "Track your PageRank(TM) changes and receive alerts by email",
+                                                                  "keywords" => "pagerank, seo, optimization, google",
+                                                                  "robots" => "all,follow",
+                                                                  "csrf_param" => "authenticity_token",
+                                                                  "csrf_token" => "iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="
+                                                                },
+                                                      "property"=>{}
+                                                   }
+                           }
     end
   end
 

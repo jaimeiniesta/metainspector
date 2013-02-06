@@ -9,7 +9,7 @@ describe MetaInspector do
         m = MetaInspector.new("http://facebook.com")
         m.title.should be_nil
         m.should_not be_ok
-        m.errors.first.should == "Scraping exception: redirection forbidden: http://facebook.com -> https://www.facebook.com/"
+        m.errors.first.should == "Scraping exception: redirection forbidden: http://facebook.com/ -> https://www.facebook.com/"
       end
 
       it "allows safe redirections when :allow_redirections => :safe" do
@@ -30,14 +30,14 @@ describe MetaInspector do
         m = MetaInspector.new("https://unsafe-facebook.com")
         m.title.should be_nil
         m.should_not be_ok
-        m.errors.first.should == "Scraping exception: redirection forbidden: https://unsafe-facebook.com -> http://unsafe-facebook.com/"
+        m.errors.first.should == "Scraping exception: redirection forbidden: https://unsafe-facebook.com/ -> http://unsafe-facebook.com/"
       end
 
       it "disallows unsafe redirections when :allow_redirections => :safe" do
         m = MetaInspector.new("https://unsafe-facebook.com", :allow_redirections => :safe)
         m.title.should be_nil
         m.should_not be_ok
-        m.errors.first.should == "Scraping exception: redirection forbidden: https://unsafe-facebook.com -> http://unsafe-facebook.com/"
+        m.errors.first.should == "Scraping exception: redirection forbidden: https://unsafe-facebook.com/ -> http://unsafe-facebook.com/"
       end
 
       it "allows unsafe redirections when :allow_redirections => :all" do

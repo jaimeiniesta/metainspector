@@ -2,6 +2,7 @@
 
 require 'open-uri'
 require 'open_uri_redirections'
+require 'addressable/uri'
 require 'nokogiri'
 require 'hashie/rash'
 require 'timeout'
@@ -22,7 +23,7 @@ module MetaInspector
     def initialize(url, options = {})
       options   = defaults.merge(options)
 
-      @url      = with_default_scheme(encode_url(url))
+      @url      = with_default_scheme(normalize_url(url))
       @scheme   = URI.parse(@url).scheme
       @host     = URI.parse(@url).host
       @root_url = "#{@scheme}://#{@host}/"
@@ -49,7 +50,7 @@ module MetaInspector
 
     # Links found on the page, as absolute URLs
     def links
-      @links ||= parsed_links.map{ |l| absolutify_url(unrelativize_url(l)) }.compact
+      @links ||= parsed_links.map{ |l| absolutify_url(unrelativize_url(l)) }.compact.uniq
     end
 
     # Internal links found on the page, as absolute URLs
@@ -217,9 +218,9 @@ module MetaInspector
       @errors << error
     end
 
-    # Encode url to deal with international characters
-    def encode_url(url)
-      URI.encode(url).to_s.gsub("%23", "#")
+    # Normalize url to deal with characters that should be encodes, add trailing slash, convert to downcase...
+    def normalize_url(url)
+      Addressable::URI.parse(url).normalize.to_s
     end
 
     # Adds 'http' as default scheme, if there if none
@@ -231,11 +232,11 @@ module MetaInspector
     # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
     def absolutify_url(url)
       if url =~ /^\w*\:/i
-        encode_url(url)
+        normalize_url(url)
       else
-        URI.parse(root_url).merge(encode_url(url)).to_s
+        URI.parse(root_url).merge(normalize_url(url)).to_s
       end
-    rescue URI::InvalidURIError => e
+    rescue URI::InvalidURIError, Addressable::URI::InvalidURIError => e
       add_fatal_error "Link parsing exception: #{e.message}" and nil
     end
 
@@ -247,7 +248,7 @@ module MetaInspector
     # Extracts the host from a given URL
     def host_from_url(url)
       URI.parse(url).host
-    rescue URI::InvalidURIError, URI::InvalidComponentError => e
+    rescue URI::InvalidURIError, URI::InvalidComponentError, Addressable::URI::InvalidURIError => e
       add_fatal_error "Link parsing exception: #{e.message}" and nil
     end
 
