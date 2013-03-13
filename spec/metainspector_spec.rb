@@ -251,6 +251,38 @@ describe MetaInspector do
     end
   end
 
+  describe 'Relative links' do
+    describe 'From a root URL' do
+      before(:each) do
+        @m = MetaInspector.new('http://relative.com/')
+      end
+
+      it 'should get the relative links' do
+        @m.internal_links.should == ['http://relative.com/about']
+      end
+    end
+
+    describe 'From a document' do
+      before(:each) do
+        @m = MetaInspector.new('http://relative.com/company')
+      end
+
+      it 'should get the relative links' do
+        @m.internal_links.should == ['http://relative.com/about']
+      end
+    end
+
+    describe 'From a directory' do
+      before(:each) do
+        @m = MetaInspector.new('http://relative.com/company/')
+      end
+
+      it 'should get the relative links' do
+        @m.internal_links.should == ['http://relative.com/company/about']
+      end
+    end
+  end
+
   describe 'Non-HTTP links' do
     before(:each) do
       @m = MetaInspector.new('http://example.com/nonhttp')

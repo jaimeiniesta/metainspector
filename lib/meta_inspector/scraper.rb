@@ -230,11 +230,11 @@ module MetaInspector
 
     # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
     # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
-    def absolutify_url(url)
-      if url =~ /^\w*\:/i
-        normalize_url(url)
+    def absolutify_url(uri)
+      if uri =~ /^\w*\:/i
+        normalize_url(uri)
       else
-        URI.parse(root_url).merge(normalize_url(url)).to_s
+        URI.parse(@url).merge(normalize_url(uri)).to_s
       end
     rescue URI::InvalidURIError, Addressable::URI::InvalidURIError => e
       add_fatal_error "Link parsing exception: #{e.message}" and nil
