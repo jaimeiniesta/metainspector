@@ -11,12 +11,12 @@ You can try MetaInspector live at this little demo: [https://metainspectordemo.h
 Install the gem from RubyGems:
 
     gem install metainspector
-    
+
 If you're using it on a Rails application, just add it to your Gemfile and run `bundle install`
 
     gem 'metainspector'
 
-This gem is tested on Ruby versions 1.8.7, 1.9.2 and 1.9.3.
+This gem is tested on Ruby versions 1.9.2 and 1.9.3.
 
 ## Usage
 
@@ -81,7 +81,7 @@ The original document is accessible from:
 And the full scraped document is accessible from:
 
     page.parsed_document  # Nokogiri doc that you can use it to get any element from the page
-    
+
 ## Options
 
 ### Timeout
@@ -99,7 +99,7 @@ However, you can tell MetaInspector to allow these redirections with the option 
 
      # This will allow HTTP => HTTPS redirections
      page = MetaInspector.new('facebook.com', :allow_redirections => :safe)
-     
+
      # And this will allow HTTP => HTTPS ("safe") and HTTPS => HTTP ("unsafe") redirections
      page = MetaInspector.new('facebook.com', :allow_redirections => :all)
 
@@ -119,7 +119,7 @@ This is useful when using MetaInspector on web spidering. Although on the initia
     page = MetaInspector.new('http://example.com/image.png', :html_content_only => true)
     page.title         # returns nil
     page.content_type  # "image/png"
-    page.ok?           # false 
+    page.ok?           # false
     page.errors.first  # "Scraping exception: The url provided contains image/png content instead of text/html content"
 
 ## Error handling
@@ -143,28 +143,28 @@ You can find some sample scripts on the samples folder, including a basic scrapi
     $ irb
     >> require 'metainspector'
     => true
-  
+
     >> page = MetaInspector.new('http://markupvalidator.com')
     => #<MetaInspector:0x11330c0 @url="http://markupvalidator.com">
-  
+
     >> page.title
     => "MarkupValidator :: site-wide markup validation tool"
-  
+
     >> page.meta_description
     => "Site-wide markup validation tool. Validate the markup of your whole site with just one click."
-  
+
     >> page.meta_keywords
     => "html, markup, validation, validator, tool, w3c, development, standards, free"
-  
+
     >> page.links.size
     => 15
-  
+
     >> page.links[4]
     => "/plans-and-pricing"
-  
+
     >> page.document.class
     => String
-  
+
     >> page.parsed_document.class
     => Nokogiri::HTML::Document
 
