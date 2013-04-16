@@ -39,7 +39,7 @@ module MetaInspector
     # Returns the parsed document title, from the content of the <title> tag.
     # This is not the same as the meta_title tag
     def title
-      @title ||= parsed_document.css('title').inner_html.gsub(/\t|\n|\r/, '') rescue nil
+      @title ||= parsed_document.css('title').inner_text rescue nil
     end
 
     # A description getter that first checks for a meta description and if not present will
