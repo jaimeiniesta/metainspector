@@ -37,7 +37,7 @@ describe MetaInspector do
   end
 
   describe 'Doing a basic scrape' do
-    EXPECTED_TITLE = 'PageRankAlert.com :: Track your PageRank changes'
+    EXPECTED_TITLE = 'PageRankAlert.com :: Track your PageRank changes & receive alerts'
 
     before(:each) do
       @m = MetaInspector.new('http://pagerankalert.com')
@@ -389,7 +389,7 @@ describe MetaInspector do
       @m = MetaInspector.new('http://pagerankalert.com')
       @m.to_hash.should == {
                               "url"             =>"http://pagerankalert.com/",
-                              "title"           =>"PageRankAlert.com :: Track your PageRank changes",
+                              "title"           =>"PageRankAlert.com :: Track your PageRank changes & receive alerts",
                               "links"           => ["http://pagerankalert.com/",
                                                     "http://pagerankalert.com/es?language=es",
                                                     "http://pagerankalert.com/users/sign_up",
