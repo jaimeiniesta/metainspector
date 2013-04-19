@@ -16,5 +16,6 @@ Accept-Ranges: bytes
 <body>
   <p>Relative links</p>
   <a href="about">About</a>
+  <a href="../sitemap">Sitemap</a>
 </body>
 </html>

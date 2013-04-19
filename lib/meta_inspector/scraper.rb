@@ -234,7 +234,7 @@ module MetaInspector
       if uri =~ /^\w*\:/i
         normalize_url(uri)
       else
-        URI.parse(@url).merge(normalize_url(uri)).to_s
+        Addressable::URI.join(@url, uri).normalize.to_s
       end
     rescue URI::InvalidURIError, Addressable::URI::InvalidURIError => e
       add_fatal_error "Link parsing exception: #{e.message}" and nil

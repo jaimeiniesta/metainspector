@@ -258,7 +258,7 @@ describe MetaInspector do
       end
 
       it 'should get the relative links' do
-        @m.internal_links.should == ['http://relative.com/about']
+        @m.internal_links.should == ['http://relative.com/about', 'http://relative.com/sitemap']
       end
     end
 
@@ -268,7 +268,7 @@ describe MetaInspector do
       end
 
       it 'should get the relative links' do
-        @m.internal_links.should == ['http://relative.com/about']
+        @m.internal_links.should == ['http://relative.com/about', 'http://relative.com/sitemap']
       end
     end
 
@@ -278,7 +278,7 @@ describe MetaInspector do
       end
 
       it 'should get the relative links' do
-        @m.internal_links.should == ['http://relative.com/company/about']
+        @m.internal_links.should == ['http://relative.com/company/about', 'http://relative.com/sitemap']
       end
     end
   end
