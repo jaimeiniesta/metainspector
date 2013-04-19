@@ -234,20 +234,9 @@ describe MetaInspector do
       end
     end
 
-    it "should avoid links that contain invalid links as href value" do
+    it "should not crash with links that have weird href values" do
       m = MetaInspector.new('http://example.com/invalid_href')
-      m.links.should == [ "skype:joeuser?call",
-                          "telnet://telnet.cdrom.com"]
-    end
-
-    it "should store errors when links contain invalid href values" do
-      m = MetaInspector.new('http://example.com/invalid_href')
-
-      expect {
-        links = m.links
-      }.to change { m.errors.size }.from(0).to(1)
-
-      m.errors.first.should == "Link parsing exception: bad URI(is not URI?): %3Cp%3Eftp://ftp.cdrom.com"
+      m.links.should == ["%3Cp%3Eftp://ftp.cdrom.com", "skype:joeuser?call", "telnet://telnet.cdrom.com"]
     end
   end
 
