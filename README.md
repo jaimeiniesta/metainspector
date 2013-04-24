@@ -176,4 +176,10 @@ Thanks to all the contributors:
 
 [https://github.com/jaimeiniesta/metainspector/graphs/contributors](https://github.com/jaimeiniesta/metainspector/graphs/contributors)
 
-Copyright (c) 2009-2012 Jaime Iniesta, released under the MIT license
+## Related projects
+
+* [go-metainspector](https://github.com/fern4lvarez/go-metainspector), a port of MetaInspector for Go.
+* [Node-MetaInspector](https://github.com/gabceb/node-metainspector), a port of MetaInspector for Node.
+
+## License
+MetaInspector is released under the [MIT license](MIT-LICENSE).
