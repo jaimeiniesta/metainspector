@@ -227,7 +227,7 @@ describe MetaInspector do
           m = MetaInspector.new('http://example.com/malformed_href')
           expect {
             m.external_links.should == ["skype:joeuser?call", "telnet://telnet.cdrom.com",
-                                        "javascript:alert('ok');", "mailto:email(at)example.com"]
+                                        "javascript:alert('ok');", "javascript://", "mailto:email(at)example.com"]
             m.should_not be_ok
           }.to_not raise_error
         end
