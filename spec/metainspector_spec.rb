@@ -354,6 +354,25 @@ describe MetaInspector do
       @m.meta_og_something.should == nil
     end
 
+    it "should find a meta_twitter_site" do
+      @m = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
+      @m.meta_twitter_site.should == "@youtube"
+    end
+
+    it "should find a meta_twitter_player_width" do
+      @m = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
+      @m.meta_twitter_player_width.should == "1920"
+    end
+
+    it "should not find a meta_twitter_dummy" do
+      @m = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
+      @m.meta_twitter_dummy.should == nil
+    end
+
+    it "should find a meta_og_video_width" do
+      @m = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
+      @m.meta_og_video_width.should == "1920"
+    end
   end
 
   describe 'Charset detection' do

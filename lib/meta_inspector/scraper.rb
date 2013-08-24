@@ -152,8 +152,8 @@ module MetaInspector
     def method_missing(method_name)
       if method_name.to_s =~ /^meta_(.*)/
         key = $1
-        key = "og:#{$1}" if key =~ /^og_(.*)/ # special treatment for og:
-        key = "twitter:#{$1}" if key =~ /^twitter_(.*)/ # special treatment for twitter:
+        key = "og:#{$1}".gsub("_",":") if key =~ /^og_(.*)/ # special treatment for og:
+        key = "twitter:#{$1}".gsub("_",":") if key =~ /^twitter_(.*)/ # special treatment for twitter:
 
         scrape_meta_data
 
