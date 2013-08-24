@@ -72,7 +72,7 @@ module MetaInspector
     # Most all major websites now define this property and is usually very relevant
     # See doc at http://developers.facebook.com/docs/opengraph/
     def image
-      meta_og_image
+      meta_og_image || meta_twitter_image
     end
 
     # Returns the parsed document meta rss link
@@ -153,6 +153,7 @@ module MetaInspector
       if method_name.to_s =~ /^meta_(.*)/
         key = $1
         key = "og:#{$1}" if key =~ /^og_(.*)/ # special treatment for og:
+        key = "twitter:#{$1}" if key =~ /^twitter_(.*)/ # special treatment for twitter:
 
         scrape_meta_data
 
@@ -187,10 +188,11 @@ module MetaInspector
 
     # Store meta tag value, looking at meta name or meta property
     def get_meta_name_or_property(element)
-      if element.attributes["content"]
-        type = element.attributes["name"] ? "name" : (element.attributes["property"] ? "property" : nil)
-
-        @data.meta.name[element.attributes[type].value.downcase] = element.attributes["content"].value if type
+      name_or_property = element.attributes["name"] ? "name" : (element.attributes["property"] ? "property" : nil)
+      content_or_value = element.attributes["content"] ? "content" : (element.attributes["value"] ? "value" : nil)
+      
+      if !name_or_property.nil? && !content_or_value.nil?
+        @data.meta.name[element.attributes[name_or_property].value.downcase] = element.attributes[content_or_value].value
       end
     end
 
