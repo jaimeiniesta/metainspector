@@ -84,21 +84,21 @@ And the full scraped document is accessible from:
 
 Twitter cards & Open graph tags make it possible for you to attach media experiences to Tweets & Facebook posts. Nowadays most of the content creators add these meta tags to headers to quickly identify content on the page. Sometimes these tags could be nested as well. For example when a site wants to provide information about primary image used on a page it could use
 
-<meta name="og:image" content="http://www.somedomain.com/assets/images/abc.jpeg">
-<meta name="og:image:width" content="200">
-<meta name="twitter:image" value="http://www.somedomain.com/assets/images/abc.jpeg">
-<meta property="twitter:image:width" value="200">
+    <meta name="og:image" content="http://www.somedomain.com/assets/images/abc.jpeg">
+    <meta name="og:image:width" content="200">
+    <meta name="twitter:image" value="http://www.somedomain.com/assets/images/abc.jpeg">
+    <meta property="twitter:image:width" value="200">
 
 Also many sites use name & property, content & value attributes interchangeably. Using MetaInspector accessing this information is as easy as -
 
-page.meta_og_image
-page.meta_twitter_image_width 
+    page.meta_og_image 
+    page.meta_twitter_image_width 
 
 Note that MetaInspector gives priority to content over value. In other words if there is a tag of the form
 
-<meta property="og:something" value="100" content="real value">
+    <meta property="og:something" value="100" content="real value">
 
-page.meta_og_something #=> "real value"
+    page.meta_og_something #=> "real value"
 
 ## Options
 
