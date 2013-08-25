@@ -50,8 +50,6 @@ Then you can see the scraped data like this:
     page.image              # Most relevant image, if defined with og:image
     page.images             # array of strings, with every img found on the page as an absolute URL
     page.feed               # Get rss or atom links in meta data fields as array
-    page.meta_og_title      # opengraph title
-    page.meta_og_image      # opengraph image
     page.charset            # UTF-8
     page.content_type       # content-type returned by the server when the url was requested
 
@@ -81,6 +79,26 @@ The original document is accessible from:
 And the full scraped document is accessible from:
 
     page.parsed_document  # Nokogiri doc that you can use it to get any element from the page
+
+## Opengraph and Twitter card meta tags
+
+Twitter cards & Open graph tags make it possible for you to attach media experiences to Tweets & Facebook posts. Nowadays most of the content creators add these meta tags to headers to quickly identify content on the page. Sometimes these tags could be nested as well. For example when a site wants to provide information about primary image used on a page it could use
+
+<meta name="og:image" content="http://www.somedomain.com/assets/images/abc.jpeg">
+<meta name="og:image:width" content="200">
+<meta name="twitter:image" value="http://www.somedomain.com/assets/images/abc.jpeg">
+<meta property="twitter:image:width" value="200">
+
+Also many sites use name & property, content & value attributes interchangeably. Using MetaInspector accessing this information is as easy as -
+
+page.meta_og_image
+page.meta_twitter_image_width 
+
+Note that MetaInspector gives priority to content over value. In other words if there is a tag of the form
+
+<meta property="og:something" value="100" content="real value">
+
+page.meta_og_something #=> "real value"
 
 ## Options
 
