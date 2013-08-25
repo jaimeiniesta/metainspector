@@ -97,7 +97,6 @@ Also many sites use name & property, content & value attributes interchangeably.
 Note that MetaInspector gives priority to content over value. In other words if there is a tag of the form
 
     <meta property="og:something" value="100" content="real value">
-
     page.meta_og_something #=> "real value"
 
 ## Options
