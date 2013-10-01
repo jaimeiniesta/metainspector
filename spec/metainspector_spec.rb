@@ -272,6 +272,18 @@ describe MetaInspector do
     end
   end
 
+  describe 'Relative links with base' do
+    it 'should get the relative links from a document' do
+      m = MetaInspector.new('http://relativewithbase.com/company/page2')
+      m.internal_links.should == ['http://relativewithbase.com/about', 'http://relativewithbase.com/sitemap']
+    end
+
+    it 'should get the relative links from a directory' do
+      m = MetaInspector.new('http://relativewithbase.com/company/page2/')
+      m.internal_links.should == ['http://relativewithbase.com/about', 'http://relativewithbase.com/sitemap']
+    end
+  end
+
   describe 'Non-HTTP links' do
     before(:each) do
       @m = MetaInspector.new('http://example.com/nonhttp')

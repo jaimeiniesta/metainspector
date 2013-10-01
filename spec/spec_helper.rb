@@ -47,6 +47,10 @@ FakeWeb.register_uri(:get, "http://relative.com/", :response => fixture_file("re
 FakeWeb.register_uri(:get, "http://relative.com/company", :response => fixture_file("relative_links.response"))
 FakeWeb.register_uri(:get, "http://relative.com/company/", :response => fixture_file("relative_links.response"))
 
+FakeWeb.register_uri(:get, "http://relativewithbase.com/",                :response => fixture_file("relative_links_with_base.response"))
+FakeWeb.register_uri(:get, "http://relativewithbase.com/company/page2",   :response => fixture_file("relative_links_with_base.response"))
+FakeWeb.register_uri(:get, "http://relativewithbase.com/company/page2/",  :response => fixture_file("relative_links_with_base.response"))
+
 # These examples are used to test the redirections from HTTP to HTTPS and vice versa
 # http://facebook.com => https://facebook.com
 FakeWeb.register_uri(:get, "http://facebook.com/",          :response => fixture_file("facebook.com.response"))

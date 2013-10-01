@@ -234,10 +234,21 @@ module MetaInspector
       if uri =~ /^\w*\:/i
         normalize_url(uri)
       else
-        Addressable::URI.join(@url, uri).normalize.to_s
+        Addressable::URI.join(base_url, uri).normalize.to_s
       end
     rescue URI::InvalidURIError, Addressable::URI::InvalidURIError => e
       add_fatal_error "Link parsing exception: #{e.message}" and nil
+    end
+
+    # Returns the base url to absolutify relative links. This can be the one set on a <base> tag,
+    # or the url of the document if no <base> tag was found.
+    def base_url
+      base_href || @url
+    end
+
+    # Returns the value of the href attribute on the <base /> tag, if it exists
+    def base_href
+      parsed_document.search('base').first.attributes['href'].value rescue nil
     end
 
     # Convert a protocol-relative url to its full form, depending on the scheme of the page that contains it
