@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/scraper'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/error_log'))
 
 module MetaInspector
   extend self
