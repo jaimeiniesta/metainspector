@@ -28,15 +28,15 @@ module MetaInspector
       @verbose            = options[:verbose]
       @document           = options[:document]
 
-      @url        = with_default_scheme(normalize_url(url))
-      @scheme     = URI.parse(@url).scheme
-      @host       = URI.parse(@url).host
-      @root_url   = "#{@scheme}://#{@host}/"
-      @data       = Hashie::Rash.new
-      @error_log  = MetaInspector::ErrorLog.new(verbose: @verbose)
-      @request    = MetaInspector::Request.new(@url, allow_redirections: @allow_redirections,
-                                                     timeout:            @timeout,
-                                                     error_log:          @error_log)
+      @url            = with_default_scheme(normalize_url(url))
+      @scheme         = URI.parse(@url).scheme
+      @host           = URI.parse(@url).host
+      @root_url       = "#{@scheme}://#{@host}/"
+      @data           = Hashie::Rash.new
+      @exception_log  = MetaInspector::ExceptionLog.new(verbose: @verbose)
+      @request        = MetaInspector::Request.new(@url, allow_redirections: @allow_redirections,
+                                                         timeout:            @timeout,
+                                                         exception_log:      @exception_log)
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -111,7 +111,7 @@ module MetaInspector
     def parsed_document
       @parsed_document ||= Nokogiri::HTML(document)
       rescue Exception => e
-        @error_log << e
+        @exception_log << e
     end
 
     # Returns the original, unparsed document
@@ -122,7 +122,7 @@ module MetaInspector
                       @request.read
                     end
       rescue Exception => e
-        @error_log << e
+        @exception_log << e
     end
 
     # Returns the content_type of the fetched document
@@ -130,14 +130,19 @@ module MetaInspector
       @request.content_type
     end
 
-    # Returns true if there are no errors
+    # Returns true if there are no exceptions
     def ok?
-      errors.empty?
+      exceptions.empty?
     end
 
     # Returns the list of stored errors
+    def exceptions
+      @exception_log.exceptions
+    end
+
     def errors
-      @error_log.errors
+      warn "The #errors method is deprecated, use #exceptions instead"
+      exceptions
     end
 
     private
@@ -230,7 +235,7 @@ module MetaInspector
         Addressable::URI.join(base_url, uri).normalize.to_s
       end
     rescue URI::InvalidURIError, Addressable::URI::InvalidURIError => e
-      @error_log << e
+      @exception_log << e
       nil
     end
 
@@ -254,7 +259,7 @@ module MetaInspector
     def host_from_url(url)
       URI.parse(url).host
     rescue URI::InvalidURIError, URI::InvalidComponentError, Addressable::URI::InvalidURIError => e
-      @error_log << e
+      @exception_log << e
       nil
     end
 

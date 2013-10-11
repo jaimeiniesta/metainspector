@@ -40,9 +40,9 @@ describe MetaInspector::Request do
 
       expect {
         impatient.read.should be_nil
-      }.to change { impatient.errors.size }
+      }.to change { impatient.exceptions.size }
 
-      impatient.errors.first.class.should == Timeout::Error
+      impatient.exceptions.first.class.should == Timeout::Error
     end
 
     it "should handle socket errors" do
@@ -50,9 +50,9 @@ describe MetaInspector::Request do
 
       expect {
         nowhere.read.should be_nil
-      }.to change { nowhere.errors.size }
+      }.to change { nowhere.exceptions.size }
 
-      nowhere.errors.first.class.should == SocketError
+      nowhere.exceptions.first.class.should == SocketError
     end
   end
 end

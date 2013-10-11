@@ -16,7 +16,7 @@ module MetaInspector
       @url                = url
       @allow_redirections = options[:allow_redirections]
       @timeout            = options[:timeout]
-      @error_log          = options[:error_log]
+      @exception_log      = options[:exception_log]
     end
 
     def read
@@ -27,8 +27,8 @@ module MetaInspector
       response.content_type if response
     end
 
-    def errors
-      @error_log.errors
+    def exceptions
+      @exception_log.exceptions
     end
 
     private
@@ -37,12 +37,12 @@ module MetaInspector
       Timeout::timeout(@timeout) { @response ||= open(url, { allow_redirections: @allow_redirections }) }
 
       rescue TimeoutError, SocketError => e
-        @error_log << e
+        @exception_log << e
         nil
     end
 
     def defaults
-      { allow_redirections: false, timeout: 20, error_log: MetaInspector::ErrorLog.new }
+      { allow_redirections: false, timeout: 20, exception_log: MetaInspector::ExceptionLog.new }
     end
   end
 end

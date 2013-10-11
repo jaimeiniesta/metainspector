@@ -122,7 +122,7 @@ However, you can tell MetaInspector to allow these redirections with the option 
 
 ### HTML Content Only
 
-MetaInspector will try to parse all URLs by default. If you want to raise an error when trying to parse a non-html URL (one that has a content-type different than text/html), you can state it like this:
+MetaInspector will try to parse all URLs by default. If you want to raise an exception when trying to parse a non-html URL (one that has a content-type different than text/html), you can state it like this:
 
     page = MetaInspector.new('markupvalidator.com', :html_content_only => true)
 
@@ -137,19 +137,19 @@ This is useful when using MetaInspector on web spidering. Although on the initia
     page.title         # returns nil
     page.content_type  # "image/png"
     page.ok?           # false
-    page.errors.first  # "Scraping exception: The url provided contains image/png content instead of text/html content"
+    page.exceptions.first.message  # "The url provided contains image/png content instead of text/html content"
 
-## Error handling
+## Exception handling
 
 You can check if the page has been succesfully parsed with:
 
     page.ok?     # Will return true if everything looks OK
 
-In case there have been any errors, you can check them with:
+In case there have been any exceptions, you can check them with:
 
-    page.errors  # Will return an array with the error messages
+    page.exceptions  # Will return an array with the exceptions
 
-If you also want to see the errors on console, you can initialize MetaInspector with the verbose option like that:
+If you also want to see the exception messages on console, you can initialize MetaInspector with the verbose option like that:
 
     page = MetaInspector.new('http://example.com', :verbose => true)
 

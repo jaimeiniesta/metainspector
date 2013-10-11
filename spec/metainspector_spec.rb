@@ -464,9 +464,9 @@ describe MetaInspector do
 
       expect {
         title = image_url.title
-      }.to change { image_url.errors.size }
+      }.to change { image_url.exceptions.size }
 
-      image_url.errors.first.message.should == "The url provided contains image/png content instead of text/html content"
+      image_url.exceptions.first.message.should == "The url provided contains image/png content instead of text/html content"
     end
 
     it "should handle errors when content is not text/html and html_content_type_only is true" do
@@ -474,9 +474,9 @@ describe MetaInspector do
 
       expect {
         title = tar_url.title
-      }.to change { tar_url.errors.size }
+      }.to change { tar_url.exceptions.size }
 
-      tar_url.errors.first.message.should == "The url provided contains application/x-gzip content instead of text/html content"
+      tar_url.exceptions.first.message.should == "The url provided contains application/x-gzip content instead of text/html content"
     end
 
     describe "ok?" do
