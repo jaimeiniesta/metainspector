@@ -42,7 +42,7 @@ describe MetaInspector::Request do
         impatient.read.should be_nil
       }.to change { impatient.errors.size }
 
-      impatient.errors.first.should == "execution expired"
+      impatient.errors.first.class.should == Timeout::Error
     end
 
     it "should handle socket errors" do
@@ -52,8 +52,7 @@ describe MetaInspector::Request do
         nowhere.read.should be_nil
       }.to change { nowhere.errors.size }
 
-      ["getaddrinfo: nodename nor servname provided, or not known", "getaddrinfo: Name or service not known"]
-        .should include(nowhere.errors.first)
+      nowhere.errors.first.class.should == SocketError
     end
   end
 end

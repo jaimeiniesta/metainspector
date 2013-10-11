@@ -37,7 +37,7 @@ module MetaInspector
       Timeout::timeout(@timeout) { @response ||= open(url, { allow_redirections: @allow_redirections }) }
 
       rescue TimeoutError, SocketError => e
-        @error_log << e.message
+        @error_log << e
         nil
     end
 

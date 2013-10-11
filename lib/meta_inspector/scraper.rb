@@ -111,7 +111,7 @@ module MetaInspector
     def parsed_document
       @parsed_document ||= Nokogiri::HTML(document)
       rescue Exception => e
-        @error_log << "Parsing exception: #{e.message}"
+        @error_log << e
     end
 
     # Returns the original, unparsed document
@@ -122,7 +122,7 @@ module MetaInspector
                       @request.read
                     end
       rescue Exception => e
-        @error_log << "Scraping exception: #{e.message}"
+        @error_log << e
     end
 
     # Returns the content_type of the fetched document
@@ -230,7 +230,7 @@ module MetaInspector
         Addressable::URI.join(base_url, uri).normalize.to_s
       end
     rescue URI::InvalidURIError, Addressable::URI::InvalidURIError => e
-      @error_log << "Link parsing exception: #{e.message}"
+      @error_log << e
       nil
     end
 
@@ -254,7 +254,7 @@ module MetaInspector
     def host_from_url(url)
       URI.parse(url).host
     rescue URI::InvalidURIError, URI::InvalidComponentError, Addressable::URI::InvalidURIError => e
-      @error_log << "Link parsing exception: #{e.message}"
+      @error_log << e
       nil
     end
 
