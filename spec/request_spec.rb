@@ -14,13 +14,13 @@ describe MetaInspector::Request do
 
   describe "content_type" do
     it "should return the correct content type of the url for html pages" do
-      page_request = MetaInspector.new('http://pagerankalert.com')
+      page_request = MetaInspector::Request.new('http://pagerankalert.com')
 
       page_request.content_type.should == "text/html"
     end
 
     it "should return the correct content type of the url for non html pages" do
-      image_request = MetaInspector.new('http://pagerankalert.com/image.png')
+      image_request = MetaInspector::Request.new('http://pagerankalert.com/image.png')
 
       image_request.content_type.should == "image/png"
     end
