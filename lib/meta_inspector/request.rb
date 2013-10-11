@@ -8,7 +8,7 @@ module MetaInspector
 
   # Makes the request to the server
   class Request
-    attr_reader :url, :errors
+    attr_reader :url
 
     def initialize(url, options = {})
       options = defaults.merge(options)
