@@ -52,7 +52,8 @@ describe MetaInspector::Request do
         nowhere.read.should be_nil
       }.to change { nowhere.errors.size }
 
-      nowhere.errors.first.should == "getaddrinfo: nodename nor servname provided, or not known"
+      ["getaddrinfo: nodename nor servname provided, or not known", "getaddrinfo: Name or service not known"]
+        .should include(nowhere.errors.first)
     end
   end
 end
