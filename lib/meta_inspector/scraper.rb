@@ -34,6 +34,9 @@ module MetaInspector
       @root_url   = "#{@scheme}://#{@host}/"
       @data       = Hashie::Rash.new
       @error_log  = MetaInspector::ErrorLog.new(verbose: @verbose)
+      @request    = MetaInspector::Request.new(@url, allow_redirections: @allow_redirections,
+                                                     timeout:            @timeout,
+                                                     error_log:          @error_log)
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -116,7 +119,7 @@ module MetaInspector
       @document ||= if html_content_only && content_type != "text/html"
                       raise "The url provided contains #{content_type} content instead of text/html content" and nil
                     else
-                      request.read
+                      @request.read
                     end
       rescue Exception => e
         @error_log << "Scraping exception: #{e.message}"
@@ -124,7 +127,7 @@ module MetaInspector
 
     # Returns the content_type of the fetched document
     def content_type
-      @content_type ||= request.content_type
+      @request.content_type
     end
 
     # Returns true if there are no errors
@@ -167,18 +170,6 @@ module MetaInspector
       else
         super
       end
-    end
-
-    # Makes the request to the server
-    def request
-      Timeout::timeout(timeout) { @request ||= open(url, {:allow_redirections => allow_redirections}) }
-
-      rescue TimeoutError
-        @error_log << 'Timeout!!!'
-      rescue SocketError
-        @error_log << 'Socket error: The url provided does not exist or is temporarily unavailable'
-      rescue Exception => e
-        @error_log << "Scraping exception: #{e.message}"
     end
 
     # Scrapes all meta tags found
