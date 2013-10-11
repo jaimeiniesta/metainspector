@@ -21,19 +21,19 @@ module MetaInspector
     # => document: the html of the url as a string
     # => verbose: if the errors should be logged to the screen
     def initialize(url, options = {})
-      options   = defaults.merge(options)
-
-      @url      = with_default_scheme(normalize_url(url))
-      @scheme   = URI.parse(@url).scheme
-      @host     = URI.parse(@url).host
-      @root_url = "#{@scheme}://#{@host}/"
-      @timeout  = options[:timeout]
-      @data     = Hashie::Rash.new
-      @errors   = []
+      options             = defaults.merge(options)
+      @timeout            = options[:timeout]
       @html_content_only  = options[:html_content_only]
       @allow_redirections = options[:allow_redirections]
       @verbose            = options[:verbose]
       @document           = options[:document]
+
+      @url        = with_default_scheme(normalize_url(url))
+      @scheme     = URI.parse(@url).scheme
+      @host       = URI.parse(@url).host
+      @root_url   = "#{@scheme}://#{@host}/"
+      @data       = Hashie::Rash.new
+      @error_log  = MetaInspector::ErrorLog.new(verbose: @verbose)
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -108,7 +108,7 @@ module MetaInspector
     def parsed_document
       @parsed_document ||= Nokogiri::HTML(document)
       rescue Exception => e
-        add_fatal_error "Parsing exception: #{e.message}"
+        @error_log << "Parsing exception: #{e.message}"
     end
 
     # Returns the original, unparsed document
@@ -119,7 +119,7 @@ module MetaInspector
                       request.read
                     end
       rescue Exception => e
-        add_fatal_error "Scraping exception: #{e.message}"
+        @error_log << "Scraping exception: #{e.message}"
     end
 
     # Returns the content_type of the fetched document
@@ -130,6 +130,11 @@ module MetaInspector
     # Returns true if there are no errors
     def ok?
       errors.empty?
+    end
+
+    # Returns the list of stored errors
+    def errors
+      @error_log.errors
     end
 
     private
@@ -153,8 +158,8 @@ module MetaInspector
       if method_name.to_s =~ /^meta_(.*)/
         key = $1
 
-	#special treatment for opengraph (og:) and twitter card (twitter:) tags
-	key.gsub!("_",":") if key =~ /^og_(.*)/ || key =~ /^twitter_(.*)/
+        #special treatment for opengraph (og:) and twitter card (twitter:) tags
+        key.gsub!("_",":") if key =~ /^og_(.*)/ || key =~ /^twitter_(.*)/
 
         scrape_meta_data
 
@@ -169,11 +174,11 @@ module MetaInspector
       Timeout::timeout(timeout) { @request ||= open(url, {:allow_redirections => allow_redirections}) }
 
       rescue TimeoutError
-        add_fatal_error 'Timeout!!!'
+        @error_log << 'Timeout!!!'
       rescue SocketError
-        add_fatal_error 'Socket error: The url provided does not exist or is temporarily unavailable'
+        @error_log << 'Socket error: The url provided does not exist or is temporarily unavailable'
       rescue Exception => e
-        add_fatal_error "Scraping exception: #{e.message}"
+        @error_log << "Scraping exception: #{e.message}"
     end
 
     # Scrapes all meta tags found
@@ -191,7 +196,7 @@ module MetaInspector
     def get_meta_name_or_property(element)
       name_or_property = element.attributes["name"] ? "name" : (element.attributes["property"] ? "property" : nil)
       content_or_value = element.attributes["content"] ? "content" : (element.attributes["value"] ? "value" : nil)
-      
+
       if !name_or_property.nil? && !content_or_value.nil?
         @data.meta.name[element.attributes[name_or_property].value.downcase] = element.attributes[content_or_value].value
       end
@@ -215,12 +220,6 @@ module MetaInspector
       results.map { |a| a.value.strip }.reject { |s| s.empty? }.uniq
     end
 
-    # Stores the error for later inspection
-    def add_fatal_error(error)
-      warn error if verbose
-      @errors << error
-    end
-
     # Normalize url to deal with characters that should be encodes, add trailing slash, convert to downcase...
     def normalize_url(url)
       Addressable::URI.parse(url).normalize.to_s
@@ -240,7 +239,8 @@ module MetaInspector
         Addressable::URI.join(base_url, uri).normalize.to_s
       end
     rescue URI::InvalidURIError, Addressable::URI::InvalidURIError => e
-      add_fatal_error "Link parsing exception: #{e.message}" and nil
+      @error_log << "Link parsing exception: #{e.message}"
+      nil
     end
 
     # Returns the base url to absolutify relative links. This can be the one set on a <base> tag,
@@ -263,7 +263,8 @@ module MetaInspector
     def host_from_url(url)
       URI.parse(url).host
     rescue URI::InvalidURIError, URI::InvalidComponentError, Addressable::URI::InvalidURIError => e
-      add_fatal_error "Link parsing exception: #{e.message}" and nil
+      @error_log << "Link parsing exception: #{e.message}"
+      nil
     end
 
     # Look for the first <p> block with 120 characters or more
