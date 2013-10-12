@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 module MetaInspector
   class Scraper
     def errors
