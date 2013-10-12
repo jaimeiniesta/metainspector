@@ -132,11 +132,6 @@ module MetaInspector
       @request.content_type
     end
 
-    def errors
-      warn "The #errors method is deprecated, use #exceptions instead"
-      exceptions
-    end
-
     private
 
     def defaults
