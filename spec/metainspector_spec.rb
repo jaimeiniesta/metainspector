@@ -3,39 +3,6 @@
 require File.join(File.dirname(__FILE__), "/spec_helper")
 
 describe MetaInspector do
-  describe 'Initialization' do
-    it 'should accept an URL with a scheme' do
-      MetaInspector.new('http://pagerankalert.com').url.should == 'http://pagerankalert.com/'
-    end
-
-    it "should use http:// as a default scheme" do
-      MetaInspector.new('pagerankalert.com').url.should == 'http://pagerankalert.com'
-    end
-
-    it "should accept an URL with international characters" do
-      MetaInspector.new('http://international.com/olé').url.should == 'http://international.com/ol%C3%A9'
-    end
-
-    it "should store the scheme" do
-      MetaInspector.new('http://pagerankalert.com').scheme.should   == 'http'
-      MetaInspector.new('https://pagerankalert.com').scheme.should  == 'https'
-      MetaInspector.new('pagerankalert.com').scheme.should          == 'http'
-    end
-
-    it "should store the host" do
-      MetaInspector.new('http://pagerankalert.com').host.should   == 'pagerankalert.com'
-      MetaInspector.new('https://pagerankalert.com').host.should  == 'pagerankalert.com'
-      MetaInspector.new('pagerankalert.com').host.should          == 'pagerankalert.com'
-    end
-
-    it "should store the root url" do
-      MetaInspector.new('http://pagerankalert.com').root_url.should     == 'http://pagerankalert.com/'
-      MetaInspector.new('https://pagerankalert.com').root_url.should    == 'https://pagerankalert.com/'
-      MetaInspector.new('pagerankalert.com').root_url.should            == 'http://pagerankalert.com/'
-      MetaInspector.new('http://international.com/olé').root_url.should == 'http://international.com/'
-    end
-  end
-
   describe 'Doing a basic scrape' do
     EXPECTED_TITLE = 'PageRankAlert.com :: Track your PageRank changes & receive alerts'
 

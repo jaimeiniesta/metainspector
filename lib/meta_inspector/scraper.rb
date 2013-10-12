@@ -10,8 +10,7 @@ require 'timeout'
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
-    attr_reader :url, :scheme, :host, :root_url, :errors, :content_type, :timeout, :html_content_only
-    attr_reader :allow_redirections, :verbose
+    attr_reader :timeout, :html_content_only, :allow_redirections, :verbose
 
     include MetaInspector::Exceptionable
 
@@ -22,7 +21,7 @@ module MetaInspector
     # => allow_redirections: when :safe, allows HTTP => HTTPS redirections. When :all, it also allows HTTPS => HTTP
     # => document: the html of the url as a string
     # => verbose: if the errors should be logged to the screen
-    def initialize(url, options = {})
+    def initialize(initial_url, options = {})
       options             = defaults.merge(options)
       @timeout            = options[:timeout]
       @html_content_only  = options[:html_content_only]
@@ -30,15 +29,28 @@ module MetaInspector
       @verbose            = options[:verbose]
       @document           = options[:document]
 
-      @url            = with_default_scheme(normalize_url(url))
-      @scheme         = URI.parse(@url).scheme
-      @host           = URI.parse(@url).host
-      @root_url       = "#{@scheme}://#{@host}/"
       @data           = Hashie::Rash.new
       @exception_log  = MetaInspector::ExceptionLog.new(verbose: @verbose)
-      @request        = MetaInspector::Request.new(@url, allow_redirections: @allow_redirections,
-                                                         timeout:            @timeout,
-                                                         exception_log:      @exception_log)
+      @url            = MetaInspector::URL.new(initial_url, exception_log: @exception_log)
+      @request        = MetaInspector::Request.new(url, allow_redirections: @allow_redirections,
+                                                        timeout:            @timeout,
+                                                        exception_log:      @exception_log)
+    end
+
+    def url
+      @url.url
+    end
+
+    def scheme
+      @url.scheme
+    end
+
+    def host
+      @url.host
+    end
+
+    def root_url
+      @url.root_url
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -203,21 +215,11 @@ module MetaInspector
       results.map { |a| a.value.strip }.reject { |s| s.empty? }.uniq
     end
 
-    # Normalize url to deal with characters that should be encodes, add trailing slash, convert to downcase...
-    def normalize_url(url)
-      Addressable::URI.parse(url).normalize.to_s
-    end
-
-    # Adds 'http' as default scheme, if there if none
-    def with_default_scheme(url)
-      URI.parse(url).scheme.nil? ? 'http://' + url : url
-    end
-
     # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
     # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
     def absolutify_url(uri)
       if uri =~ /^\w*\:/i
-        normalize_url(uri)
+        MetaInspector::URL.new(uri).url
       else
         Addressable::URI.join(base_url, uri).normalize.to_s
       end
@@ -229,7 +231,7 @@ module MetaInspector
     # Returns the base url to absolutify relative links. This can be the one set on a <base> tag,
     # or the url of the document if no <base> tag was found.
     def base_url
-      base_href || @url
+      base_href || url
     end
 
     # Returns the value of the href attribute on the <base /> tag, if it exists
