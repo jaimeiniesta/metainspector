@@ -13,6 +13,8 @@ module MetaInspector
     attr_reader :url, :scheme, :host, :root_url, :errors, :content_type, :timeout, :html_content_only
     attr_reader :allow_redirections, :verbose
 
+    include MetaInspector::Exceptionable
+
     # Initializes a new instance of MetaInspector, setting the URL to the one given
     # Options:
     # => timeout: defaults to 20 seconds
@@ -128,16 +130,6 @@ module MetaInspector
     # Returns the content_type of the fetched document
     def content_type
       @request.content_type
-    end
-
-    # Returns true if there are no exceptions
-    def ok?
-      exceptions.empty?
-    end
-
-    # Returns the list of stored errors
-    def exceptions
-      @exception_log.exceptions
     end
 
     def errors

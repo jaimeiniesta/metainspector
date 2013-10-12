@@ -10,6 +10,8 @@ module MetaInspector
   class Request
     attr_reader :url
 
+    include MetaInspector::Exceptionable
+
     def initialize(url, options = {})
       options = defaults.merge(options)
 
@@ -25,10 +27,6 @@ module MetaInspector
 
     def content_type
       response.content_type if response
-    end
-
-    def exceptions
-      @exception_log.exceptions
     end
 
     private
