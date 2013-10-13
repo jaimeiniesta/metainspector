@@ -37,21 +37,9 @@ module MetaInspector
                                                         exception_log:      @exception_log)
     end
 
-    def url
-      @url.url
-    end
-
-    def scheme
-      @url.scheme
-    end
-
-    def host
-      @url.host
-    end
-
-    def root_url
-      @url.root_url
-    end
+    extend Forwardable
+    def_delegators :@url,     :url, :scheme, :host, :root_url
+    def_delegators :@request, :content_type
 
     # Returns the parsed document title, from the content of the <title> tag.
     # This is not the same as the meta_title tag
@@ -137,11 +125,6 @@ module MetaInspector
                     end
       rescue Exception => e
         @exception_log << e
-    end
-
-    # Returns the content_type of the fetched document
-    def content_type
-      @request.content_type
     end
 
     private
