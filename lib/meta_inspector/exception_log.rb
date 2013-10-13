@@ -16,5 +16,8 @@ module MetaInspector
       @exceptions << exception
     end
 
+    def ok?
+      exceptions.empty?
+    end
   end
 end
