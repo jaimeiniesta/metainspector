@@ -8,18 +8,19 @@ module MetaInspector
 
   # Makes the request to the server
   class Request
-    attr_reader :url
-
     include MetaInspector::Exceptionable
 
-    def initialize(url, options = {})
+    def initialize(initial_url, options = {})
       options = defaults.merge(options)
 
-      @url                = url
+      @url                = initial_url
       @allow_redirections = options[:allow_redirections]
       @timeout            = options[:timeout]
       @exception_log      = options[:exception_log]
     end
+
+    extend Forwardable
+    def_delegators :@url, :url
 
     def read
       response.read if response

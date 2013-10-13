@@ -6,7 +6,7 @@ describe MetaInspector::Request do
 
   describe "read" do
     it "should return the content of the page" do
-      page_request = MetaInspector::Request.new('http://pagerankalert.com')
+      page_request = MetaInspector::Request.new(url('http://pagerankalert.com'))
 
       page_request.read[0..14].should == "<!DOCTYPE html>"
     end
@@ -14,13 +14,13 @@ describe MetaInspector::Request do
 
   describe "content_type" do
     it "should return the correct content type of the url for html pages" do
-      page_request = MetaInspector::Request.new('http://pagerankalert.com')
+      page_request = MetaInspector::Request.new(url('http://pagerankalert.com'))
 
       page_request.content_type.should == "text/html"
     end
 
     it "should return the correct content type of the url for non html pages" do
-      image_request = MetaInspector::Request.new('http://pagerankalert.com/image.png')
+      image_request = MetaInspector::Request.new(url('http://pagerankalert.com/image.png'))
 
       image_request.content_type.should == "image/png"
     end
@@ -36,7 +36,7 @@ describe MetaInspector::Request do
     end
 
     it "should handle timeouts" do
-      impatient = MetaInspector::Request.new('http://example.com', timeout: 0.0000000000001)
+      impatient = MetaInspector::Request.new(url('http://example.com'), timeout: 0.0000000000001)
 
       expect {
         impatient.read.should be_nil
@@ -46,7 +46,7 @@ describe MetaInspector::Request do
     end
 
     it "should handle socket errors" do
-      nowhere = MetaInspector::Request.new('http://caca232dsdsaer3sdsd-asd343.org')
+      nowhere = MetaInspector::Request.new(url('http://caca232dsdsaer3sdsd-asd343.org'))
 
       expect {
         nowhere.read.should be_nil
@@ -54,5 +54,11 @@ describe MetaInspector::Request do
 
       nowhere.exceptions.first.class.should == SocketError
     end
+  end
+
+  private
+
+  def url(initial_url)
+    MetaInspector::URL.new(initial_url)
   end
 end

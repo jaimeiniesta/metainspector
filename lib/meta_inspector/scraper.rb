@@ -32,9 +32,9 @@ module MetaInspector
       @data           = Hashie::Rash.new
       @exception_log  = MetaInspector::ExceptionLog.new(verbose: @verbose)
       @url            = MetaInspector::URL.new(initial_url, exception_log: @exception_log)
-      @request        = MetaInspector::Request.new(url, allow_redirections: @allow_redirections,
-                                                        timeout:            @timeout,
-                                                        exception_log:      @exception_log)
+      @request        = MetaInspector::Request.new(@url, allow_redirections: @allow_redirections,
+                                                         timeout:            @timeout,
+                                                         exception_log:      @exception_log)
     end
 
     extend Forwardable
