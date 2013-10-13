@@ -3,14 +3,14 @@
 module MetaInspector
   class URL
     attr_reader :url
-    
+
     include MetaInspector::Exceptionable
 
-    def initialize(url, options = {})
+    def initialize(initial_url, options = {})
       options         = defaults.merge(options)
       @exception_log  = options[:exception_log]
 
-      @url            = with_default_scheme(normalized(url))
+      self.url = initial_url
     end
 
     def scheme
@@ -23,6 +23,10 @@ module MetaInspector
 
     def root_url
       "#{scheme}://#{host}/"
+    end
+
+    def url=(new_url)
+      @url = normalized(with_default_scheme(new_url))
     end
 
     private

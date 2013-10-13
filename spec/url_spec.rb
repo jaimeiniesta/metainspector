@@ -12,7 +12,7 @@ describe MetaInspector::URL do
   end
 
   it "should use http:// as a default scheme" do
-    MetaInspector::URL.new('example.com').url.should == 'http://example.com'
+    MetaInspector::URL.new('example.com').url.should == 'http://example.com/'
   end
 
   it "should accept an URL with international characters" do
@@ -37,7 +37,23 @@ describe MetaInspector::URL do
     MetaInspector::URL.new('example.com').root_url.should               == 'http://example.com/'
     MetaInspector::URL.new('http://example.com/faqs').root_url.should   == 'http://example.com/'
   end
-  
+
+  describe "url=" do
+    it "should update the url" do
+      url = MetaInspector::URL.new('http://first.com/')
+
+      url.url         = 'http://second.com/'
+      url.url.should == 'http://second.com/'
+    end
+
+    it "should add the missing scheme and normalize" do
+      url = MetaInspector::URL.new('http://first.com/')
+
+      url.url         = 'second.com'
+      url.url.should == 'http://second.com/'
+    end
+  end
+
   describe "exception handling" do
     it "should handle URI::InvalidURIError" do
       expect {
@@ -46,7 +62,7 @@ describe MetaInspector::URL do
 
       @malformed.exceptions.first.class.should == URI::InvalidURIError
     end
-    
+
     it "should handle URI::InvalidComponentError" do
       expect {
         @malformed = MetaInspector::URL.new('mailto:email(at)example.com')
