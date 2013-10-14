@@ -52,7 +52,7 @@ describe MetaInspector do
         m = MetaInspector.new("http://facebook.com", :allow_redirections => :safe) 
         # Check for the title to make sure the request happens
         m.title.should == "Hello From Facebook"
-        m.root_url.should == "https://www.facebook.com/"
+        m.url.should == "https://www.facebook.com/"
       end
 
       it "updates the base_uri on all redirections" do
@@ -60,7 +60,7 @@ describe MetaInspector do
         # Check for the title to make sure the request happens
         m.title.should == "Hello From Facebook"
 
-        m.root_url.should == "https://www.facebook.com/"
+        m.url.should == "https://www.facebook.com/"
       end
     end
   end

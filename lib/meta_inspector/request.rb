@@ -45,7 +45,7 @@ module MetaInspector
 
       @url.url = request.base_uri.to_s
 
-      return request
+      request
     end
 
     def defaults
