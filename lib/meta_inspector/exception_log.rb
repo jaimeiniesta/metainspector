@@ -12,7 +12,13 @@ module MetaInspector
     end
 
     def <<(exception)
-      warn exception if warn_level == :warn
+      case warn_level
+      when :warn
+        warn exception
+      when :raise
+        raise exception
+      end
+
       @exceptions << exception
     end
 

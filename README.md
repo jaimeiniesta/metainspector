@@ -91,8 +91,8 @@ Twitter cards & Open graph tags make it possible for you to attach media experie
 
 Also many sites use name & property, content & value attributes interchangeably. Using MetaInspector accessing this information is as easy as -
 
-    page.meta_og_image 
-    page.meta_twitter_image_width 
+    page.meta_og_image
+    page.meta_twitter_image_width
 
 Note that MetaInspector gives priority to content over value. In other words if there is a tag of the form
 
@@ -149,9 +149,15 @@ In case there have been any exceptions, you can check them with:
 
     page.exceptions  # Will return an array with the exceptions
 
-If you also want to see the exception messages on console, you can initialize MetaInspector with the warn_level option set to :warn, like that:
+You can also specify what to do when encountering an exception. By default it
+will store it, but you can also tell MetaInspector to warn about it on the log
+console, or to raise the exceptions, like this:
 
+    # This will warn about the exception on console
     page = MetaInspector.new('http://example.com', warn_level: :warn)
+
+    # This will raise the exception
+    page = MetaInspector.new('http://example.com', warn_level: :raise)
 
 ## Examples
 

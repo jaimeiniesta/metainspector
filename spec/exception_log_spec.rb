@@ -23,20 +23,6 @@ describe MetaInspector::ExceptionLog do
     end
   end
 
-  describe "warning about exceptions" do
-    it "should be quiet by default" do
-      MetaInspector::ExceptionLog.new.warn_level.should be_nil
-    end
-
-    it "should warn about the error if warn_level is :warn" do
-      verbose_logger = MetaInspector::ExceptionLog.new(warn_level: :warn)
-      exception = StandardError.new("an error message")
-
-      verbose_logger.should_receive(:warn).with(exception)
-      verbose_logger << exception
-    end
-  end
-
   describe "ok?" do
     it "should be true if no exceptions stored" do
       logger.should be_ok
@@ -48,4 +34,26 @@ describe MetaInspector::ExceptionLog do
     end
   end
 
+  describe "warn_level" do
+    it "should be quiet by default" do
+      MetaInspector::ExceptionLog.new.warn_level.should be_nil
+    end
+
+    it "should warn about the error if warn_level is :warn" do
+      verbose_logger = MetaInspector::ExceptionLog.new(warn_level: :warn)
+      exception      = StandardError.new("an error message")
+
+      verbose_logger.should_receive(:warn).with(exception)
+      verbose_logger << exception
+    end
+
+    it "should raise exceptions when warn_level is :raise" do
+      raiser_logger = MetaInspector::ExceptionLog.new(warn_level: :raise)
+      exception     = StandardError.new("this should be raised")
+
+      expect {
+        raiser_logger << exception
+      }.to raise_exception(StandardError, "this should be raised")
+    end
+  end
 end
