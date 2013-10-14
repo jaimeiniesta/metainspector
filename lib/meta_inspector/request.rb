@@ -33,11 +33,19 @@ module MetaInspector
     private
 
     def response
-      Timeout::timeout(@timeout) { @response ||= open(url, { allow_redirections: @allow_redirections }) }
+      Timeout::timeout(@timeout) { @response ||= fetch }
 
       rescue TimeoutError, SocketError => e
         @exception_log << e
         nil
+    end
+
+    def fetch
+      request = open(url, {:allow_redirections => @allow_redirections})
+
+      @url.url = request.base_uri.to_s
+
+      request
     end
 
     def defaults
