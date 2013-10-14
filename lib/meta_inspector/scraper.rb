@@ -1,11 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-require 'open-uri'
-require 'open_uri_redirections'
 require 'addressable/uri'
 require 'nokogiri'
 require 'hashie/rash'
-require 'timeout'
 
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
