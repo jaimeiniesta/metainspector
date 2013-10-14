@@ -10,7 +10,7 @@ require 'timeout'
 # MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
   class Scraper
-    attr_reader :timeout, :html_content_only, :allow_redirections, :verbose
+    attr_reader :timeout, :html_content_only, :allow_redirections, :warn_level
 
     include MetaInspector::Exceptionable
 
@@ -20,17 +20,23 @@ module MetaInspector
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
     # => allow_redirections: when :safe, allows HTTP => HTTPS redirections. When :all, it also allows HTTPS => HTTP
     # => document: the html of the url as a string
-    # => verbose: if the errors should be logged to the screen
+    # => warn_level: what to do when encountering exceptions. Can be :warn, or nil
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
       @timeout            = options[:timeout]
       @html_content_only  = options[:html_content_only]
       @allow_redirections = options[:allow_redirections]
-      @verbose            = options[:verbose]
       @document           = options[:document]
 
+      if options[:verbose] == true
+        warn "The verbose option is deprecated since 1.16.2, please use warn_level: :warn instead"
+        options[:warn_level] = :warn
+      end
+
+      @warn_level         = options[:warn_level]
+
       @data           = Hashie::Rash.new
-      @exception_log  = MetaInspector::ExceptionLog.new(verbose: @verbose)
+      @exception_log  = MetaInspector::ExceptionLog.new(warn_level: warn_level)
       @url            = MetaInspector::URL.new(initial_url, exception_log: @exception_log)
       @request        = MetaInspector::Request.new(@url, allow_redirections: @allow_redirections,
                                                          timeout:            @timeout,
@@ -132,8 +138,7 @@ module MetaInspector
     def defaults
       {
         :timeout                    => 20,
-        :html_content_only          => false,
-        :verbose                    => false
+        :html_content_only          => false
       }
     end
 

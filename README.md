@@ -149,9 +149,9 @@ In case there have been any exceptions, you can check them with:
 
     page.exceptions  # Will return an array with the exceptions
 
-If you also want to see the exception messages on console, you can initialize MetaInspector with the verbose option like that:
+If you also want to see the exception messages on console, you can initialize MetaInspector with the warn_level option set to :warn, like that:
 
-    page = MetaInspector.new('http://example.com', :verbose => true)
+    page = MetaInspector.new('http://example.com', warn_level: :warn)
 
 ## Examples
 

@@ -4,15 +4,15 @@ module MetaInspector
 
   # Stores the exceptions passed to it, warning about them if required
   class ExceptionLog
-    attr_reader :exceptions, :verbose
+    attr_reader :exceptions, :warn_level
 
     def initialize(options = {})
       @exceptions = []
-      @verbose    = options[:verbose] || false
+      @warn_level = options[:warn_level]
     end
 
     def <<(exception)
-      warn exception if verbose
+      warn exception if warn_level == :warn
       @exceptions << exception
     end
 

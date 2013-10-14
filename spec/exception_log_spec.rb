@@ -25,21 +25,15 @@ describe MetaInspector::ExceptionLog do
 
   describe "warning about exceptions" do
     it "should be quiet by default" do
-      MetaInspector::ExceptionLog.new.verbose.should == false
+      MetaInspector::ExceptionLog.new.warn_level.should be_nil
     end
 
-    it "should warn about the error if verbose mode on" do
-      verbose_logger = MetaInspector::ExceptionLog.new(verbose: true)
+    it "should warn about the error if warn_level is :warn" do
+      verbose_logger = MetaInspector::ExceptionLog.new(warn_level: :warn)
       exception = StandardError.new("an error message")
 
       verbose_logger.should_receive(:warn).with(exception)
       verbose_logger << exception
-    end
-
-    it "should not warn about the error if verbose mode off" do
-      quiet_logger = MetaInspector::ExceptionLog.new(verbose: false)
-      quiet_logger.should_not_receive(:warn)
-      quiet_logger << StandardError.new("an error message")
     end
   end
 
