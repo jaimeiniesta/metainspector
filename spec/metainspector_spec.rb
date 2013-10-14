@@ -32,7 +32,7 @@ describe MetaInspector do
 
     describe "get images" do
       it "should find all page images" do
-        @m.images == ["http://pagerankalert.com/images/pagerank_alert.png?1309512337"]
+        @m.images.should == ["http://pagerankalert.com/images/pagerank_alert.png?1305794559"]
       end
 
       it "should find images on twitter" do
@@ -98,8 +98,7 @@ describe MetaInspector do
   describe 'Page with missing meta description' do
     it "should find secondary description" do
       @m = MetaInspector.new('http://theonion-no-description.com')
-      @m.description == "SAN FRANCISCO&#8212;In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday,"+
-      " an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description."
+      @m.description.should == "SAN FRANCISCO—In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday, an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description."
     end
   end
 
