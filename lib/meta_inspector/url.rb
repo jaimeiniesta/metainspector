@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+require 'addressable/uri'
+
 module MetaInspector
   class URL
     attr_reader :url
