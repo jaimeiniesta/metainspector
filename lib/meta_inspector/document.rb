@@ -63,12 +63,12 @@ module MetaInspector
 
     # Internal links found on the page, as absolute URLs
     def internal_links
-      @internal_links ||= links.select {|link| host_from_url(link) == host }
+      @internal_links ||= links.select {|link| URL.new(link).host == host }
     end
 
     # External links found on the page, as absolute URLs
     def external_links
-      @external_links ||= links.select {|link| host_from_url(link) != host }
+      @external_links ||= links.select {|link| URL.new(link).host != host }
     end
 
     # Images found on the page, as absolute URLs
@@ -231,14 +231,6 @@ module MetaInspector
     # Convert a protocol-relative url to its full form, depending on the scheme of the page that contains it
     def unrelativize_url(url)
       url =~ /^\/\// ? "#{scheme}://#{url[2..-1]}" : url
-    end
-
-    # Extracts the host from a given URL
-    def host_from_url(url)
-      URI.parse(url).host
-    rescue URI::InvalidURIError, URI::InvalidComponentError, Addressable::URI::InvalidURIError => e
-      @exception_log << e
-      nil
     end
 
     # Look for the first <p> block with 120 characters or more

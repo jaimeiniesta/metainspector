@@ -14,11 +14,11 @@ module MetaInspector
     end
 
     def scheme
-      URI.parse(url).scheme
+      parsed(url) ? parsed(url).scheme : nil
     end
 
     def host
-      URI.parse(url).host
+      parsed(url) ? parsed(url).host : nil
     end
 
     def root_url
@@ -37,16 +37,20 @@ module MetaInspector
 
     # Adds 'http' as default scheme, if there is none
     def with_default_scheme(url)
-      URI.parse(url).scheme.nil? ? 'http://' + url : url
-
-      rescue URI::InvalidURIError, URI::InvalidComponentError => e
-        @exception_log << e
-        url
+      parsed(url) && parsed(url).scheme.nil? ? 'http://' + url : url
     end
 
     # Normalize url to deal with characters that should be encodes, add trailing slash, convert to downcase...
     def normalized(url)
       Addressable::URI.parse(url).normalize.to_s
+    end
+
+    def parsed(url)
+      URI.parse(url)
+
+      rescue URI::InvalidURIError, URI::InvalidComponentError => e
+        @exception_log << e
+        nil
     end
   end
 end

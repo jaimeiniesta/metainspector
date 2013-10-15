@@ -174,7 +174,7 @@ describe MetaInspector::Document do
           m = MetaInspector::Document.new('http://example.com/malformed_href')
           expect {
             m.internal_links.should == [ "http://example.com/faqs" ]
-            m.should_not be_ok
+            m.should be_ok
           }.to_not raise_error
         end
       end
@@ -194,7 +194,7 @@ describe MetaInspector::Document do
           expect {
             m.external_links.should == ["skype:joeuser?call", "telnet://telnet.cdrom.com",
                                         "javascript:alert('ok');", "javascript://", "mailto:email(at)example.com"]
-            m.should_not be_ok
+            m.should be_ok
           }.to_not raise_error
         end
       end
