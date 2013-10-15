@@ -29,6 +29,24 @@ module MetaInspector
       @url = normalized(with_default_scheme(new_url))
     end
 
+    # Converts a protocol-relative url to its full form, depending on the scheme of the page that contains it
+    def self.unrelativize(url, scheme)
+      url =~ /^\/\// ? "#{scheme}://#{url[2..-1]}" : url
+    end
+
+    # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
+    # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
+    def self.absolutify(url, base_url)
+      if url =~ /^\w*\:/i
+        MetaInspector::URL.new(url).url
+      else
+        Addressable::URI.join(base_url, url).normalize.to_s
+      end
+    rescue URI::InvalidURIError, Addressable::URI::InvalidURIError => e
+      @exception_log << e
+      nil
+    end
+
     private
 
     def defaults

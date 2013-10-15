@@ -58,7 +58,7 @@ module MetaInspector
 
     # Links found on the page, as absolute URLs
     def links
-      @links ||= parsed_links.map{ |l| absolutify_url(unrelativize_url(l)) }.compact.uniq
+      @links ||= parsed_links.map{ |l| URL.absolutify(URL.unrelativize(l, scheme), base_url) }.compact.uniq
     end
 
     # Internal links found on the page, as absolute URLs
@@ -73,7 +73,7 @@ module MetaInspector
 
     # Images found on the page, as absolute URLs
     def images
-      @images ||= parsed_images.map{ |i| absolutify_url(i) }
+      @images ||= parsed_images.map{ |i| URL.absolutify(i, base_url) }
     end
 
     # Returns the parsed image from Facebook's open graph property tags
@@ -188,7 +188,7 @@ module MetaInspector
 
     def parsed_feed(format)
       feed = parsed.search("//link[@type='application/#{format}+xml']").first
-      feed ? absolutify_url(feed.attributes['href'].value) : nil
+      feed ? URL.absolutify(feed.attributes['href'].value, base_url) : nil
     end
 
     def parsed_links
@@ -204,19 +204,6 @@ module MetaInspector
       results.map { |a| a.value.strip }.reject { |s| s.empty? }.uniq
     end
 
-    # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
-    # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
-    def absolutify_url(uri)
-      if uri =~ /^\w*\:/i
-        MetaInspector::URL.new(uri).url
-      else
-        Addressable::URI.join(base_url, uri).normalize.to_s
-      end
-    rescue URI::InvalidURIError, Addressable::URI::InvalidURIError => e
-      @exception_log << e
-      nil
-    end
-
     # Returns the base url to absolutify relative links. This can be the one set on a <base> tag,
     # or the url of the document if no <base> tag was found.
     def base_url
@@ -226,11 +213,6 @@ module MetaInspector
     # Returns the value of the href attribute on the <base /> tag, if it exists
     def base_href
       parsed.search('base').first.attributes['href'].value rescue nil
-    end
-
-    # Convert a protocol-relative url to its full form, depending on the scheme of the page that contains it
-    def unrelativize_url(url)
-      url =~ /^\/\// ? "#{scheme}://#{url[2..-1]}" : url
     end
 
     # Look for the first <p> block with 120 characters or more
