@@ -17,7 +17,7 @@ module MetaInspector
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
     # => allow_redirections: when :safe, allows HTTP => HTTPS redirections. When :all, it also allows HTTPS => HTTP
     # => document: the html of the url as a string
-    # => warn_level: what to do when encountering exceptions. Can be :warn, or nil
+    # => warn_level: what to do when encountering exceptions. Can be :warn, :raise or nil
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
       @timeout            = options[:timeout]
