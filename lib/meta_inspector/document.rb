@@ -4,14 +4,14 @@ require 'addressable/uri'
 require 'nokogiri'
 require 'hashie/rash'
 
-# MetaInspector provides an easy way to scrape web pages and get its elements
 module MetaInspector
-  class Scraper
+  # A MetaInspector::Document has an url, makes a request and scrapes its response
+  class Document
     attr_reader :timeout, :html_content_only, :allow_redirections, :warn_level
 
     include MetaInspector::Exceptionable
 
-    # Initializes a new instance of MetaInspector, setting the URL to the one given
+    # Initializes a new instance of MetaInspector::Document, setting the URL to the one given
     # Options:
     # => timeout: defaults to 20 seconds
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
@@ -47,7 +47,7 @@ module MetaInspector
     # Returns the parsed document title, from the content of the <title> tag.
     # This is not the same as the meta_title tag
     def title
-      @title ||= parsed_document.css('title').inner_text rescue nil
+      @title ||= parsed.css('title').inner_text rescue nil
     end
 
     # A description getter that first checks for a meta description and if not present will
@@ -112,14 +112,20 @@ module MetaInspector
       }.merge @data.to_hash
     end
 
+    # Returns the contents of the document as a string
+    def to_s
+      document
+    end
+
     # Returns the whole parsed document
-    def parsed_document
-      @parsed_document ||= Nokogiri::HTML(document)
+    def parsed
+      @parsed ||= Nokogiri::HTML(document)
       rescue Exception => e
         @exception_log << e
     end
 
-    # Returns the original, unparsed document
+    private
+
     def document
       @document ||= if html_content_only && content_type != "text/html"
                       raise "The url provided contains #{content_type} content instead of text/html content" and nil
@@ -129,8 +135,6 @@ module MetaInspector
       rescue Exception => e
         @exception_log << e
     end
-
-    private
 
     def defaults
       {
@@ -166,7 +170,7 @@ module MetaInspector
       unless @data.meta
         @data.meta!.name!
         @data.meta!.property!
-        parsed_document.xpath("//meta").each do |element|
+        parsed.xpath("//meta").each do |element|
           get_meta_name_or_property(element)
         end
       end
@@ -183,16 +187,16 @@ module MetaInspector
     end
 
     def parsed_feed(format)
-      feed = parsed_document.search("//link[@type='application/#{format}+xml']").first
+      feed = parsed.search("//link[@type='application/#{format}+xml']").first
       feed ? absolutify_url(feed.attributes['href'].value) : nil
     end
 
     def parsed_links
-      @parsed_links ||= cleanup_nokogiri_values(parsed_document.search("//a/@href"))
+      @parsed_links ||= cleanup_nokogiri_values(parsed.search("//a/@href"))
     end
 
     def parsed_images
-      @parsed_images ||= cleanup_nokogiri_values(parsed_document.search('//img/@src'))
+      @parsed_images ||= cleanup_nokogiri_values(parsed.search('//img/@src'))
     end
 
     # Takes a nokogiri search result, strips the values, rejects the empty ones, and removes duplicates
@@ -221,7 +225,7 @@ module MetaInspector
 
     # Returns the value of the href attribute on the <base /> tag, if it exists
     def base_href
-      parsed_document.search('base').first.attributes['href'].value rescue nil
+      parsed.search('base').first.attributes['href'].value rescue nil
     end
 
     # Convert a protocol-relative url to its full form, depending on the scheme of the page that contains it
@@ -239,16 +243,16 @@ module MetaInspector
 
     # Look for the first <p> block with 120 characters or more
     def secondary_description
-      first_long_paragraph = parsed_document.search('//p[string-length() >= 120]').first
+      first_long_paragraph = parsed.search('//p[string-length() >= 120]').first
       first_long_paragraph ? first_long_paragraph.text : ''
     end
 
     def charset_from_meta_charset
-      parsed_document.css("meta[charset]")[0].attributes['charset'].value rescue nil
+      parsed.css("meta[charset]")[0].attributes['charset'].value rescue nil
     end
 
     def charset_from_content_type
-      parsed_document.css("meta[http-equiv='Content-Type']")[0].attributes['content'].value.split(";")[1].split("=")[1] rescue nil
+      parsed.css("meta[http-equiv='Content-Type']")[0].attributes['content'].value.split(";")[1].split("=")[1] rescue nil
     end
   end
 end

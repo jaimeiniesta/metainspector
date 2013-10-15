@@ -74,11 +74,11 @@ You can also access most of the scraped data as a hash:
 
 The original document is accessible from:
 
-    page.document         # A String with the contents of the HTML document
+    page.to_s         # A String with the contents of the HTML document
 
 And the full scraped document is accessible from:
 
-    page.parsed_document  # Nokogiri doc that you can use it to get any element from the page
+    page.parsed  # Nokogiri doc that you can use it to get any element from the page
 
 ## Opengraph and Twitter card meta tags
 
