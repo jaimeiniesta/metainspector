@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
 
 module MetaInspector
-  VERSION = "1.16.1"
+  VERSION = "1.17.0"
 end
