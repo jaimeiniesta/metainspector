@@ -22,7 +22,7 @@ module MetaInspector
       @document           = options[:document]
 
       if options[:verbose] == true
-        warn "The verbose option is deprecated since 1.16.2, please use warn_level: :warn instead"
+        warn "The verbose option is deprecated since 1.17, please use warn_level: :warn instead"
         options[:warn_level] = :warn
       end
 
