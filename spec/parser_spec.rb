@@ -267,6 +267,46 @@ describe MetaInspector::Parser do
     end
   end
 
+  describe 'respond_to? for meta tags ghost methods' do
+    before(:each) do
+      @m = MetaInspector.new('http://pagerankalert.com')
+    end
+
+    it "should return true for meta tags as string" do
+      @m.respond_to?("meta_robots").should be_true
+    end
+
+    it "should return true for meta tags as symbols" do
+      @m.respond_to?(:meta_robots).should be_true
+    end
+
+    it "should return true for meta_twitter_site as string" do
+      @m = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
+      @m.respond_to?("meta_twitter_site").should be_true
+    end
+
+    it "should return true for meta_twitter_site as symbol" do
+      @m = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
+      @m.respond_to?(:meta_twitter_player_width).should be_true
+    end
+  end
+
+  describe 'respond_to? for not implemented methods' do
+    
+    before(:each) do
+      @m = MetaInspector.new('http://pagerankalert.com')
+    end
+
+    it "should return false when method name passed as string" do
+      @m.respond_to?("method_not_implemented").should be_false
+    end
+
+    it "should return false when method name passed as symbols" do
+      @m = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
+      @m.respond_to?(:method_not_implemented).should be_false
+    end
+  end
+
   describe 'Getting meta tags by ghost methods' do
     before(:each) do
       @m = MetaInspector::Parser.new(doc 'http://pagerankalert.com')

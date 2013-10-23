@@ -83,6 +83,10 @@ module MetaInspector
       @charset ||= (charset_from_meta_charset || charset_from_meta_content_type)
     end
 
+    def respond_to?(method_name, include_private = false)
+      MetaInspector::MetaTagsDynamicMatch.new(method_name).match? || super
+    end
+
     private
 
     def defaults
@@ -95,10 +99,11 @@ module MetaInspector
     #
     # It will first try with meta name="..." and if nothing found,
     # with meta http-equiv="...", substituting "_" by "-"
-    # TODO: define respond_to? to return true on the meta_name methods
     def method_missing(method_name)
-      if method_name.to_s =~ /^meta_(.*)/
-        key = $1
+      meta_tags_method = MetaInspector::MetaTagsDynamicMatch.new(method_name)
+
+      if meta_tags_method.match?
+        key = meta_tags_method.meta_tag
 
         #special treatment for opengraph (og:) and twitter card (twitter:) tags
         key.gsub!("_",":") if key =~ /^og_(.*)/ || key =~ /^twitter_(.*)/

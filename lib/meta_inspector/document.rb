@@ -39,7 +39,7 @@ module MetaInspector
     extend Forwardable
     def_delegators :@url,     :url, :scheme, :host, :root_url
     def_delegators :@request, :content_type
-    def_delegators :@parser,  :parsed, :method_missing, :title, :description, :links, :internal_links, :external_links,
+    def_delegators :@parser,  :parsed, :method_missing, :respond_to?, :title, :description, :links, :internal_links, :external_links,
                               :images, :image, :feed, :charset
 
     # Returns all document data as a nested Hash
