@@ -121,7 +121,7 @@ module MetaInspector
       unless @data.meta
         @data.meta!.name!
         @data.meta!.property!
-        parsed.xpath("//meta").each do |element|
+        parsed_search("//meta").each do |element|
           get_meta_name_or_property(element)
         end
       end
@@ -139,20 +139,20 @@ module MetaInspector
 
     # Look for the first <p> block with 120 characters or more
     def secondary_description
-      first_long_paragraph = parsed.search('//p[string-length() >= 120]').first
+      first_long_paragraph = parsed_search('//p[string-length() >= 120]').first
       first_long_paragraph ? first_long_paragraph.text : ''
     end
 
     def parsed_links
-      @parsed_links ||= cleanup_nokogiri_values(parsed.search("//a/@href"))
+      @parsed_links ||= cleanup_nokogiri_values(parsed_search("//a/@href"))
     end
 
     def parsed_images
-      @parsed_images ||= cleanup_nokogiri_values(parsed.search('//img/@src'))
+      @parsed_images ||= cleanup_nokogiri_values(parsed_search('//img/@src'))
     end
 
     def parsed_feed(format)
-      feed = parsed.search("//link[@type='application/#{format}+xml']").first
+      feed = parsed_search("//link[@type='application/#{format}+xml']").first
       feed ? URL.absolutify(feed.attributes['href'].value, base_url) : nil
     end
 
@@ -172,12 +172,17 @@ module MetaInspector
 
     # Returns the value of the href attribute on the <base /> tag, if it exists
     def base_href
-      parsed.search('base').first.attributes['href'].value rescue nil
+      parsed_search('base').first.attributes['href'].value rescue nil
     end
 
     # Takes a nokogiri search result, strips the values, rejects the empty ones, and removes duplicates
     def cleanup_nokogiri_values(results)
       results.map { |a| a.value.strip }.reject { |s| s.empty? }.uniq
+    end
+
+    # Searches the parsed document for the selector, if the parsed document is searchable
+    def parsed_search(selector)
+      parsed.respond_to?(:search) ? parsed.search(selector) : []
     end
   end
 end
