@@ -22,15 +22,15 @@ This gem is tested on Ruby versions 1.9.2, 1.9.3 and 2.0.0.
 
 Initialize a MetaInspector instance for an URL, like this:
 
-    page = MetaInspector.new('http://markupvalidator.com')
+    page = MetaInspector.new('http://sitevalidator.com')
 
 If you don't include the scheme on the URL, http:// will be used by default:
 
-    page = MetaInspector.new('markupvalidator.com')
+    page = MetaInspector.new('sitevalidator.com')
 
 You can also include the html which will be used as the document to scrape:
 
-    page = MetaInspector.new("http://markupvalidator.com", :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>")
+    page = MetaInspector.new("http://sitevalidator.com", :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>")
 
 ## Accessing scraped data
 
@@ -38,8 +38,8 @@ Then you can see the scraped data like this:
 
     page.url                # URL of the page
     page.scheme             # Scheme of the page (http, https)
-    page.host               # Hostname of the page (like, markupvalidator.com, without the scheme)
-    page.root_url           # Root url (scheme + host, like http://markupvalidator.com/)
+    page.host               # Hostname of the page (like, sitevalidator.com, without the scheme)
+    page.root_url           # Root url (scheme + host, like http://sitevalidator.com/)
     page.title              # title of the page, as string
     page.links              # array of strings, with every link found on the page as an absolute URL
     page.internal_links     # array of strings, with every internal link found on the page as an absolute URL
@@ -69,7 +69,7 @@ Please notice that MetaInspector is case sensitive, so `page.meta_Content_Type` 
 
 You can also access most of the scraped data as a hash:
 
-    page.to_hash  # { "url"   => "http://markupvalidator.com",
+    page.to_hash  # { "url"   => "http://sitevalidator.com",
                       "title" => "MarkupValidator :: site-wide markup validation tool", ... }
 
 The original document is accessible from:
@@ -106,7 +106,7 @@ Note that MetaInspector gives priority to content over value. In other words if 
 By default, MetaInspector times out after 20 seconds of waiting for a page to respond.
 You can set a different timeout with a second parameter, like this:
 
-    page = MetaInspector.new('markupvalidator.com', :timeout => 5) # 5 seconds timeout
+    page = MetaInspector.new('sitevalidator.com', :timeout => 5) # 5 seconds timeout
 
 ### Redirections
 
@@ -124,7 +124,7 @@ However, you can tell MetaInspector to allow these redirections with the option 
 
 MetaInspector will try to parse all URLs by default. If you want to raise an exception when trying to parse a non-html URL (one that has a content-type different than text/html), you can state it like this:
 
-    page = MetaInspector.new('markupvalidator.com', :html_content_only => true)
+    page = MetaInspector.new('sitevalidator.com', :html_content_only => true)
 
 This is useful when using MetaInspector on web spidering. Although on the initial URL you'll probably have an HTML URL, following links you may find yourself trying to parse non-html URLs.
 
@@ -167,8 +167,8 @@ You can find some sample scripts on the samples folder, including a basic scrapi
     >> require 'metainspector'
     => true
 
-    >> page = MetaInspector.new('http://markupvalidator.com')
-    => #<MetaInspector:0x11330c0 @url="http://markupvalidator.com">
+    >> page = MetaInspector.new('http://sitevalidator.com')
+    => #<MetaInspector:0x11330c0 @url="http://sitevalidator.com">
 
     >> page.title
     => "MarkupValidator :: site-wide markup validation tool"
@@ -184,12 +184,6 @@ You can find some sample scripts on the samples folder, including a basic scrapi
 
     >> page.links[4]
     => "/plans-and-pricing"
-
-    >> page.document.class
-    => String
-
-    >> page.parsed_document.class
-    => Nokogiri::HTML::Document
 
 ## ZOMG Fork! Thank you!
 
