@@ -292,7 +292,7 @@ describe MetaInspector::Parser do
   end
 
   describe 'respond_to? for not implemented methods' do
-    
+
     before(:each) do
       @m = MetaInspector.new('http://pagerankalert.com')
     end
@@ -346,16 +346,6 @@ describe MetaInspector::Parser do
       @m.meta_generator.should == 'WordPress 3.4.2'
     end
 
-    it "should find a meta_og_title" do
-      @m = MetaInspector::Parser.new(doc 'http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
-      @m.meta_og_title.should == "Apple Claims New iPhone Only Visible To Most Loyal Of Customers"
-    end
-
-    it "should not find a meta_og_something" do
-      @m = MetaInspector::Parser.new(doc 'http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
-      @m.meta_og_something.should == nil
-    end
-
     it "should find a meta_twitter_site" do
       @m = MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc')
       @m.meta_twitter_site.should == "@youtube"
@@ -371,9 +361,94 @@ describe MetaInspector::Parser do
       @m.meta_twitter_dummy.should == nil
     end
 
-    it "should find a meta_og_video_width" do
-      @m = MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc')
-      @m.meta_og_video_width.should == "1920"
+    describe "opengraph meta tags" do
+      before(:each) do
+        @m = MetaInspector::Parser.new(doc 'http://example.com/opengraph')
+      end
+
+      it "should find a meta og:title" do
+        @m.meta_og_title.should == "An OG title"
+      end
+
+      it "should find a meta og:type" do
+        @m.meta_og_type.should == "website"
+      end
+
+      it "should find a meta og:url" do
+        @m.meta_og_url.should == "http://example.com/opengraph"
+      end
+
+      it "should find a meta og:description" do
+        @m.meta_og_description.should == "Sean Connery found fame and fortune"
+      end
+
+      it "should find a meta og:determiner" do
+        @m.meta_og_determiner.should == "the"
+      end
+
+      it "should find a meta og:locale" do
+        @m.meta_og_locale.should == "en_GB"
+      end
+
+      it "should find a meta og:locale:alternate" do
+        @m.meta_og_locale_alternate.should == "fr_FR"
+      end
+
+      it "should find a meta og:site_name" do
+        @m.meta_og_site_name.should == "IMDb"
+      end
+
+      it "should find a meta og:image" do
+        @m.meta_og_image.should == "http://example.com/ogp.jpg"
+      end
+
+      it "should find a meta og:image:secure_url" do
+        @m.meta_og_image_secure_url.should == "https://secure.example.com/ogp.jpg"
+      end
+
+      it "should find a meta og:image:type" do
+        @m.meta_og_image_type.should == "image/jpeg"
+      end
+
+      it "should find a meta og:image:width" do
+        @m.meta_og_image_width.should == "400"
+      end
+
+      it "should find a meta og:image:height" do
+        @m.meta_og_image_height.should == "300"
+      end
+
+      it "should find a meta og:video" do
+        @m.meta_og_video.should == "http://example.com/movie.swf"
+      end
+
+      it "should find a meta og:video:secure_url" do
+        @m.meta_og_video_secure_url.should == "https://secure.example.com/movie.swf"
+      end
+
+      it "should find a meta og:video:type" do
+        @m.meta_og_video_type.should == "application/x-shockwave-flash"
+      end
+
+      it "should find a meta og:video:width" do
+        @m.meta_og_video_width.should == "400"
+      end
+
+      it "should find a meta og:video:height" do
+        @m.meta_og_video_height.should == "300"
+      end
+
+      it "should find a meta og:audio" do
+        @m.meta_og_audio.should == "http://example.com/sound.mp3"
+      end
+
+      it "should find a meta og:video:secure_url" do
+        @m.meta_og_audio_secure_url.should == "https://secure.example.com/sound.mp3"
+      end
+
+      it "should find a meta og:audio:type" do
+        @m.meta_og_audio_type.should == "audio/mpeg"
+      end
     end
   end
 

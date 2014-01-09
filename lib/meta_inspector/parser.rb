@@ -106,13 +106,34 @@ module MetaInspector
         key = meta_tags_method.meta_tag
 
         #special treatment for opengraph (og:) and twitter card (twitter:) tags
-        key.gsub!("_",":") if key =~ /^og_(.*)/ || key =~ /^twitter_(.*)/
+        if key =~ /^og_(.*)/
+          key = og_key(key)
+        elsif key =~ /^twitter_(.*)/
+          key.gsub!("_",":")
+        end
 
         scrape_meta_data
 
         @data.meta.name && (@data.meta.name[key.downcase]) || (@data.meta.property && @data.meta.property[key.downcase])
       else
         super
+      end
+    end
+
+    # Not all OG keys can be directly translated to meta tags method names replacing _ by : as they include the _ in the name
+    # This is going to be deprecated and replaced soon by a simpler, clearer method, like page.meta['og:site_name']
+    def og_key(key)
+      case key
+      when "og_site_name"
+        "og:site_name"
+      when "og_image_secure_url"
+        "og:image:secure_url"
+      when "og_video_secure_url"
+        "og:video:secure_url"
+      when "og_audio_secure_url"
+        "og:audio:secure_url"
+      else
+        key.gsub("_", ":")
       end
     end
 

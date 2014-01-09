@@ -41,6 +41,7 @@ FakeWeb.register_uri(:get, "http://charset002.com", :response => fixture_file("c
 FakeWeb.register_uri(:get, "http://www.inkthemes.com/", :response => fixture_file("wordpress_site.response"))
 FakeWeb.register_uri(:get, "http://pagerankalert.com/image.png", :body => "Image", :content_type => "image/png")
 FakeWeb.register_uri(:get, "http://pagerankalert.com/file.tar.gz", :body => "Image", :content_type => "application/x-gzip")
+FakeWeb.register_uri(:get, "http://example.com/opengraph", :response => fixture_file("opengraph.response"))
 
 # These examples are used to test relative links
 FakeWeb.register_uri(:get, "http://relative.com/", :response => fixture_file("relative_links.response"))
