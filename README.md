@@ -53,19 +53,107 @@ Then you can see the scraped data like this:
     page.charset            # UTF-8
     page.content_type       # content-type returned by the server when the url was requested
 
-MetaInspector uses dynamic methods for meta_tag discovery, so all these will work, and will be converted to a search of a meta tag by the corresponding name, and return its content attribute
+## Meta tags
 
-    page.meta_description   # <meta name="description" content="..." />
-    page.meta_keywords      # <meta name="keywords" content="..." />
-    page.meta_robots        # <meta name="robots" content="..." />
-    page.meta_generator     # <meta name="generator" content="..." />
+When it comes to meta tags, you have several options:
 
-It will also work for the meta tags of the form <meta http-equiv="name" ... />, like the following:
+    page.meta_tags          # Gives you all the meta tags by type:
+                            # (meta name, meta http-equiv, meta property and meta charset)
+                            # As meta tags can be repeated (in the case of 'og:image', for example),
+                            # the values returned will be arrays
+                            #
+                            # For example:
+                            #
+                            # {
+                                'name' => {
+                                            'keywords'       => ['one, two, three'],
+                                            'description'    => ['the description'],
+                                            'author'         => ['Joe Sample'],
+                                            'robots'         => ['index,follow'],
+                                            'revisit'        => ['15 days'],
+                                            'dc.date.issued' => ['2011-09-15']
+                                           },
 
-    page.meta_content_language  # <meta http-equiv="content-language" content="..." />
-    page.meta_Content_Type      # <meta http-equiv="Content-Type" content="..." />
+                                'http-equiv' => {
+                                                  'content-type'        => ['text/html; charset=UTF-8'],
+                                                  'content-style-type'  => ['text/css']
+                                                },
 
-Please notice that MetaInspector is case sensitive, so `page.meta_Content_Type` is not the same as `page.meta_content_type`
+                                'property' => {
+                                                'og:title'        => ['An OG title'],
+                                                'og:type'         => ['website'],
+                                                'og:url'          => ['http://example.com/meta-tags'],
+                                                'og:image'        => ['http://example.com/rock.jpg',
+                                                                      'http://example.com/rock2.jpg',
+                                                                      'http://example.com/rock3.jpg'],
+                                                'og:image:width'  => ['300'],
+                                                'og:image:height' => ['300', '1000']
+                                              },
+
+                                'charset' => ['UTF-8']
+                              }
+
+As this method returns a hash, you can also take only the key that you need, like in:
+
+    page.meta_tags['property']  # Returns:
+                                # {
+                                #   'og:title'        => ['An OG title'],
+                                #   'og:type'         => ['website'],
+                                #   'og:url'          => ['http://example.com/meta-tags'],
+                                #   'og:image'        => ['http://example.com/rock.jpg',
+                                #                         'http://example.com/rock2.jpg',
+                                #                         'http://example.com/rock3.jpg'],
+                                #   'og:image:width'  => ['300'],
+                                #   'og:image:height' => ['300', '1000']
+                                # }
+
+In most cases you will only be interested in the first occurrence of a meta tag, so you can
+use the singular form of that method:
+
+    page.meta_tag['name']  # Returns:
+                           # {
+                           #   'keywords'       => 'one, two, three',
+                           #   'description'    => 'the description',
+                           #   'author'         => 'Joe Sample',
+                           #   'robots'         => 'index,follow',
+                           #   'revisit'        => '15 days',
+                           #   'dc.date.issued' => '2011-09-15'
+                           #  }
+
+Or, as this is also a hash:
+
+    page.meta_tag['name']['keywords']    # Returns 'one, two, three'
+
+And finally, you can use the shorter `meta` method that will merge the different keys so you have
+a simpler hash:
+
+    page.meta       # Returns:
+                    #
+                    # {
+                    #     'keywords'            => 'one, two, three',
+                    #     'description'         => 'the description',
+                    #     'author'              => 'Joe Sample',
+                    #     'robots'              => 'index,follow',
+                    #     'revisit'             => '15 days',
+                    #     'dc.date.issued'      => '2011-09-15',
+                    #     'content-type'        => 'text/html; charset=UTF-8',
+                    #     'content-style-type'  => 'text/css',
+                    #     'og:title'            => 'An OG title',
+                    #     'og:type'             => 'website',
+                    #     'og:url'              => 'http://example.com/meta-tags',
+                    #     'og:image'            => 'http://example.com/rock.jpg',
+                    #     'og:image:width'      => '300',
+                    #     'og:image:height'     => '300',
+                    #     'charset'             => 'UTF-8'
+                    #   }
+
+This way, you can get most meta tags just like that:
+
+    page.meta['author']     # Returns "Joe Sample"
+
+Please be aware that all keys are converted to downcase, so it's `'dc.date.issued'` and not `'DC.date.issued'`.
+
+## Other representations
 
 You can also access most of the scraped data as a hash:
 
@@ -79,25 +167,6 @@ The original document is accessible from:
 And the full scraped document is accessible from:
 
     page.parsed  # Nokogiri doc that you can use it to get any element from the page
-
-## Opengraph and Twitter card meta tags
-
-Twitter cards & Open graph tags make it possible for you to attach media experiences to Tweets & Facebook posts. Nowadays most of the content creators add these meta tags to headers to quickly identify content on the page. Sometimes these tags could be nested as well. For example when a site wants to provide information about primary image used on a page it could use
-
-    <meta name="og:image" content="http://www.somedomain.com/assets/images/abc.jpeg">
-    <meta name="og:image:width" content="200">
-    <meta name="twitter:image" value="http://www.somedomain.com/assets/images/abc.jpeg">
-    <meta property="twitter:image:width" value="200">
-
-Also many sites use name & property, content & value attributes interchangeably. Using MetaInspector accessing this information is as easy as -
-
-    page.meta_og_image
-    page.meta_twitter_image_width
-
-Note that MetaInspector gives priority to content over value. In other words if there is a tag of the form
-
-    <meta property="og:something" value="100" content="real value">
-    page.meta_og_something #=> "real value"
 
 ## Options
 

@@ -21,7 +21,6 @@ describe MetaInspector::Parser do
       it "should find the og image" do
         @m = MetaInspector::Parser.new(doc 'http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
         @m.image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
-        @m.meta_og_image.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
       end
 
       it "should find image on youtube" do
@@ -71,16 +70,16 @@ describe MetaInspector::Parser do
         @m.feed.should == nil
       end
     end
-
-    describe "get description" do
-      it "should find description on youtube" do
-        MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc').description.should == ""
-      end
-    end
   end
 
-  describe 'Page with missing meta description' do
-    it "should find a secondary description" do
+  describe '#description' do
+    it "should find description from meta description" do
+      page = MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc')
+
+      page.description.should == "This is Youtube"
+    end
+
+    it "should find a secondary description if no meta description" do
       @m = MetaInspector::Parser.new(doc 'http://theonion-no-description.com')
       @m.description.should == "SAN FRANCISCO—In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday, an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description."
     end
@@ -267,188 +266,87 @@ describe MetaInspector::Parser do
     end
   end
 
-  describe 'respond_to? for meta tags ghost methods' do
-    before(:each) do
-      @m = MetaInspector.new('http://pagerankalert.com')
+  describe 'Getting meta tags' do
+    let(:page) { MetaInspector::Parser.new(doc 'http://example.com/meta-tags') }
+
+    it "#meta_tags" do
+      page.meta_tags.should == {
+                                  'name' => {
+                                              'keywords'       => ['one, two, three'],
+                                              'description'    => ['the description'],
+                                              'author'         => ['Joe Sample'],
+                                              'robots'         => ['index,follow'],
+                                              'revisit'        => ['15 days'],
+                                              'dc.date.issued' => ['2011-09-15']
+                                             },
+
+                                  'http-equiv' => {
+                                                    'content-type'        => ['text/html; charset=UTF-8'],
+                                                    'content-style-type'  => ['text/css']
+                                                  },
+
+                                  'property' => {
+                                                  'og:title'        => ['An OG title'],
+                                                  'og:type'         => ['website'],
+                                                  'og:url'          => ['http://example.com/meta-tags'],
+                                                  'og:image'        => ['http://example.com/rock.jpg',
+                                                                        'http://example.com/rock2.jpg',
+                                                                        'http://example.com/rock3.jpg'],
+                                                  'og:image:width'  => ['300'],
+                                                  'og:image:height' => ['300', '1000']
+                                                },
+
+                                  'charset' => ['UTF-8']
+                                }
     end
 
-    it "should return true for meta tags as string" do
-      @m.respond_to?("meta_robots").should be_true
+    it "#meta_tag" do
+      page.meta_tag.should == {
+                                  'name' => {
+                                              'keywords'       => 'one, two, three',
+                                              'description'    => 'the description',
+                                              'author'         => 'Joe Sample',
+                                              'robots'         => 'index,follow',
+                                              'revisit'        => '15 days',
+                                              'dc.date.issued' => '2011-09-15'
+                                             },
+
+                                  'http-equiv' => {
+                                                    'content-type'        => 'text/html; charset=UTF-8',
+                                                    'content-style-type'  => 'text/css'
+                                                  },
+
+                                  'property' => {
+                                                  'og:title'        => 'An OG title',
+                                                  'og:type'         => 'website',
+                                                  'og:url'          => 'http://example.com/meta-tags',
+                                                  'og:image'        => 'http://example.com/rock.jpg',
+                                                  'og:image:width'  => '300',
+                                                  'og:image:height' => '300'
+                                                },
+
+                                  'charset' => 'UTF-8'
+                                }
     end
 
-    it "should return true for meta tags as symbols" do
-      @m.respond_to?(:meta_robots).should be_true
-    end
-
-    it "should return true for meta_twitter_site as string" do
-      @m = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
-      @m.respond_to?("meta_twitter_site").should be_true
-    end
-
-    it "should return true for meta_twitter_site as symbol" do
-      @m = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
-      @m.respond_to?(:meta_twitter_player_width).should be_true
-    end
-  end
-
-  describe 'respond_to? for not implemented methods' do
-
-    before(:each) do
-      @m = MetaInspector.new('http://pagerankalert.com')
-    end
-
-    it "should return false when method name passed as string" do
-      @m.respond_to?("method_not_implemented").should be_false
-    end
-
-    it "should return false when method name passed as symbols" do
-      @m = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
-      @m.respond_to?(:method_not_implemented).should be_false
-    end
-  end
-
-  describe 'Getting meta tags by ghost methods' do
-    before(:each) do
-      @m = MetaInspector::Parser.new(doc 'http://pagerankalert.com')
-    end
-
-    it "should get the robots meta tag" do
-      @m.meta_robots.should == 'all,follow'
-    end
-
-    it "should get the robots meta tag" do
-      @m.meta_RoBoTs.should == 'all,follow'
-    end
-
-    it "should get the description meta tag" do
-      @m.meta_description.should == 'Track your PageRank(TM) changes and receive alerts by email'
-    end
-
-    it "should get the keywords meta tag" do
-      @m.meta_keywords.should == "pagerank, seo, optimization, google"
-    end
-
-    it "should get the content-language meta tag" do
-      pending "mocks"
-      @m.meta_content_language.should == "en"
-    end
-
-    it "should get the Csrf_pAram meta tag" do
-      @m.meta_Csrf_pAram.should == "authenticity_token"
-    end
-
-    it "should return nil for nonfound meta_tags" do
-      @m.meta_lollypop.should == nil
-    end
-
-    it "should get the generator meta tag" do
-      @m = MetaInspector::Parser.new(doc 'http://www.inkthemes.com/')
-      @m.meta_generator.should == 'WordPress 3.4.2'
-    end
-
-    it "should find a meta_twitter_site" do
-      @m = MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc')
-      @m.meta_twitter_site.should == "@youtube"
-    end
-
-    it "should find a meta_twitter_player_width" do
-      @m = MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc')
-      @m.meta_twitter_player_width.should == "1920"
-    end
-
-    it "should not find a meta_twitter_dummy" do
-      @m = MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc')
-      @m.meta_twitter_dummy.should == nil
-    end
-
-    describe "opengraph meta tags" do
-      before(:each) do
-        @m = MetaInspector::Parser.new(doc 'http://example.com/opengraph')
-      end
-
-      it "should find a meta og:title" do
-        @m.meta_og_title.should == "An OG title"
-      end
-
-      it "should find a meta og:type" do
-        @m.meta_og_type.should == "website"
-      end
-
-      it "should find a meta og:url" do
-        @m.meta_og_url.should == "http://example.com/opengraph"
-      end
-
-      it "should find a meta og:description" do
-        @m.meta_og_description.should == "Sean Connery found fame and fortune"
-      end
-
-      it "should find a meta og:determiner" do
-        @m.meta_og_determiner.should == "the"
-      end
-
-      it "should find a meta og:locale" do
-        @m.meta_og_locale.should == "en_GB"
-      end
-
-      it "should find a meta og:locale:alternate" do
-        @m.meta_og_locale_alternate.should == "fr_FR"
-      end
-
-      it "should find a meta og:site_name" do
-        @m.meta_og_site_name.should == "IMDb"
-      end
-
-      it "should find a meta og:image" do
-        @m.meta_og_image.should == "http://example.com/ogp.jpg"
-      end
-
-      it "should find a meta og:image:secure_url" do
-        @m.meta_og_image_secure_url.should == "https://secure.example.com/ogp.jpg"
-      end
-
-      it "should find a meta og:image:type" do
-        @m.meta_og_image_type.should == "image/jpeg"
-      end
-
-      it "should find a meta og:image:width" do
-        @m.meta_og_image_width.should == "400"
-      end
-
-      it "should find a meta og:image:height" do
-        @m.meta_og_image_height.should == "300"
-      end
-
-      it "should find a meta og:video" do
-        @m.meta_og_video.should == "http://example.com/movie.swf"
-      end
-
-      it "should find a meta og:video:secure_url" do
-        @m.meta_og_video_secure_url.should == "https://secure.example.com/movie.swf"
-      end
-
-      it "should find a meta og:video:type" do
-        @m.meta_og_video_type.should == "application/x-shockwave-flash"
-      end
-
-      it "should find a meta og:video:width" do
-        @m.meta_og_video_width.should == "400"
-      end
-
-      it "should find a meta og:video:height" do
-        @m.meta_og_video_height.should == "300"
-      end
-
-      it "should find a meta og:audio" do
-        @m.meta_og_audio.should == "http://example.com/sound.mp3"
-      end
-
-      it "should find a meta og:video:secure_url" do
-        @m.meta_og_audio_secure_url.should == "https://secure.example.com/sound.mp3"
-      end
-
-      it "should find a meta og:audio:type" do
-        @m.meta_og_audio_type.should == "audio/mpeg"
-      end
+    it "#meta" do
+      page.meta.should == {
+                            'keywords'            => 'one, two, three',
+                            'description'         => 'the description',
+                            'author'              => 'Joe Sample',
+                            'robots'              => 'index,follow',
+                            'revisit'             => '15 days',
+                            'dc.date.issued'      => '2011-09-15',
+                            'content-type'        => 'text/html; charset=UTF-8',
+                            'content-style-type'  => 'text/css',
+                            'og:title'            => 'An OG title',
+                            'og:type'             => 'website',
+                            'og:url'              => 'http://example.com/meta-tags',
+                            'og:image'            => 'http://example.com/rock.jpg',
+                            'og:image:width'      => '300',
+                            'og:image:height'     => '300',
+                            'charset'             => 'UTF-8'
+                          }
     end
   end
 
@@ -466,18 +364,6 @@ describe MetaInspector::Parser do
     it "should get nil if no declared charset is found" do
       @m = MetaInspector::Parser.new(doc 'http://charset000.com')
       @m.charset.should == nil
-    end
-  end
-
-  describe 'to_hash' do
-    it "should return a hash with all the values set" do
-      @m = MetaInspector::Parser.new(doc 'http://pagerankalert.com')
-      @m.to_hash.should == { "meta" => { "name" => { "description" => "Track your PageRank(TM) changes and receive alerts by email",
-                                                     "keywords"    => "pagerank, seo, optimization, google",
-                                                     "robots"      => "all,follow",
-                                                     "csrf_param"  => "authenticity_token",
-                                                     "csrf_token"  => "iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="},
-                                         "property"=>{}}}
     end
   end
 

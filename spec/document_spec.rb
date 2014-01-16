@@ -46,16 +46,13 @@ describe MetaInspector::Document do
                             "charset"         => "utf-8",
                             "feed"            => "http://feeds.feedburner.com/PageRankAlert",
                             "content_type"    =>"text/html",
-                            "meta"            => {
-                                                    "name" => {
-                                                                "description"=> "Track your PageRank(TM) changes and receive alerts by email",
-                                                                "keywords" => "pagerank, seo, optimization, google",
-                                                                "robots" => "all,follow",
-                                                                "csrf_param" => "authenticity_token",
-                                                                "csrf_token" => "iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="
-                                                              },
-                                                    "property"=>{}
-                                                 }
+                            "meta_tags"       => { "name" => { "description" => ["Track your PageRank(TM) changes and receive alerts by email"],
+                                                               "keywords"    => ["pagerank, seo, optimization, google"], "robots"=>["all,follow"],
+                                                               "csrf-param"  => ["authenticity_token"],
+                                                               "csrf-token"  => ["iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="] },
+                                                   "http-equiv" => {},
+                                                   "property"   => {},
+                                                   "charset"    => ["utf-8"] }
                          }
   end
 

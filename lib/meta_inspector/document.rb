@@ -39,8 +39,8 @@ module MetaInspector
     extend Forwardable
     def_delegators :@url,     :url, :scheme, :host, :root_url
     def_delegators :@request, :content_type
-    def_delegators :@parser,  :parsed, :method_missing, :respond_to?, :title, :description, :links, :internal_links, :external_links,
-                              :images, :image, :feed, :charset
+    def_delegators :@parser,  :parsed, :respond_to?, :title, :description, :links, :internal_links, :external_links,
+                              :images, :image, :feed, :charset, :meta_tags, :meta_tag, :meta
 
     # Returns all document data as a nested Hash
     def to_hash
@@ -53,8 +53,9 @@ module MetaInspector
         'images' => images,
         'charset' => charset,
         'feed' => feed,
-        'content_type' => content_type
-      }.merge @parser.to_hash
+        'content_type' => content_type,
+        'meta_tags' => meta_tags
+      }
     end
 
     # Returns the contents of the document as a string

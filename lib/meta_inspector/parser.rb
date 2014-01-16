@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 require 'nokogiri'
-require 'hashie/rash'
 
 module MetaInspector
   # Parses the document with Nokogiri
@@ -12,12 +11,28 @@ module MetaInspector
       options = defaults.merge(options)
 
       @document       = document
-      @data           = Hashie::Rash.new
       @exception_log  = options[:exception_log]
     end
 
     extend Forwardable
     def_delegators :@document, :url, :scheme, :host
+
+    def meta_tags
+      {
+        'name'        => meta_tags_by('name'),
+        'http-equiv'  => meta_tags_by('http-equiv'),
+        'property'    => meta_tags_by('property'),
+        'charset'     => [charset_from_meta_charset]
+      }
+    end
+
+    def meta_tag
+      convert_each_array_to_first_element_on meta_tags
+    end
+
+    def meta
+      meta_tag['name'].merge(meta_tag['http-equiv']).merge(meta_tag['property']).merge({'charset' => meta_tag['charset']})
+    end
 
     # Returns the whole parsed document
     def parsed
@@ -25,11 +40,6 @@ module MetaInspector
 
       rescue Exception => e
         @exception_log << e
-    end
-
-    def to_hash
-      scrape_meta_data
-      @data.to_hash
     end
 
     # Returns the parsed document title, from the content of the <title> tag.
@@ -41,7 +51,7 @@ module MetaInspector
     # A description getter that first checks for a meta description and if not present will
     # guess by looking at the first paragraph with more than 120 characters
     def description
-      meta_description || secondary_description
+      meta['description'] || secondary_description
     end
 
     # Links found on the page, as absolute URLs
@@ -67,8 +77,10 @@ module MetaInspector
     # Returns the parsed image from Facebook's open graph property tags
     # Most all major websites now define this property and is usually very relevant
     # See doc at http://developers.facebook.com/docs/opengraph/
+    # If none found, tries with Twitter image
+    # TODO: if not found, try with images.first
     def image
-      meta_og_image || meta_twitter_image
+      meta['og:image'] || meta['twitter:image']
     end
 
     # Returns the parsed document meta rss link
@@ -83,78 +95,35 @@ module MetaInspector
       @charset ||= (charset_from_meta_charset || charset_from_meta_content_type)
     end
 
-    def respond_to?(method_name, include_private = false)
-      MetaInspector::MetaTagsDynamicMatch.new(method_name).match? || super
-    end
-
     private
 
     def defaults
       { exception_log: MetaInspector::ExceptionLog.new }
     end
 
-    # Scrapers for all meta_tags in the form of "meta_name" are automatically defined. This has been tested for
-    # meta name: keywords, description, robots, generator
-    # meta http-equiv: content-language, Content-Type
-    #
-    # It will first try with meta name="..." and if nothing found,
-    # with meta http-equiv="...", substituting "_" by "-"
-    def method_missing(method_name)
-      meta_tags_method = MetaInspector::MetaTagsDynamicMatch.new(method_name)
+    def meta_tags_by(attribute)
+      hash = {}
+      parsed.css("meta[@#{attribute}]").map do |tag|
+        name    = tag.attributes[attribute].value.downcase rescue nil
+        content = tag.attributes['content'].value rescue nil
 
-      if meta_tags_method.match?
-        key = meta_tags_method.meta_tag
-
-        #special treatment for opengraph (og:) and twitter card (twitter:) tags
-        if key =~ /^og_(.*)/
-          key = og_key(key)
-        elsif key =~ /^twitter_(.*)/
-          key.gsub!("_",":")
-        end
-
-        scrape_meta_data
-
-        @data.meta.name && (@data.meta.name[key.downcase]) || (@data.meta.property && @data.meta.property[key.downcase])
-      else
-        super
-      end
-    end
-
-    # Not all OG keys can be directly translated to meta tags method names replacing _ by : as they include the _ in the name
-    # This is going to be deprecated and replaced soon by a simpler, clearer method, like page.meta['og:site_name']
-    def og_key(key)
-      case key
-      when "og_site_name"
-        "og:site_name"
-      when "og_image_secure_url"
-        "og:image:secure_url"
-      when "og_video_secure_url"
-        "og:video:secure_url"
-      when "og_audio_secure_url"
-        "og:audio:secure_url"
-      else
-        key.gsub("_", ":")
-      end
-    end
-
-    # Scrapes all meta tags found
-    def scrape_meta_data
-      unless @data.meta
-        @data.meta!.name!
-        @data.meta!.property!
-        parsed_search("//meta").each do |element|
-          get_meta_name_or_property(element)
+        if name && content
+          hash[name] ||= []
+          hash[name] << content
         end
       end
+      hash
     end
 
-    # Store meta tag value, looking at meta name or meta property
-    def get_meta_name_or_property(element)
-      name_or_property = element.attributes["name"] ? "name" : (element.attributes["property"] ? "property" : nil)
-      content_or_value = element.attributes["content"] ? "content" : (element.attributes["value"] ? "value" : nil)
-
-      if !name_or_property.nil? && !content_or_value.nil?
-        @data.meta.name[element.attributes[name_or_property].value.downcase] = element.attributes[content_or_value].value
+    def convert_each_array_to_first_element_on(hash)
+      hash.each_pair do |k, v|
+        hash[k] = if v.is_a?(Hash)
+          convert_each_array_to_first_element_on(v)
+        elsif v.is_a?(Array)
+          v.first
+        else
+          v
+        end
       end
     end
 

@@ -16,7 +16,6 @@ Gem::Specification.new do |gem|
   gem.version       = MetaInspector::VERSION
 
   gem.add_dependency 'nokogiri', '~> 1.6'
-  gem.add_dependency 'rash', '~> 0.4.0'
   gem.add_dependency 'open_uri_redirections', '~> 0.1.4'
   gem.add_dependency 'addressable', '~> 2.3.5'
 
