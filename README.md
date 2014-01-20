@@ -1,6 +1,8 @@
 # MetaInspector [![Build Status](https://secure.travis-ci.org/jaimeiniesta/metainspector.png)](http://travis-ci.org/jaimeiniesta/metainspector) [![Dependency Status](https://gemnasium.com/jaimeiniesta/metainspector.png)](https://gemnasium.com/jaimeiniesta/metainspector)
 
-MetaInspector is a gem for web scraping purposes. You give it an URL, and it lets you easily get its title, links, images, charset, description, keywords, meta tags...
+MetaInspector is a gem for web scraping purposes.
+
+You give it an URL, and it lets you easily get its title, links, images, charset, description, keywords, meta tags...
 
 ## See it in action!
 
@@ -36,22 +38,22 @@ You can also include the html which will be used as the document to scrape:
 
 Then you can see the scraped data like this:
 
-    page.url                # URL of the page
-    page.scheme             # Scheme of the page (http, https)
-    page.host               # Hostname of the page (like, sitevalidator.com, without the scheme)
-    page.root_url           # Root url (scheme + host, like http://sitevalidator.com/)
-    page.title              # title of the page, as string
-    page.links              # array of strings, with every link found on the page as an absolute URL
-    page.internal_links     # array of strings, with every internal link found on the page as an absolute URL
-    page.external_links     # array of strings, with every external link found on the page as an absolute URL
-    page.meta_description   # meta description, as string
-    page.description        # returns the meta description, or the first long paragraph if no meta description is found
-    page.meta_keywords      # meta keywords, as string
-    page.image              # Most relevant image, if defined with og:image
-    page.images             # array of strings, with every img found on the page as an absolute URL
-    page.feed               # Get rss or atom links in meta data fields as array
-    page.charset            # UTF-8
-    page.content_type       # content-type returned by the server when the url was requested
+    page.url                 # URL of the page
+    page.scheme              # Scheme of the page (http, https)
+    page.host                # Hostname of the page (like, sitevalidator.com, without the scheme)
+    page.root_url            # Root url (scheme + host, like http://sitevalidator.com/)
+    page.title               # title of the page, as string
+    page.links               # array of strings, with every link found on the page as an absolute URL
+    page.internal_links      # array of strings, with every internal link found on the page as an absolute URL
+    page.external_links      # array of strings, with every external link found on the page as an absolute URL
+    page.meta['keywords']    # meta keywords, as string
+    page.meta['description'] # meta description, as string
+    page.description         # returns the meta description, or the first long paragraph if no meta description is found
+    page.image               # Most relevant image, if defined with the og:image meta tag
+    page.images              # array of strings, with every img found on the page as an absolute URL
+    page.feed                # Get rss or atom links in meta data fields as array
+    page.charset             # UTF-8
+    page.content_type        # content-type returned by the server when the url was requested
 
 ## Meta tags
 
@@ -242,10 +244,10 @@ You can find some sample scripts on the samples folder, including a basic scrapi
     >> page.title
     => "MarkupValidator :: site-wide markup validation tool"
 
-    >> page.meta_description
+    >> page.meta['description']
     => "Site-wide markup validation tool. Validate the markup of your whole site with just one click."
 
-    >> page.meta_keywords
+    >> page.meta['keywords']
     => "html, markup, validation, validator, tool, w3c, development, standards, free"
 
     >> page.links.size
