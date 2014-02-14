@@ -18,7 +18,7 @@ If you're using it on a Rails application, just add it to your Gemfile and run `
 
     gem 'metainspector'
 
-This gem is tested on Ruby versions 1.9.2, 1.9.3 and 2.0.0.
+This gem is tested on Ruby versions 1.9.2, 1.9.3, 2.0.0 and 2.1.0.
 
 ## Usage
 
