@@ -26,9 +26,8 @@ module MetaInspector
         options[:warn_level] = :warn
       end
 
-      @warn_level         = options[:warn_level]
-
-      @exception_log  = MetaInspector::ExceptionLog.new(warn_level: warn_level)
+      @warn_level     = options[:warn_level]
+      @exception_log  = options[:exception_log] || MetaInspector::ExceptionLog.new(warn_level: warn_level)
       @url            = MetaInspector::URL.new(initial_url, exception_log: @exception_log)
       @request        = MetaInspector::Request.new(@url, allow_redirections: @allow_redirections,
                                                          timeout:            @timeout,
@@ -66,7 +65,7 @@ module MetaInspector
     private
 
     def defaults
-      { :timeout => 20, :html_content_only => false }
+      { :timeout => 20, :html_content_only => false, :warn_level => :raise }
     end
 
     def document

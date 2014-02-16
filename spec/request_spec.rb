@@ -27,6 +27,8 @@ describe MetaInspector::Request do
   end
 
   describe 'exception handling' do
+    let(:logger) { MetaInspector::ExceptionLog.new }
+
     before(:each) do
       FakeWeb.allow_net_connect = true
     end
@@ -36,23 +38,17 @@ describe MetaInspector::Request do
     end
 
     it "should handle timeouts" do
-      impatient = MetaInspector::Request.new(url('http://example.com'), timeout: 0.0000000000001)
+      logger.should receive(:<<).with(an_instance_of(Timeout::Error))
 
-      expect {
-        impatient.read.should be_nil
-      }.to change { impatient.exceptions.size }
-
-      impatient.exceptions.first.class.should == Timeout::Error
+      impatient = MetaInspector::Request.new(url('http://example.com'), timeout: 0.0000000000001, exception_log: logger)
+      impatient.read
     end
 
     it "should handle socket errors" do
-      nowhere = MetaInspector::Request.new(url('http://caca232dsdsaer3sdsd-asd343.org'))
+      logger.should receive(:<<).with(an_instance_of(SocketError))
 
-      expect {
-        nowhere.read.should be_nil
-      }.to change { nowhere.exceptions.size }
-
-      nowhere.exceptions.first.class.should == SocketError
+      nowhere = MetaInspector::Request.new(url('http://caca232dsdsaer3sdsd-asd343.org'), exception_log: logger)
+      nowhere.read
     end
   end
 

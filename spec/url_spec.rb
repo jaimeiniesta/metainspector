@@ -53,22 +53,4 @@ describe MetaInspector::URL do
       url.url.should == 'http://second.com/'
     end
   end
-
-  describe "exception handling" do
-    it "should handle URI::InvalidURIError" do
-      expect {
-        @malformed = MetaInspector::URL.new('javascript://')
-      }.to_not raise_error
-
-      @malformed.exceptions.first.class.should == URI::InvalidURIError
-    end
-
-    it "should handle URI::InvalidComponentError" do
-      expect {
-        @malformed = MetaInspector::URL.new('mailto:email(at)example.com')
-      }.to_not raise_error
-
-      @malformed.exceptions.first.class.should == URI::InvalidComponentError
-    end
-  end
 end

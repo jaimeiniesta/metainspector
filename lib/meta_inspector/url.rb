@@ -44,8 +44,7 @@ module MetaInspector
       else
         Addressable::URI.join(base_url, url).normalize.to_s
       end
-    rescue URI::InvalidURIError, Addressable::URI::InvalidURIError => e
-      @exception_log << e
+    rescue Addressable::URI::InvalidURIError => e
       nil
     end
 
@@ -66,9 +65,9 @@ module MetaInspector
     end
 
     def parsed(url)
-      URI.parse(url)
+      Addressable::URI.parse(url)
 
-      rescue URI::InvalidURIError, URI::InvalidComponentError => e
+      rescue Addressable::URI::InvalidURIError => e
         @exception_log << e
         nil
     end

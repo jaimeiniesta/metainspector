@@ -57,38 +57,36 @@ describe MetaInspector::Document do
   end
 
   describe 'exception handling' do
-    it "should parse images when parse_html_content_type_only is not specified" do
-      image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png')
-      desc = image_url.description
+    let(:logger) { MetaInspector::ExceptionLog.new }
 
-      image_url.should be_ok
+    it "should parse images when parse_html_content_type_only is not specified" do
+      logger.should_not receive(:<<)
+
+      image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', exception_log: logger)
+      image_url.title
     end
 
     it "should parse images when parse_html_content_type_only is false" do
-      image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', :html_content_only => false)
-      desc = image_url.description
+      logger.should_not receive(:<<)
 
-      image_url.should be_ok
+      image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: false, exception_log: logger)
+      image_url.title
     end
 
     it "should handle errors when content is image/jpeg and html_content_type_only is true" do
-      image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', :html_content_only => true)
+      logger.should_receive(:<<).with(an_instance_of(RuntimeError))
 
-      expect {
-        title = image_url.title
-      }.to change { image_url.exceptions.size }
+      image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, exception_log: logger)
 
-      image_url.exceptions.first.message.should == "The url provided contains image/png content instead of text/html content"
+      image_url.title
     end
 
     it "should handle errors when content is not text/html and html_content_type_only is true" do
-      tar_url = MetaInspector::Document.new('http://pagerankalert.com/file.tar.gz', :html_content_only => true)
+      logger.should_receive(:<<).with(an_instance_of(RuntimeError))
 
-      expect {
-        title = tar_url.title
-      }.to change { tar_url.exceptions.size }
+      tar_url = MetaInspector::Document.new('http://pagerankalert.com/file.tar.gz', html_content_only: true, exception_log: logger)
 
-      tar_url.exceptions.first.message.should == "The url provided contains application/x-gzip content instead of text/html content"
+      tar_url.title
     end
   end
 end

@@ -3,6 +3,8 @@
 require File.join(File.dirname(__FILE__), "/spec_helper")
 
 describe MetaInspector::Parser do
+  let(:logger) { MetaInspector::ExceptionLog.new }
+
   describe 'Doing a basic scrape' do
 
     before(:each) do
@@ -155,10 +157,7 @@ describe MetaInspector::Parser do
 
         it "should not crash when processing malformed hrefs" do
           m = MetaInspector::Parser.new(doc 'http://example.com/malformed_href')
-          expect {
-            m.internal_links.should == [ "http://example.com/faqs" ]
-            m.should be_ok
-          }.to_not raise_error
+          m.internal_links.should == [ "http://example.com/faqs" ]
         end
       end
 
@@ -174,11 +173,8 @@ describe MetaInspector::Parser do
 
         it "should not crash when processing malformed hrefs" do
           m = MetaInspector::Parser.new(doc 'http://example.com/malformed_href')
-          expect {
-            m.external_links.should == ["skype:joeuser?call", "telnet://telnet.cdrom.com",
-                                        "javascript:alert('ok');", "javascript://", "mailto:email(at)example.com"]
-            m.should be_ok
-          }.to_not raise_error
+          m.external_links.should == ["skype:joeuser?call", "telnet://telnet.cdrom.com", "javascript:alert('ok');",
+                                      "javascript://", "mailto:email(at)example.com"]
         end
       end
     end
@@ -369,7 +365,7 @@ describe MetaInspector::Parser do
 
   private
 
-  def doc(url, options = {})
+  def doc(url, options = { exception_log: logger })
     MetaInspector::Document.new(url, options)
   end
 end
