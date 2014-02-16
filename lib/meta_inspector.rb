@@ -7,7 +7,6 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/reque
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/url'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parser'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/document'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/deprecations'))
 
 module MetaInspector
   extend self
