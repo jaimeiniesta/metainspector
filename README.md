@@ -200,35 +200,22 @@ MetaInspector will try to parse all URLs by default. If you want to raise an exc
 This is useful when using MetaInspector on web spidering. Although on the initial URL you'll probably have an HTML URL, following links you may find yourself trying to parse non-html URLs.
 
     page = MetaInspector.new('http://example.com/image.png')
-    page.title         # returns ""
     page.content_type  # "image/png"
-    page.ok?           # true
+    page.description   # will returned a garbled string
 
     page = MetaInspector.new('http://example.com/image.png', :html_content_only => true)
-    page.title         # returns nil
     page.content_type  # "image/png"
-    page.ok?           # false
-    page.exceptions.first.message  # "The url provided contains image/png content instead of text/html content"
+    page.description   # raises an exception
 
 ## Exception handling
 
-You can check if the page has been succesfully parsed with:
+By default, MetaInspector will raise the exceptions found. We think that this is the safest default: in case the URL you're trying to scrape is unreachable, you should clearly be notified, and treat the exception as needed in your app.
 
-    page.ok?     # Will return true if everything looks OK
+However, if you prefer you can also set the `warn_level: :warn` option, so that exceptions found will just be warned on the standard output, instead of being raised.
 
-In case there have been any exceptions, you can check them with:
+You can also set the `warn_level: :store` option so that exceptions found will be silenced, and left for you to inspect on `page.exceptions`. You can also ask for `page.ok?`, wich will return `true` if no exceptions are stored.
 
-    page.exceptions  # Will return an array with the exceptions
-
-You can also specify what to do when encountering an exception. By default it
-will store it, but you can also tell MetaInspector to warn about it on the log
-console, or to raise the exceptions, like this:
-
-    # This will warn about the exception on console
-    page = MetaInspector.new('http://example.com', warn_level: :warn)
-
-    # This will raise the exception
-    page = MetaInspector.new('http://example.com', warn_level: :raise)
+You should avoid using the `:store` option, or use it wisely, as silencing errors can be problematic, it's always better to face the errors and treat them accordingly. 
 
 ## Examples
 
