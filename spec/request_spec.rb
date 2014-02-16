@@ -40,15 +40,13 @@ describe MetaInspector::Request do
     it "should handle timeouts" do
       logger.should receive(:<<).with(an_instance_of(Timeout::Error))
 
-      impatient = MetaInspector::Request.new(url('http://example.com'), timeout: 0.0000000000001, exception_log: logger)
-      impatient.read
+      MetaInspector::Request.new(url('http://example.com/timeout'), timeout: 0.0000000000000000001, exception_log: logger)
     end
 
     it "should handle socket errors" do
       logger.should receive(:<<).with(an_instance_of(SocketError))
 
-      nowhere = MetaInspector::Request.new(url('http://caca232dsdsaer3sdsd-asd343.org'), exception_log: logger)
-      nowhere.read
+      MetaInspector::Request.new(url('http://caca232dsdsaer3sdsd-asd343.org'), exception_log: logger)
     end
   end
 

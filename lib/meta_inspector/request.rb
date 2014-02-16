@@ -17,6 +17,8 @@ module MetaInspector
       @allow_redirections = options[:allow_redirections]
       @timeout            = options[:timeout]
       @exception_log      = options[:exception_log]
+
+      response            # as soon as it is set up, we make the request so we can fail early
     end
 
     extend Forwardable

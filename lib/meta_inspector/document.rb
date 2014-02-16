@@ -31,7 +31,7 @@ module MetaInspector
       @url            = MetaInspector::URL.new(initial_url, exception_log: @exception_log)
       @request        = MetaInspector::Request.new(@url, allow_redirections: @allow_redirections,
                                                          timeout:            @timeout,
-                                                         exception_log:      @exception_log)
+                                                         exception_log:      @exception_log) unless @document
       @parser         = MetaInspector::Parser.new(self,  exception_log:      @exception_log)
     end
 

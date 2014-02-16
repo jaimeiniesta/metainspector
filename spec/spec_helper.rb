@@ -16,6 +16,7 @@ end
 # Faked web responses #
 #######################
 
+FakeWeb.register_uri(:get, "http://example.com/", :response => fixture_file("empty_page.response"))
 FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
 FakeWeb.register_uri(:get, "pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
 FakeWeb.register_uri(:get, "http://www.alazan.com", :response => fixture_file("alazan.com.response"))
