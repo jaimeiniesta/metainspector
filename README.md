@@ -191,6 +191,14 @@ However, you can tell MetaInspector to allow these redirections with the option 
      # And this will allow HTTP => HTTPS ("safe") and HTTPS => HTTP ("unsafe") redirections
      page = MetaInspector.new('facebook.com', :allow_redirections => :all)
 
+### Headers
+
+By default, no headers are set.
+If you want to set custom headers then use the `headers` object:
+
+     # Set the User-Agent header
+     page = MetaInspector.new('facebook.com', :headers => {'User-Agent' => 'My custom User-Agent'})
+
 ### HTML Content Only
 
 MetaInspector will try to parse all URLs by default. If you want to raise an exception when trying to parse a non-html URL (one that has a content-type different than text/html), you can state it like this:
