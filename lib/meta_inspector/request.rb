@@ -44,7 +44,8 @@ module MetaInspector
     end
 
     def fetch
-      options = {:allow_redirections => @allow_redirections}.merge(@headers)
+      options = {:allow_redirections => @allow_redirections}
+      options.merge(@headers) if @headers.is_a?(Hash)
       request = open(url, options)
 
       @url.url = request.base_uri.to_s
