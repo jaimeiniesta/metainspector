@@ -17,6 +17,7 @@ module MetaInspector
       @allow_redirections = options[:allow_redirections]
       @timeout            = options[:timeout]
       @exception_log      = options[:exception_log]
+      @headers            = options[:headers]
 
       response            # as soon as it is set up, we make the request so we can fail early
     end
@@ -43,7 +44,9 @@ module MetaInspector
     end
 
     def fetch
-      request = open(url, {:allow_redirections => @allow_redirections})
+      options = {:allow_redirections => @allow_redirections}
+      options.merge(@headers) if @headers.is_a?(Hash)
+      request = open(url, options)
 
       @url.url = request.base_uri.to_s
 

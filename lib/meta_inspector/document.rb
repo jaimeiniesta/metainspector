@@ -3,7 +3,7 @@
 module MetaInspector
   # A MetaInspector::Document knows about its URL and its contents
   class Document
-    attr_reader :timeout, :html_content_only, :allow_redirections, :warn_level
+    attr_reader :timeout, :html_content_only, :allow_redirections, :warn_level, :headers
 
     include MetaInspector::Exceptionable
 
@@ -14,18 +14,21 @@ module MetaInspector
     # => allow_redirections: when :safe, allows HTTP => HTTPS redirections. When :all, it also allows HTTPS => HTTP
     # => document: the html of the url as a string
     # => warn_level: what to do when encountering exceptions. Can be :warn, :raise or nil
+    # => headers: object containing custom headers for the request
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
       @timeout            = options[:timeout]
       @html_content_only  = options[:html_content_only]
       @allow_redirections = options[:allow_redirections]
       @document           = options[:document]
+      @headers            = options[:headers]
       @warn_level         = options[:warn_level]
       @exception_log      = options[:exception_log] || MetaInspector::ExceptionLog.new(warn_level: warn_level)
       @url                = MetaInspector::URL.new(initial_url, exception_log: @exception_log)
       @request            = MetaInspector::Request.new(@url,  allow_redirections: @allow_redirections,
                                                               timeout:            @timeout,
-                                                              exception_log:      @exception_log) unless @document
+                                                              exception_log:      @exception_log,
+                                                              headers:            @headers) unless @document
       @parser             = MetaInspector::Parser.new(self,  exception_log:      @exception_log)
     end
 

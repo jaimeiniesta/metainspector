@@ -89,4 +89,12 @@ describe MetaInspector::Document do
       tar_url.title
     end
   end
+
+  describe 'headers' do
+    it "should set the User-Agent header" do
+      headers = {'User-Agent' => 'metainspector v0.1'}
+      page_request = MetaInspector::Document.new('http://pagerankalert.com', headers: headers)
+      page_request.headers.should eq(headers)
+    end
+  end
 end
