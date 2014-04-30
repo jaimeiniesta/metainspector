@@ -44,8 +44,10 @@ module MetaInspector
     end
 
     def fetch
-      options = {:allow_redirections => @allow_redirections}
-      options.merge(@headers) if @headers.is_a?(Hash)
+      options = {}
+      options.merge!(:allow_redirections => @allow_redirections) if @allow_redirections
+      options.merge!(@headers)                                   if @headers.is_a?(Hash)
+
       request = open(url, options)
 
       @url.url = request.base_uri.to_s
@@ -54,7 +56,7 @@ module MetaInspector
     end
 
     def defaults
-      { allow_redirections: false, timeout: 20, exception_log: MetaInspector::ExceptionLog.new }
+      { timeout: 20, exception_log: MetaInspector::ExceptionLog.new }
     end
   end
 end

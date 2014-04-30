@@ -193,11 +193,14 @@ However, you can tell MetaInspector to allow these redirections with the option 
 
 ### Headers
 
-By default, no headers are set.
-If you want to set custom headers then use the `headers` object:
+By default, the following headers are set:
+
+    {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
+
+If you want to set custom headers then use the `headers` option:
 
      # Set the User-Agent header
-     page = MetaInspector.new('facebook.com', :headers => {'User-Agent' => 'My custom User-Agent'})
+     page = MetaInspector.new('example.com', :headers => {'User-Agent' => 'My custom User-Agent'})
 
 ### HTML Content Only
 
@@ -223,7 +226,7 @@ However, if you prefer you can also set the `warn_level: :warn` option, so that 
 
 You can also set the `warn_level: :store` option so that exceptions found will be silenced, and left for you to inspect on `page.exceptions`. You can also ask for `page.ok?`, wich will return `true` if no exceptions are stored.
 
-You should avoid using the `:store` option, or use it wisely, as silencing errors can be problematic, it's always better to face the errors and treat them accordingly. 
+You should avoid using the `:store` option, or use it wisely, as silencing errors can be problematic, it's always better to face the errors and treat them accordingly.
 
 ## Examples
 

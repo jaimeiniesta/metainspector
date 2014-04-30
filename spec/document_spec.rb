@@ -91,10 +91,28 @@ describe MetaInspector::Document do
   end
 
   describe 'headers' do
-    it "should set the User-Agent header" do
-      headers = {'User-Agent' => 'metainspector v0.1'}
-      page_request = MetaInspector::Document.new('http://pagerankalert.com', headers: headers)
-      page_request.headers.should eq(headers)
+    it "should include default headers" do
+      url     = 'http://example.com/headers'
+      request = double('Request', base_uri: url)
+      expected_headers = {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
+
+      MetaInspector::Request.any_instance.should_receive(:open)
+                                         .with(url, expected_headers)
+                                         .and_return(request)
+
+      MetaInspector::Document.new(url)
+    end
+
+    it "should include passed headers on the request" do
+      url     = 'http://example.com/headers'
+      headers = {'User-Agent' => 'Mozilla', 'Referer' => 'https://github.com/'}
+      request = double('Request', base_uri: url)
+
+      MetaInspector::Request.any_instance.should_receive(:open)
+                                         .with(url, headers)
+                                         .and_return(request)
+
+      MetaInspector::Document.new(url, headers: headers)
     end
   end
 end
