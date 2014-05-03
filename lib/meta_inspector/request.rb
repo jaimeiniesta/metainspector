@@ -14,10 +14,10 @@ module MetaInspector
       options = defaults.merge(options)
 
       @url                = initial_url
-      @allow_redirections = options[:allow_redirections]
+      @allow_redirections = options[:allow_redirections] || false
       @timeout            = options[:timeout]
       @exception_log      = options[:exception_log]
-      @headers            = options[:headers]
+      @headers            = options[:headers] || {}
 
       response            # as soon as it is set up, we make the request so we can fail early
     end
@@ -26,7 +26,7 @@ module MetaInspector
     def_delegators :@url, :url
 
     def read
-      response.read if response
+      response.body if response
     end
 
     def content_type
@@ -43,19 +43,41 @@ module MetaInspector
     end
 
     def fetch
-      options = {}
-      options.merge!(:allow_redirections => @allow_redirections) if @allow_redirections
-      options.merge!(@headers)                                   if @headers.is_a?(Hash)
+      options = {
+        :allow_redirections => @allow_redirections,
+        :headers => @headers
+      }
 
-      request = open(url, options)
+      request = MetaInspector::GETRequestAdapter.new(url, options)
 
-      @url.url = request.base_uri.to_s
+      @url.url = request.url
 
       request
     end
 
     def defaults
       { timeout: 20, exception_log: MetaInspector::ExceptionLog.new }
+    end
+
+    class OpenURIGetRequest
+      def initialize(url, options)
+        client_options = {}
+        client_options[:allow_redirections] = options[:allow_redirections]
+        client_options.merge! options[:headers]
+        @response = open(url, client_options)
+      end
+
+      def url
+        @response.base_uri.to_s
+      end
+
+      def body
+        @response.read
+      end
+
+      def content_type
+        @response.content_type
+      end
     end
   end
 end

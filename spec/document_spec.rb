@@ -94,11 +94,11 @@ describe MetaInspector::Document do
   describe 'headers' do
     it "should include default headers" do
       url     = 'http://example.com/headers'
-      request = double('Request', base_uri: url)
+      request = double('Request', url: url)
       expected_headers = {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
 
-      MetaInspector::Request.any_instance.should_receive(:open)
-                                         .with(url, expected_headers)
+      MetaInspector::Request::OpenURIGetRequest.should_receive(:new)
+                                         .with(url, {:allow_redirections => false, :headers => expected_headers})
                                          .and_return(request)
 
       MetaInspector::Document.new(url)
@@ -107,10 +107,10 @@ describe MetaInspector::Document do
     it "should include passed headers on the request" do
       url     = 'http://example.com/headers'
       headers = {'User-Agent' => 'Mozilla', 'Referer' => 'https://github.com/'}
-      request = double('Request', base_uri: url)
+      request = double('Request', url: url)
 
-      MetaInspector::Request.any_instance.should_receive(:open)
-                                         .with(url, headers)
+      MetaInspector::Request::OpenURIGetRequest.should_receive(:new)
+                                         .with(url, {:allow_redirections => false, :headers => headers})
                                          .and_return(request)
 
       MetaInspector::Document.new(url, headers: headers)
