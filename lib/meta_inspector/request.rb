@@ -36,7 +36,7 @@ module MetaInspector
     private
 
     def response
-      Timeout::timeout(@timeout) { @response ||= fetch }
+      Timeout::timeout(@timeout) { @fetch ||= fetch }
     rescue TimeoutError, SocketError, RuntimeError => e
       @exception_log << e
       nil
@@ -77,6 +77,29 @@ module MetaInspector
 
       def content_type
         @response.content_type
+      end
+    end
+
+    class TyphoeusGetRequest
+      def initialize(url, options)
+        options.merge!(:accept_encoding => "deflate, gzip")
+        if options.delete(:allow_redirections)
+          cookies = StringIO.new
+          options.merge!(:followlocation => true, cookiejar: cookies, cookiefile: cookies)
+        end
+        @response = Typhoeus.get(url, options)
+      end
+
+      def url
+        @response.effective_url
+      end
+
+      def body
+        @response.body
+      end
+
+      def content_type
+        @response.headers["Content-Type"].split(";")[0]
       end
     end
   end

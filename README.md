@@ -255,6 +255,37 @@ You can find some sample scripts on the samples folder, including a basic scrapi
     >> page.links[4]
     => "/plans-and-pricing"
 
+## Experimental Typhoeus support
+
+There is experimental support for using
+[Typhoeus](https://github.com/typhoeus/typhoeus)
+instead of
+[Net::HTTP](https://www.omniref.com/ruby/2.1.1/classes/Net::HTTP).
+The main motivation is to
+support cookies while following redirects. See the discussion in
+[issue 60](https://github.com/jaimeiniesta/metainspector/issues/60)
+to see examples of URLs where this matters.
+
+An additional benefit is native support for redirect following, making the
+[open_uri_redirections gem](https://github.com/jaimeiniesta/open_uri_redirections)
+unnecessary.
+
+If you wish to use Typhoeus:
+
+```ruby
+# or include in Gemfile
+require "typhoeus"
+
+# in a Rails initializer or equivalent
+MetaInspector::GETRequestAdapter = MetaInspector::Request::TyphoeusGetRequest
+
+# now this will work!
+MetaInspector.new(
+  "http://6thfloor.blogs.nytimes.com/2014/01/23/how-our-hillary-clinton-cover-came-about",
+  :allow_redirections => true
+)
+```
+
 ## ZOMG Fork! Thank you!
 
 You're welcome to fork this project and send pull requests. Just remember to include specs.
