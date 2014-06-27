@@ -55,6 +55,24 @@ describe MetaInspector::Parser do
     it "should return the document as a string" do
       @m.to_s.class.should == String
     end
+    
+    describe "Feed" do
+      it "should get rss feed" do
+        @m = MetaInspector::Parser.new(doc 'http://www.iteh.at')
+        @m.feed.should == 'http://www.iteh.at/de/rss/'
+      end
+
+      it "should get atom feed" do
+        @m = MetaInspector::Parser.new(doc 'http://www.tea-tron.com/jbravo/blog/')
+        @m.feed.should == 'http://www.tea-tron.com/jbravo/blog/feed/'
+      end
+
+      it "should return nil if no feed found" do
+        @m = MetaInspector::Parser.new(doc 'http://www.alazan.com')
+        @m.feed.should == nil
+      end
+    end
+    
   end
 
   describe '#description' do
