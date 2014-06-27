@@ -163,8 +163,6 @@ $(document).ready(function() {
     
 
     <link rel="alternate" type="application/rss+xml" title="The Onion: Daily News" href="http://feeds.theonion.com/theonion/daily" />
-
-    <link rel="icon" type="image/png" href="/static/onion/img/favicon.ico">
     
 <meta name="title" content="Apple Claims New iPhone Only Visible To Most Loyal Of Customers" />
 <meta name="description" content="SAN FRANCISCO&amp;mdash;&amp;ldquo;Not only does it look awesome, but it can do pretty much anything you want as long as you believe in it,&amp;rdquo; said Paul Conrad, a loyal Apple consumer." />
