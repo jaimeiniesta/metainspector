@@ -26,7 +26,7 @@ describe MetaInspector::Document do
     @m.to_hash.should == {
                             "url"             =>"http://pagerankalert.com/",
                             "title"           =>"PageRankAlert.com :: Track your PageRank changes & receive alerts",
-                            "favicon"         =>"/img/fav.ico",
+                            "favicon"         =>"/src/favicon.ico",
                             "links"           => ["http://pagerankalert.com/",
                                                   "http://pagerankalert.com/es?language=es",
                                                   "http://pagerankalert.com/users/sign_up",
