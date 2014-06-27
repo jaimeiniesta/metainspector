@@ -56,26 +56,29 @@ describe MetaInspector::Parser do
       @m.to_s.class.should == String
     end
 
-    describe "Feed" do
-      it "should get rss feed" do
-        @m = MetaInspector::Parser.new(doc 'http://www.iteh.at')
-        @m.feed.should == 'http://www.iteh.at/de/rss/'
-      end
-
-      it "should get atom feed" do
-        @m = MetaInspector::Parser.new(doc 'http://www.tea-tron.com/jbravo/blog/')
-        @m.feed.should == 'http://www.tea-tron.com/jbravo/blog/feed/'
-      end
-
-      it "should return nil if no feed found" do
-        @m = MetaInspector::Parser.new(doc 'http://www.alazan.com')
-        @m.feed.should == nil
+    describe "Favicon" do
+      it "should get favicon link" do
+        @m = MetaInspector::Parser.new(doc 'http://www.theonion.com/')
+        @m.favicon.should == 'http://www.theonion.com/static/onion/img/favicon.ico'
       end
     end
   end
 
   describe '#description' do
     it "should find description from meta description" do
+      page = MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc')
+
+      page.description.should == "This is Youtube"
+    end
+
+    it "should find a secondary description if no meta description" do
+      @m = MetaInspector::Parser.new(doc 'http://theonion-no-description.com')
+      @m.description.should == "SAN FRANCISCO—In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday, an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description."
+    end
+  end
+  
+  describe '#favicon' do
+    it "should find favicon" do
       page = MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc')
 
       page.description.should == "This is Youtube"
