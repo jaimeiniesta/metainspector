@@ -47,6 +47,11 @@ module MetaInspector
     def title
       @title ||= parsed.css('title').inner_text rescue nil
     end
+    
+    ## Return favicon url
+    def favicon
+      @favicon ||= parsed.xpath('//link[@rel="icon"]')[0].attributes['href'].value
+    end
 
     # A description getter that first checks for a meta description and if not present will
     # guess by looking at the first paragraph with more than 120 characters
