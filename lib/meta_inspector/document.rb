@@ -36,7 +36,7 @@ module MetaInspector
     def_delegators :@url,     :url, :scheme, :host, :root_url
     def_delegators :@request, :content_type
     def_delegators :@parser,  :parsed, :respond_to?, :title, :description, :links, :internal_links, :external_links,
-                              :images, :image, :feed, :charset, :meta_tags, :meta_tag, :meta
+                              :images, :image, :feed, :charset, :meta_tags, :meta_tag, :meta, :favicon
 
     # Returns all document data as a nested Hash
     def to_hash
@@ -50,7 +50,8 @@ module MetaInspector
         'charset' => charset,
         'feed' => feed,
         'content_type' => content_type,
-        'meta_tags' => meta_tags
+        'meta_tags' => meta_tags,
+        'favicon' => favicon
       }
     end
 
