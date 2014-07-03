@@ -54,6 +54,7 @@ Then you can see the scraped data like this:
     page.feed                # Get rss or atom links in meta data fields as array
     page.charset             # UTF-8
     page.content_type        # content-type returned by the server when the url was requested
+    page.favicon             # absolute URL to the favicon
 
 ## Meta tags
 
