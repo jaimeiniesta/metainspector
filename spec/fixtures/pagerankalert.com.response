@@ -19,6 +19,7 @@ Via: 1.1 varnish
   <meta charset=utf-8>
   <link rel="alternate" type="application/rss+xml" title="PageRankAlert.com blog" href="http://feeds.feedburner.com/PageRankAlert" />
   <title>PageRankAlert.com :: Track your PageRank changes &amp; receive alerts</title>
+  <link rel="icon" href="/src/favicon.ico">
   <meta name="description" content="Track your PageRank(TM) changes and receive alerts by email" />
   <meta name="keywords" content="pagerank, seo, optimization, google" />
   <meta name="robots" content="all,follow" />
