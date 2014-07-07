@@ -95,8 +95,8 @@ describe MetaInspector::Parser do
     end
     
     it "should get ie favicon link" do
-      @m = MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc')
-      @m.favicon.should == 'https://s.ytimg.com/yts/img/favicon-vfldLzJxy.ico'
+      @m = MetaInspector::Parser.new(doc 'http://theonion-no-description.com')
+      @m.favicon.should == 'http://theonion-no-description.com/src/favicon.ico'
     end
 
     it "should get favicon link of nil" do
