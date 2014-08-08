@@ -44,6 +44,7 @@ describe MetaInspector::Request do
     end
 
     it "should handle socket errors" do
+      TCPSocket.stub(:open).and_raise(SocketError)
       logger.should receive(:<<).with(an_instance_of(SocketError))
 
       MetaInspector::Request.new(url('http://caca232dsdsaer3sdsd-asd343.org'), exception_log: logger)
