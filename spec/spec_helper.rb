@@ -13,6 +13,12 @@ def fixture_file(filename)
   File.read(file_path)
 end
 
+RSpec.configure do |config|
+  config.filter_run focus: true
+  config.run_all_when_everything_filtered = true
+  config.treat_symbols_as_metadata_keys_with_true_values = true #rspec 3 default
+end
+
 #######################
 # Faked web responses #
 #######################
