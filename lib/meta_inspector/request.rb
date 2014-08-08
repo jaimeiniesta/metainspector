@@ -37,10 +37,9 @@ module MetaInspector
 
     def response
       Timeout::timeout(@timeout) { @response ||= fetch }
-
-      rescue TimeoutError, SocketError, RuntimeError => e
-        @exception_log << e
-        nil
+    rescue TimeoutError, SocketError, RuntimeError => e
+      @exception_log << e
+      nil
     end
 
     def fetch

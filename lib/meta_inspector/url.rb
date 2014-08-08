@@ -66,10 +66,9 @@ module MetaInspector
 
     def parsed(url)
       Addressable::URI.parse(url)
-
-      rescue Addressable::URI::InvalidURIError => e
-        @exception_log << e
-        nil
+    rescue Addressable::URI::InvalidURIError => e
+      @exception_log << e
+      nil
     end
   end
 end

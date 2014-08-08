@@ -37,9 +37,8 @@ module MetaInspector
     # Returns the whole parsed document
     def parsed
       @parsed ||= Nokogiri::HTML(@document.to_s)
-
-      rescue Exception => e
-        @exception_log << e
+    rescue Exception => e
+      @exception_log << e
     end
 
     # Returns the parsed document title, from the content of the <title> tag.

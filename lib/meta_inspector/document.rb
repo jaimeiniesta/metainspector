@@ -76,8 +76,8 @@ module MetaInspector
                     else
                       @request.read
                     end
-      rescue Exception => e
-        @exception_log << e
+    rescue Exception => e
+      @exception_log << e
     end
   end
 end
