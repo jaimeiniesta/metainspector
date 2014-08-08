@@ -89,9 +89,24 @@ describe MetaInspector::Parser do
   end
   
   describe '#favicon' do
-    it "should get favicon link" do
+    it "should get favicon link when marked as icon" do
       @m = MetaInspector::Parser.new(doc 'http://pagerankalert.com/')
       @m.favicon.should == 'http://pagerankalert.com/src/favicon.ico'
+    end
+
+    it "should get favicon link when marked as shortcut" do
+      @m = MetaInspector::Parser.new(doc 'http://pagerankalert-shortcut.com/')
+      @m.favicon.should == 'http://pagerankalert-shortcut.com/src/favicon.ico'
+    end
+
+    it "should get favicon link when marked as shorcut and icon" do
+      @m = MetaInspector::Parser.new(doc 'http://pagerankalert-shortcut-and-icon.com/')
+      @m.favicon.should == 'http://pagerankalert-shortcut-and-icon.com/src/favicon.ico'
+    end
+
+    it "should get favicon link when there is also a touch icon" do
+      @m = MetaInspector::Parser.new(doc 'http://pagerankalert-touch-icon.com/')
+      @m.favicon.should == 'http://pagerankalert-touch-icon.com/src/favicon.ico'
     end
 
     it "should get favicon link of nil" do

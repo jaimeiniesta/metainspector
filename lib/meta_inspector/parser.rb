@@ -50,7 +50,7 @@ module MetaInspector
     
     # Return favicon url if exist
     def favicon
-      query = '//link[@rel="icon"]'
+      query = '//link[@rel="icon" or contains(@rel, "shortcut")]'
       value = parsed.xpath(query)[0].attributes['href'].value
       @favicon ||= URL.absolutify(value, base_url)
     rescue
