@@ -3,6 +3,7 @@
 $: << File.join(File.dirname(__FILE__), "/../lib")
 require 'meta_inspector'
 require 'fakeweb'
+require "pry"
 
 FakeWeb.allow_net_connect = false
 
@@ -10,6 +11,12 @@ def fixture_file(filename)
   return '' if filename == ''
   file_path = File.expand_path(File.dirname(__FILE__) + '/fixtures/' + filename)
   File.read(file_path)
+end
+
+RSpec.configure do |config|
+  config.filter_run focus: true
+  config.run_all_when_everything_filtered = true
+  config.treat_symbols_as_metadata_keys_with_true_values = true #rspec 3 default
 end
 
 #######################
