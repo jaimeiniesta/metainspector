@@ -50,7 +50,11 @@ module MetaInspector
     
     # Return favicon url if exist
     def favicon
-      @favicon ||= URL.absolutify(parsed.xpath('//link[@rel="icon"]')[0].attributes['href'].value, base_url) rescue nil
+      query = '//link[@rel="icon"]'
+      value = parsed.xpath(query)[0].attributes['href'].value
+      @favicon ||= URL.absolutify(value, base_url)
+    rescue
+      nil
     end
 
     # A description getter that first checks for a meta description and if not present will
