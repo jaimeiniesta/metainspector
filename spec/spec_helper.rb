@@ -3,6 +3,7 @@
 $: << File.join(File.dirname(__FILE__), "/../lib")
 require 'meta_inspector'
 require 'fakeweb'
+require "pry"
 
 FakeWeb.allow_net_connect = false
 
