@@ -94,6 +94,11 @@ describe MetaInspector::Parser do
       @m.favicon.should == 'http://pagerankalert.com/src/favicon.ico'
     end
 
+    it "should get ie favicon link" do
+      @m = MetaInspector::Parser.new(doc 'http://theonion-no-description.com/')
+      @m.favicon.should == 'http://theonion-no-description.com/src/favicon.ico'
+    end
+
     it "should get favicon link of nil" do
       @m = MetaInspector::Parser.new(doc 'http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
       @m.favicon.should == nil
