@@ -25,6 +25,9 @@ end
 
 FakeWeb.register_uri(:get, "http://example.com/", :response => fixture_file("empty_page.response"))
 FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
+FakeWeb.register_uri(:get, "http://pagerankalert-shortcut.com", :response => fixture_file("pagerankalert-shortcut.com.response"))
+FakeWeb.register_uri(:get, "http://pagerankalert-shortcut-and-icon.com", :response => fixture_file("pagerankalert-shortcut-and-icon.com.response"))
+FakeWeb.register_uri(:get, "http://pagerankalert-touch-icon.com", :response => fixture_file("pagerankalert-touch-icon.com.response"))
 FakeWeb.register_uri(:get, "pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
 FakeWeb.register_uri(:get, "http://www.alazan.com", :response => fixture_file("alazan.com.response"))
 FakeWeb.register_uri(:get, "http://alazan.com/websolution.asp", :response => fixture_file("alazan_websolution.response"))
