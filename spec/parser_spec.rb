@@ -11,10 +11,6 @@ describe MetaInspector::Parser do
       @m = MetaInspector::Parser.new(doc 'http://pagerankalert.com')
     end
 
-    it "should get the title" do
-      @m.title.should == 'PageRankAlert.com :: Track your PageRank changes & receive alerts'
-    end
-
     it "should not find an image" do
       @m.image.should == nil
     end
@@ -55,7 +51,7 @@ describe MetaInspector::Parser do
     it "should return the document as a string" do
       @m.to_s.class.should == String
     end
-    
+
     describe "Feed" do
       it "should get rss feed" do
         @m = MetaInspector::Parser.new(doc 'http://www.iteh.at')
@@ -72,7 +68,12 @@ describe MetaInspector::Parser do
         @m.feed.should == nil
       end
     end
-    
+
+  end
+
+  it "should get the title from the head section" do
+    p = MetaInspector::Parser.new(doc 'http://example.com')
+    p.title.should == 'An example page'
   end
 
   describe '#description' do
@@ -87,7 +88,7 @@ describe MetaInspector::Parser do
       @m.description.should == "SAN FRANCISCO—In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday, an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description."
     end
   end
-  
+
   describe '#favicon' do
     it "should get favicon link when marked as icon" do
       @m = MetaInspector::Parser.new(doc 'http://pagerankalert.com/')

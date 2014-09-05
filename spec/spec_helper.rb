@@ -23,7 +23,12 @@ end
 # Faked web responses #
 #######################
 
-FakeWeb.register_uri(:get, "http://example.com/", :response => fixture_file("empty_page.response"))
+# We're reorganizing fixtures, trying to combine them on as few as possible response files
+# For each change in the fixtures, a comment should be included explaining why it's needed
+# This is the base page to be used in the examples
+FakeWeb.register_uri(:get, "http://example.com/", :response => fixture_file("example.response"))
+
+# These are older fixtures
 FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
 FakeWeb.register_uri(:get, "http://pagerankalert-shortcut.com", :response => fixture_file("pagerankalert-shortcut.com.response"))
 FakeWeb.register_uri(:get, "http://pagerankalert-shortcut-and-icon.com", :response => fixture_file("pagerankalert-shortcut-and-icon.com.response"))

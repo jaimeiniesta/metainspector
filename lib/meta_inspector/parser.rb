@@ -41,12 +41,13 @@ module MetaInspector
       @exception_log << e
     end
 
-    # Returns the parsed document title, from the content of the <title> tag.
+    # Returns the parsed document title, from the content of the <title> tag
+    # within the <head> section.
     # This is not the same as the meta_title tag
     def title
-      @title ||= parsed.css('title').inner_text rescue nil
+      @title ||= parsed.css('head title').inner_text rescue nil
     end
-    
+
     # Return favicon url if exist
     def favicon
       query = '//link[@rel="icon" or contains(@rel, "shortcut")]'
