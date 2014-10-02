@@ -14,10 +14,10 @@ module MetaInspector
       options = defaults.merge(options)
 
       @url                = initial_url
-      @allow_redirections = options[:allow_redirections]
+      @allow_redirections = options[:allow_redirections] || false
       @timeout            = options[:timeout]
       @exception_log      = options[:exception_log]
-      @headers            = options[:headers]
+      @headers            = options[:headers] || {}
 
       response            # as soon as it is set up, we make the request so we can fail early
     end
@@ -26,7 +26,7 @@ module MetaInspector
     def_delegators :@url, :url
 
     def read
-      response.read if response
+      response.body if response
     end
 
     def content_type
@@ -36,26 +36,71 @@ module MetaInspector
     private
 
     def response
-      Timeout::timeout(@timeout) { @response ||= fetch }
+      Timeout::timeout(@timeout) { @fetch ||= fetch }
     rescue TimeoutError, SocketError, RuntimeError => e
       @exception_log << e
       nil
     end
 
     def fetch
-      options = {}
-      options.merge!(:allow_redirections => @allow_redirections) if @allow_redirections
-      options.merge!(@headers)                                   if @headers.is_a?(Hash)
+      options = {
+        :allow_redirections => @allow_redirections,
+        :headers => @headers
+      }
 
-      request = open(url, options)
+      request = MetaInspector::GETRequestAdapter.new(url, options)
 
-      @url.url = request.base_uri.to_s
+      @url.url = request.url
 
       request
     end
 
     def defaults
       { timeout: 20, exception_log: MetaInspector::ExceptionLog.new }
+    end
+
+    class OpenURIGetRequest
+      def initialize(url, options)
+        client_options = {}
+        client_options[:allow_redirections] = options[:allow_redirections]
+        client_options.merge! options[:headers]
+        @response = open(url, client_options)
+      end
+
+      def url
+        @response.base_uri.to_s
+      end
+
+      def body
+        @response.read
+      end
+
+      def content_type
+        @response.content_type
+      end
+    end
+
+    class TyphoeusGetRequest
+      def initialize(url, options)
+        options.merge!(:accept_encoding => "deflate, gzip")
+        if options.delete(:allow_redirections)
+          cookies = StringIO.new
+          options.merge!(:followlocation => true, cookiejar: cookies, cookiefile: cookies)
+        end
+        @response = Typhoeus.get(url, options)
+      end
+
+      def url
+        @response.effective_url
+      end
+
+      def body
+        @response.body
+      end
+
+      def content_type
+        @response.headers["Content-Type"].split(";")[0]
+      end
     end
   end
 end

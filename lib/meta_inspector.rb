@@ -12,6 +12,8 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/versi
 module MetaInspector
   extend self
 
+  GETRequestAdapter = Request::OpenURIGetRequest
+
   # Sugar method to be able to scrape a document in a shorter way
   def new(url, options = {})
     Document.new(url, options)
