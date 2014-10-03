@@ -2,6 +2,7 @@
 
 require 'faraday'
 require 'faraday_middleware'
+require 'faraday-cookie_jar'
 require 'timeout'
 
 module MetaInspector
@@ -47,6 +48,7 @@ module MetaInspector
       session = Faraday.new(:url => url) do |faraday|
         if @allow_redirections
           faraday.use FaradayMiddleware::FollowRedirects, limit: 10
+          faraday.use :cookie_jar
         end
         faraday.headers.merge!(@headers || {})
         faraday.adapter :net_http
