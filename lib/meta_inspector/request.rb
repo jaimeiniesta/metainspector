@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-require 'open-uri'
-require 'open_uri_redirections'
 require 'timeout'
+require 'faraday'
+require 'faraday_middleware'
 
 module MetaInspector
 
@@ -14,7 +14,16 @@ module MetaInspector
       options = defaults.merge(options)
 
       @url                = initial_url
-      @allow_redirections = options[:allow_redirections]
+      
+      @allow_redirections = case options[:allow_redirections]
+        when nil, true
+          true
+        when false
+          false
+        else
+          raise ArgumentError, "invalid option for allow_redirections. must be true or false"
+        end
+      
       @timeout            = options[:timeout]
       @exception_log      = options[:exception_log]
       @headers            = options[:headers]
@@ -26,32 +35,35 @@ module MetaInspector
     def_delegators :@url, :url
 
     def read
-      response.read if response
+      response.body if response
     end
 
     def content_type
-      response.content_type if response
+      response.headers["content-type"].split(";")[0] if response
     end
 
     private
 
     def response
       Timeout::timeout(@timeout) { @response ||= fetch }
-    rescue TimeoutError, SocketError, RuntimeError => e
+    rescue TimeoutError, Faraday::ConnectionFailed, RuntimeError => e
       @exception_log << e
       nil
     end
 
     def fetch
-      options = {}
-      options.merge!(:allow_redirections => @allow_redirections) if @allow_redirections
-      options.merge!(@headers)                                   if @headers.is_a?(Hash)
+      session = Faraday.new(:url => url) do |faraday|
+        if @allow_redirections
+          faraday.use FaradayMiddleware::FollowRedirects, limit: 10
+        end
+        faraday.headers.merge!(@headers || {})
+        faraday.adapter :net_http
+      end
+      response = session.get
 
-      request = open(url, options)
+      @url.url = response.env.url.to_s
 
-      @url.url = request.base_uri.to_s
-
-      request
+      response
     end
 
     def defaults

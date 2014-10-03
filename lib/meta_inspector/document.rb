@@ -11,7 +11,7 @@ module MetaInspector
     # Options:
     # => timeout: defaults to 20 seconds
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
-    # => allow_redirections: when :safe, allows HTTP => HTTPS redirections. When :all, it also allows HTTPS => HTTP
+    # => allow_redirections: when true, follow HTTP redirects. Defaults to true
     # => document: the html of the url as a string
     # => warn_level: what to do when encountering exceptions. Can be :warn, :raise or nil
     # => headers: object containing custom headers for the request
