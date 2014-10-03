@@ -14,7 +14,16 @@ module MetaInspector
       options = defaults.merge(options)
 
       @url                = initial_url
-      @allow_redirections = options[:allow_redirections]
+      
+      @allow_redirections = case options[:allow_redirections]
+        when nil, true
+          :all
+        when false
+          nil
+        else
+          raise ArgumentError, "invalid option for allow_redirections. must be true or false"
+        end
+      
       @timeout            = options[:timeout]
       @exception_log      = options[:exception_log]
       @headers            = options[:headers]
@@ -44,6 +53,7 @@ module MetaInspector
 
     def fetch
       options = {}
+        
       options.merge!(:allow_redirections => @allow_redirections) if @allow_redirections
       options.merge!(@headers)                                   if @headers.is_a?(Hash)
 
