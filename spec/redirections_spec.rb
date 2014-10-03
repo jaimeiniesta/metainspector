@@ -8,9 +8,8 @@ describe MetaInspector do
 
     context "when redirecitons are turned off" do
       it "disallows redirections" do
-        logger.should receive(:<<).with(an_instance_of(RuntimeError))
-
-        MetaInspector.new("http://facebook.com", :allow_redirections => false, exception_log: logger)
+        m = MetaInspector.new("http://facebook.com", :allow_redirections => false, exception_log: logger)
+        m.url.should == "http://facebook.com/"
       end
     end
 
