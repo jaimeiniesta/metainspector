@@ -6,7 +6,7 @@ describe MetaInspector do
   describe "redirections" do
     let(:logger) { MetaInspector::ExceptionLog.new }
 
-    context "when redirecitons are turned off" do
+    context "when redirections are turned off" do
       it "disallows redirections" do
         logger.should receive(:<<).with(an_instance_of(RuntimeError))
 
