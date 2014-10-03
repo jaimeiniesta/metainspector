@@ -16,7 +16,8 @@ Gem::Specification.new do |gem|
   gem.version       = MetaInspector::VERSION
 
   gem.add_dependency 'nokogiri', '~> 1.6'
-  gem.add_dependency 'open_uri_redirections', '~> 0.1.4'
+  gem.add_dependency 'faraday'
+  gem.add_dependency 'faraday_middleware'
   gem.add_dependency 'addressable', '~> 2.3.5'
 
   gem.add_development_dependency 'rspec', '2.14.1'

@@ -8,9 +8,8 @@ describe MetaInspector do
 
     context "when redirecitons are turned off" do
       it "disallows redirections" do
-        logger.should receive(:<<).with(an_instance_of(RuntimeError))
-
-        MetaInspector.new("http://facebook.com", :allow_redirections => false, exception_log: logger)
+        m = MetaInspector.new("http://facebook.com", :allow_redirections => false, exception_log: logger)
+        m.url.should == "http://facebook.com/"
       end
     end
 
@@ -27,14 +26,6 @@ describe MetaInspector do
         m = MetaInspector.new("http://facebook.com")
 
         m.url.should == "https://www.facebook.com/"
-      end
-    end
-
-    context "when allow_redirections is not given a boolean" do
-      it "raises an error" do
-        expect{
-          MetaInspector.new("http://facebook.com", :allow_redirections => :hello, exception_log: logger)
-        }.to raise_error(ArgumentError)
       end
     end
 

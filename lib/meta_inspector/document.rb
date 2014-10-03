@@ -66,7 +66,8 @@ module MetaInspector
       { :timeout => 20,
         :html_content_only => false,
         :warn_level => :raise,
-        :headers => {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
+        :headers => {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"},
+        :allow_redirections => true
       }
     end
 
