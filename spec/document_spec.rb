@@ -93,26 +93,22 @@ describe MetaInspector::Document do
 
   describe 'headers' do
     it "should include default headers" do
-      url     = 'http://example.com/headers'
-      request = double('Request', base_uri: url)
-      expected_headers = {:allow_redirections => :all, 'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
-
-      MetaInspector::Request.any_instance.should_receive(:open)
-                                         .with(url, expected_headers)
-                                         .and_return(request)
-
+      url = "http://pagerankalert.com/"
+      expected_headers = {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
+                                         
+      headers = {}
+      headers.should_receive(:merge!).with(expected_headers)
+      Faraday::Connection.any_instance.stub(:headers){headers}
       MetaInspector::Document.new(url)
     end
 
     it "should include passed headers on the request" do
-      url     = 'http://example.com/headers'
-      headers = {:allow_redirections => :all, 'User-Agent' => 'Mozilla', 'Referer' => 'https://github.com/'}
-      request = double('Request', base_uri: url)
+      url = "http://pagerankalert.com/"
+      headers = {'User-Agent' => 'Mozilla', 'Referer' => 'https://github.com/'}
 
-      MetaInspector::Request.any_instance.should_receive(:open)
-                                         .with(url, headers)
-                                         .and_return(request)
-
+      headers = {}
+      headers.should_receive(:merge!).with(headers)
+      Faraday::Connection.any_instance.stub(:headers){headers}
       MetaInspector::Document.new(url, headers: headers)
     end
   end
