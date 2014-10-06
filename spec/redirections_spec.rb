@@ -21,12 +21,6 @@ describe MetaInspector do
 
         m.url.should == "https://www.facebook.com/"
       end
-
-      it "updates the base_uri" do
-        m = MetaInspector.new("http://facebook.com")
-
-        m.url.should == "https://www.facebook.com/"
-      end
     end
 
     context "when there are cookies required for proper redirection" do
