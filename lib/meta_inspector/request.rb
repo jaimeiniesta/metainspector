@@ -39,7 +39,7 @@ module MetaInspector
 
     def response
       Timeout::timeout(@timeout) { @response ||= fetch }
-    rescue TimeoutError, Faraday::ConnectionFailed, RuntimeError => e
+    rescue Timeout::Error, Faraday::ConnectionFailed, RuntimeError => e
       @exception_log << e
       nil
     end
