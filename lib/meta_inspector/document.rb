@@ -64,6 +64,7 @@ module MetaInspector
 
     def defaults
       { :timeout => 20,
+        :retries => 3,
         :html_content_only => false,
         :warn_level => :raise,
         :headers => {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"},
