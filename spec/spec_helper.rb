@@ -3,9 +3,11 @@
 $: << File.join(File.dirname(__FILE__), "/../lib")
 require 'meta_inspector'
 require 'fakeweb'
+require "webmock/rspec"
 require "pry"
 
 FakeWeb.allow_net_connect = false
+WebMock.disable!
 
 def fixture_file(filename)
   return '' if filename == ''
