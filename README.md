@@ -8,6 +8,17 @@ You give it an URL, and it lets you easily get its title, links, images, charset
 
 You can try MetaInspector live at this little demo: [https://metainspectordemo.herokuapp.com](https://metainspectordemo.herokuapp.com)
 
+## Changes in 3.0
+
+This latest release introduces some backwards-incompatible changes, so we've decided to do a major version upgrade:
+
+* The redirect API has been changed, now the `:allow_redirections` option will expect only a boolean, which by default is `true`. That is, no more specifying `:safe`, `:unsafe` or `:all`.
+* We've dropped support for Ruby < 2.
+
+Also, we've introduced a new feature:
+
+* Persist cookies across redirects. Now MetaInspector will include the received cookies when following redirects. This fixes some cases where a redirect would fail, sometimes caught in a redirection loop.
+
 ## Installation
 
 Install the gem from RubyGems:
@@ -18,7 +29,7 @@ If you're using it on a Rails application, just add it to your Gemfile and run `
 
     gem 'metainspector'
 
-This gem is tested on Ruby versions 1.9.3 and 2.1.2.
+This gem is tested on Ruby versions 2.0.0 and 2.1.3.
 
 ## Usage
 
@@ -182,15 +193,11 @@ You can set a different timeout with a second parameter, like this:
 
 ### Redirections
 
-By default, redirections from HTTP to HTTPS, and from HTTPS to HTTP are disallowed.
+By default, MetaInspector will follow redirects (up to a limit of 10).
 
-However, you can tell MetaInspector to allow these redirections with the option `:allow_redirections`, like this:
+If you want to disallow redirects, you can do it like this:
 
-     # This will allow HTTP => HTTPS redirections
-     page = MetaInspector.new('facebook.com', :allow_redirections => :safe)
-
-     # And this will allow HTTP => HTTPS ("safe") and HTTPS => HTTP ("unsafe") redirections
-     page = MetaInspector.new('facebook.com', :allow_redirections => :all)
+    page = MetaInspector.new('facebook.com', :allow_redirections => false)
 
 ### Headers
 

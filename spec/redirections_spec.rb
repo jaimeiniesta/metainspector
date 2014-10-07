@@ -6,64 +6,42 @@ describe MetaInspector do
   describe "redirections" do
     let(:logger) { MetaInspector::ExceptionLog.new }
 
-    describe "safe redirections (HTTP to HTTPS)" do
-      it "disallows safe redirections by default" do
-        logger.should receive(:<<).with(an_instance_of(RuntimeError))
-
-        MetaInspector.new("http://facebook.com", exception_log: logger)
+    context "when redirections are turned off" do
+      it "disallows redirections" do
+        m = MetaInspector.new("http://facebook.com", :allow_redirections => false, exception_log: logger)
+        m.url.should == "http://facebook.com/"
       end
+    end
 
-      it "allows safe redirections when :allow_redirections => :safe" do
+    context "when redirections are on (default)" do
+      it "allows follows redirections" do
         logger.should_not receive(:<<)
 
-        m = MetaInspector.new("http://facebook.com", :allow_redirections => :safe, exception_log: logger)
-
-        m.url.should == "https://www.facebook.com/"
-      end
-
-      it "allows safe redirections when :allow_redirections => :all" do
-        logger.should_not receive(:<<)
-
-        m = MetaInspector.new("http://facebook.com", :allow_redirections => :all, exception_log: logger)
+        m = MetaInspector.new("http://facebook.com", exception_log: logger)
 
         m.url.should == "https://www.facebook.com/"
       end
     end
 
-    describe "unsafe redirections (HTTPS to HTTP)" do
-      it "disallows unsafe redirections by default" do
-        logger.should receive(:<<).with(an_instance_of(RuntimeError))
+    context "when there are cookies required for proper redirection" do
+      before(:all){WebMock.enable!}
+      after(:all){WebMock.disable!}
 
-        MetaInspector.new("https://unsafe-facebook.com", exception_log: logger)
-      end
-
-      it "disallows unsafe redirections when :allow_redirections => :safe" do
-        logger.should receive(:<<).with(an_instance_of(RuntimeError))
-
-        MetaInspector.new("https://unsafe-facebook.com", :allow_redirections => :safe, exception_log: logger)
-      end
-
-      it "allows unsafe redirections when :allow_redirections => :all" do
+      it "allows follows redirections while sending the cookies" do
+        stub_request(:get, "http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/").to_return(
+          :status => 302,
+          :headers => { 
+            "Location" => "http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/?nclick_check=1",
+            "Set-Cookie" => "EMETA_COOKIE_CHECK=1; path=/; domain=clarionledger.com"
+          })
+        stub_request(:get, "http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/?nclick_check=1")
+          .with(:headers => {"Cookie" => "EMETA_COOKIE_CHECK=1"})
         logger.should_not receive(:<<)
 
-        m = MetaInspector.new("https://unsafe-facebook.com", :allow_redirections => :all, exception_log: logger)
+        m = MetaInspector.new("http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/", exception_log: logger)
 
-        m.url.should == "http://unsafe-facebook.com/"
-      end
-    end
-
-    describe "Redirections should update the base_uri" do
-      it "updates the base_uri on safe redirections" do
-        m = MetaInspector.new("http://facebook.com", :allow_redirections => :safe)
-
-        m.url.should == "https://www.facebook.com/"
-      end
-
-      it "updates the base_uri on all redirections" do
-        m = MetaInspector.new("http://facebook.com", :allow_redirections => :all)
-
-        m.url.should == "https://www.facebook.com/"
-      end
+        m.url.should == "http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/?nclick_check=1"
+      end      
     end
   end
 end
