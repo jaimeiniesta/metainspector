@@ -12,8 +12,6 @@ module MetaInspector
     include MetaInspector::Exceptionable
 
     def initialize(initial_url, options = {})
-      options = defaults.merge(options)
-
       @url                = initial_url
       
       @allow_redirections = options[:allow_redirections]
@@ -60,8 +58,5 @@ module MetaInspector
       response
     end
 
-    def defaults
-      { timeout: 20, exception_log: MetaInspector::ExceptionLog.new, allow_redirections: true }
-    end
   end
 end
