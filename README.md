@@ -184,12 +184,30 @@ And the full scraped document is accessible from:
 
 ## Options
 
-### Timeout
+### Timeout & Retries
 
-By default, MetaInspector times out after 20 seconds of waiting for a page to respond.
-You can set a different timeout with a second parameter, like this:
+By default, MetaInspector times out after 20 seconds of waiting for a page to respond,
+and it will retry fetching the page 3 times.
+You can specify different values for both of these, like this:
 
-    page = MetaInspector.new('sitevalidator.com', :timeout => 5) # 5 seconds timeout
+    # timeout after 5 seconds, retry 4 times
+    page = MetaInspector.new('sitevalidator.com', :timeout => 5, :retries => 4)
+
+If MetaInspector fails to fetch the page after it has exhausted its retries,
+it will raise `MetaInspector::Request::TimeoutError`, which you can rescue in your
+application code.
+
+    begin
+      data = MetaInspector.new(url)
+    rescue MetaInspector::Request::TimeoutError
+      enqueue_for_future_fetch_attempt(url)
+      render_simple(url)
+    rescue
+      log_fetch_error($!)
+      render_simple(url)
+    else
+      render_rich(data)
+    end
 
 ### Redirections
 

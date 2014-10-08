@@ -12,12 +12,11 @@ module MetaInspector
     include MetaInspector::Exceptionable
 
     def initialize(initial_url, options = {})
-      options = defaults.merge(options)
-
       @url                = initial_url
       
       @allow_redirections = options[:allow_redirections]
       @timeout            = options[:timeout]
+      @retries            = options[:retries]
       @exception_log      = options[:exception_log]
       @headers            = options[:headers]
 
@@ -38,8 +37,13 @@ module MetaInspector
     private
 
     def response
+      request_count ||= 0
+      request_count += 1
       Timeout::timeout(@timeout) { @response ||= fetch }
-    rescue TimeoutError, Faraday::ConnectionFailed, RuntimeError => e
+    rescue Timeout::Error
+      retry unless @retries == request_count
+      @exception_log << TimeoutError.new("Attempt to fetch #{url} timed out 3 times.")
+    rescue Faraday::ConnectionFailed, RuntimeError => e
       @exception_log << e
       nil
     end
@@ -60,8 +64,7 @@ module MetaInspector
       response
     end
 
-    def defaults
-      { timeout: 20, exception_log: MetaInspector::ExceptionLog.new, allow_redirections: true }
+    class TimeoutError < StandardError
     end
   end
 end
