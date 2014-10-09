@@ -39,7 +39,7 @@ describe MetaInspector::Request do
 
     it "should handle socket errors" do
       TCPSocket.stub(:open).and_raise(SocketError)
-      logger.should receive(:<<).with(an_instance_of(Faraday::ConnectionFailed))
+      logger.should receive(:<<).with(an_instance_of(Faraday::Error::ConnectionFailed))
 
       MetaInspector::Request.new(url('http://caca232dsdsaer3sdsd-asd343.org'), exception_log: logger)
     end
