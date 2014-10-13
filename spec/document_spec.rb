@@ -90,11 +90,26 @@ describe MetaInspector::Document do
       tar_url.title
     end
 
-		it 'should honor the warn_level options' do
-			@m = MetaInspector::Document.new('http://pagerankalert.com', warn_level: :store)
+    context 'when a warn_level of :store is passed in' do
+      let(:bad_request){ MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :store) }
+      before{ bad_request.title }
+      it 'stores the exceptions' do
+        bad_request.exceptions.should_not be_empty
+      end
+      it 'makes ok? to return false' do
+        bad_request.ok?.should be_false
+      end
+    end
 
-			@m.instance_variable_get(:@exception_log).warn_level.should == :store
-		end
+    context 'when a warn_level of :warn is passed in' do
+      let(:bad_request){ MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :warn) }
+      it 'does not raise an exception' do
+        expect{ bad_request.title }.to_not raise_exception
+      end
+      it 'does not store exceptions' do
+        expect( bad_request.exceptions ).to be_empty
+      end
+    end
   end
 
   describe 'headers' do
