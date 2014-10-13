@@ -89,6 +89,12 @@ describe MetaInspector::Document do
 
       tar_url.title
     end
+
+		it 'should honor the warn_level options' do
+			@m = MetaInspector::Document.new('http://pagerankalert.com', warn_level: :store)
+
+			@m.instance_variable_get(:@exception_log).warn_level.should == :store
+		end
   end
 
   describe 'headers' do
