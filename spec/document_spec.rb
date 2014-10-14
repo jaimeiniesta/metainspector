@@ -91,27 +91,48 @@ describe MetaInspector::Document do
     end
 
     context 'when a warn_level of :store is passed in' do
-      let(:bad_request) { MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :store) }
-
-      before { bad_request.title }
+      before do
+        @bad_request = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :store)
+        @bad_request.title
+      end
 
       it 'stores the exceptions' do
-        bad_request.exceptions.should_not be_empty
+        @bad_request.exceptions.should_not be_empty
       end
 
       it 'makes ok? to return false' do
-        bad_request.should_not be_ok
+        @bad_request.should_not be_ok
       end
     end
 
     context 'when a warn_level of :warn is passed in' do
-      let(:bad_request) { MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :warn) }
+      before do
+        $stderr = StringIO.new
+      end
+
+      after do
+        $stderr = STDERR
+      end
+
+      it 'warns on STDERR' do
+        bad_request = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :warn)
+        bad_request.title
+
+        $stderr.rewind
+        $stderr.string.chomp.should eq("The url provided contains image/png content instead of text/html content")
+      end
 
       it 'does not raise an exception' do
-        expect{ bad_request.title }.to_not raise_exception
+        expect {
+          bad_request = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :warn)
+          bad_request.title
+        }.to_not raise_exception
       end
 
       it 'does not store exceptions' do
+        bad_request = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :warn)
+        bad_request.title
+
         expect( bad_request.exceptions ).to be_empty
       end
     end
