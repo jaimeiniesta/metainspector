@@ -91,21 +91,26 @@ describe MetaInspector::Document do
     end
 
     context 'when a warn_level of :store is passed in' do
-      let(:bad_request){ MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :store) }
-      before{ bad_request.title }
+      let(:bad_request) { MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :store) }
+
+      before { bad_request.title }
+
       it 'stores the exceptions' do
         bad_request.exceptions.should_not be_empty
       end
+
       it 'makes ok? to return false' do
-        bad_request.ok?.should be_false
+        bad_request.should_not be_ok
       end
     end
 
     context 'when a warn_level of :warn is passed in' do
-      let(:bad_request){ MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :warn) }
+      let(:bad_request) { MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :warn) }
+
       it 'does not raise an exception' do
         expect{ bad_request.title }.to_not raise_exception
       end
+
       it 'does not store exceptions' do
         expect( bad_request.exceptions ).to be_empty
       end
@@ -116,7 +121,7 @@ describe MetaInspector::Document do
     it "should include default headers" do
       url = "http://pagerankalert.com/"
       expected_headers = {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
-                                         
+
       headers = {}
       headers.should_receive(:merge!).with(expected_headers)
       Faraday::Connection.any_instance.stub(:headers){headers}
