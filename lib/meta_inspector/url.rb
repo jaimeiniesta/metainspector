@@ -9,8 +9,7 @@ module MetaInspector
     include MetaInspector::Exceptionable
 
     def initialize(initial_url, options = {})
-      options         = defaults.merge(options)
-      @exception_log  = options[:exception_log]
+      @exception_log = options[:exception_log]
 
       self.url = initial_url
     end
@@ -49,10 +48,6 @@ module MetaInspector
     end
 
     private
-
-    def defaults
-      { exception_log: MetaInspector::ExceptionLog.new }
-    end
 
     # Adds 'http' as default scheme, if there is none
     def with_default_scheme(url)

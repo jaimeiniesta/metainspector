@@ -8,8 +8,6 @@ module MetaInspector
     include MetaInspector::Exceptionable
 
     def initialize(document, options = {})
-      options = defaults.merge(options)
-
       @document       = document
       @exception_log  = options[:exception_log]
     end
@@ -105,10 +103,6 @@ module MetaInspector
     end
 
     private
-
-    def defaults
-      { exception_log: MetaInspector::ExceptionLog.new }
-    end
 
     def meta_tags_by(attribute)
       hash = {}

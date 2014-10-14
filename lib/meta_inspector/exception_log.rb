@@ -7,8 +7,7 @@ module MetaInspector
     attr_reader :exceptions, :warn_level
 
     def initialize(options = {})
-      options     = defaults.merge(options)
-      @warn_level = options[:warn_level]
+      @warn_level = options[:warn_level] || :raise
       @exceptions = []
     end
 
@@ -29,12 +28,6 @@ module MetaInspector
       else
         warn "ExceptionLog#ok? should only be used when warn_level is :store"
       end
-    end
-
-    private
-
-    def defaults
-      { warn_level: :raise }
     end
   end
 end
