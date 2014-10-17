@@ -45,9 +45,18 @@ You can also include the html which will be used as the document to scrape:
 
     page = MetaInspector.new("http://sitevalidator.com", :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>")
 
+## Accessing response status and headers
+
+You can check the status and headers from the response like this:
+
+```ruby
+page.response.status  # 200
+page.response.headers # { "server"=>"nginx", "content-type"=>"text/html; charset=utf-8", "cache-control"=>"must-revalidate, private, max-age=0", ... }
+```
+
 ## Accessing scraped data
 
-Then you can see the scraped data like this:
+You can see the scraped data like this:
 
     page.url                 # URL of the page
     page.scheme              # Scheme of the page (http, https)

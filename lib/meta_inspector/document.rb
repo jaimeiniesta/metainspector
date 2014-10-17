@@ -34,7 +34,7 @@ module MetaInspector
 
     extend Forwardable
     def_delegators :@url,     :url, :scheme, :host, :root_url
-    def_delegators :@request, :content_type
+    def_delegators :@request, :content_type, :response
     def_delegators :@parser,  :parsed, :respond_to?, :title, :description, :links, :internal_links, :external_links,
                               :images, :image, :feed, :charset, :meta_tags, :meta_tag, :meta, :favicon
 
@@ -51,7 +51,9 @@ module MetaInspector
         'feed' => feed,
         'content_type' => content_type,
         'meta_tags' => meta_tags,
-        'favicon' => favicon
+        'favicon' => favicon,
+        'response' => { 'status'  => response.status,
+                        'headers' => response.headers }
       }
     end
 

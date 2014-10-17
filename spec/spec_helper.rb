@@ -30,6 +30,9 @@ end
 # This is the base page to be used in the examples
 FakeWeb.register_uri(:get, "http://example.com/", :response => fixture_file("example.response"))
 
+# Used to test response status codes
+FakeWeb.register_uri(:get, "http://example.com/404", :response => fixture_file("404.response"))
+
 # These are older fixtures
 FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
 FakeWeb.register_uri(:get, "http://pagerankalert-shortcut.com", :response => fixture_file("pagerankalert-shortcut.com.response"))

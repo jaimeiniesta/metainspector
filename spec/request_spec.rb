@@ -12,6 +12,23 @@ describe MetaInspector::Request do
     end
   end
 
+  describe "response" do
+    it "contains the response status" do
+      page_request = MetaInspector::Request.new(url('http://example.com'))
+      page_request.response.status.should == 200
+    end
+
+    it "contains the response headers" do
+      page_request = MetaInspector::Request.new(url('http://example.com'))
+      page_request.response.headers
+        .should == {"server"=>"nginx/0.7.67", "date"=>"Fri, 18 Nov 2011 21:46:46 GMT",
+                    "content-type"=>"text/html", "connection"=>"keep-alive",
+                    "last-modified"=>"Mon, 14 Nov 2011 16:53:18 GMT",
+                    "content-length"=>"4987", "x-varnish"=>"2000423390",
+                    "age"=>"0", "via"=>"1.1 varnish"}
+    end
+  end
+
   describe "content_type" do
     it "should return the correct content type of the url for html pages" do
       page_request = MetaInspector::Request.new(url('http://pagerankalert.com'))

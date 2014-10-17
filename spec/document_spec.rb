@@ -24,9 +24,9 @@ describe MetaInspector::Document do
   it "should return a Hash with all the values set" do
     @m = MetaInspector::Document.new('http://pagerankalert.com')
     @m.to_hash.should == {
-                            "url"             =>"http://pagerankalert.com/",
-                            "title"           =>"PageRankAlert.com :: Track your PageRank changes & receive alerts",
-                            "favicon"         =>"http://pagerankalert.com/src/favicon.ico",
+                            "url"             => "http://pagerankalert.com/",
+                            "title"           => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
+                            "favicon"         => "http://pagerankalert.com/src/favicon.ico",
                             "links"           => ["http://pagerankalert.com/",
                                                   "http://pagerankalert.com/es?language=es",
                                                   "http://pagerankalert.com/users/sign_up",
@@ -46,14 +46,36 @@ describe MetaInspector::Document do
                             "images"          => ["http://pagerankalert.com/images/pagerank_alert.png?1305794559"],
                             "charset"         => "utf-8",
                             "feed"            => "http://feeds.feedburner.com/PageRankAlert",
-                            "content_type"    =>"text/html",
-                            "meta_tags"       => { "name" => { "description" => ["Track your PageRank(TM) changes and receive alerts by email"],
+                            "content_type"    => "text/html",
+                            "meta_tags"       => {
+                                                   "name" => {
+                                                               "description" => ["Track your PageRank(TM) changes and receive alerts by email"],
                                                                "keywords"    => ["pagerank, seo, optimization, google"], "robots"=>["all,follow"],
                                                                "csrf-param"  => ["authenticity_token"],
-                                                               "csrf-token"  => ["iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="] },
+                                                               "csrf-token"  => ["iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="]
+                                                             },
                                                    "http-equiv" => {},
                                                    "property"   => {},
-                                                   "charset"    => ["utf-8"] }
+                                                   "charset"    => ["utf-8"]
+                                                 },
+                            "response"        => {
+                                                   "status"  => 200,
+                                                   "headers" => {
+                                                                  "server" => "nginx/0.7.67",
+                                                                  "date"=>"Mon, 30 May 2011 09:45:42 GMT",
+                                                                  "content-type" => "text/html; charset=utf-8",
+                                                                  "connection" => "keep-alive",
+                                                                  "etag" => "\"d0534cf7ad7d7a7fb737fe4ad99b0fd1\"",
+                                                                  "x-ua-compatible" => "IE=Edge,chrome=1",
+                                                                  "x-runtime" => "0.031274",
+                                                                  "set-cookie" => "_session_id=33575f7694b4492af4c4e282d62a7127; path=/; HttpOnly",
+                                                                  "cache-control" => "max-age=0, private, must-revalidate",
+                                                                  "content-length" => "6690",
+                                                                  "x-varnish" => "2167295052",
+                                                                  "age" => "0",
+                                                                  "via" => "1.1 varnish"
+                                                                }
+                                                 }
                          }
   end
 
