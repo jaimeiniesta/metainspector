@@ -256,7 +256,7 @@ You should avoid using the `:store` option, or use it wisely, as silencing error
 
 ## Examples
 
-You can find some sample scripts on the samples folder, including a basic scraping and a spider that will follow external links using a queue. What follows is an example of use from irb:
+You can find some sample scripts on the `examples` folder, including a basic scraping and a spider that will follow external links using a queue. What follows is an example of use from irb:
 
     $ irb
     >> require 'metainspector'
