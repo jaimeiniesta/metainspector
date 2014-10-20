@@ -288,7 +288,7 @@ Thanks to all the contributors:
 
 [https://github.com/jaimeiniesta/metainspector/graphs/contributors](https://github.com/jaimeiniesta/metainspector/graphs/contributors)
 
-You are more than welcome to come chat with us on our [Gitter room](https://gitter.im/jaimeiniesta/metainspector).
+You are more than welcome to come chat with us on our [Gitter room](https://gitter.im/jaimeiniesta/metainspector) and [Google group](https://groups.google.com/forum/#!forum/metainspector).
 
 ## Related projects
 
