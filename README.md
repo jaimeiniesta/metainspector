@@ -8,9 +8,22 @@ You give it an URL, and it lets you easily get its title, links, images, charset
 
 You can try MetaInspector live at this little demo: [https://metainspectordemo.herokuapp.com](https://metainspectordemo.herokuapp.com)
 
-## Changes in 3.0
+## Changes in 4.0
 
-This latest release introduces some backwards-incompatible changes, so we've decided to do a major version upgrade:
+* The links API has been changed, now instead of `page.links`, `page.internal_links` and `page.external_links` we have:
+
+```ruby
+page.links.raw      # Returns all links found, unprocessed
+page.links.all      # Returns all links found, unrelavitized and absolutified
+page.links.http     # Returns all HTTP links found
+page.links.non_http # Returns all non-HTTP links found
+page.links.internal # Returns all internal HTTP links found
+page.links.external # Returns all external HTTP links found
+```
+
+* Now `page.image` will return the first image in `page.images` if no OG or Twitter image found, instead of returning `nil`.
+
+## Changes in 3.0
 
 * The redirect API has been changed, now the `:allow_redirections` option will expect only a boolean, which by default is `true`. That is, no more specifying `:safe`, `:unsafe` or `:all`.
 * We've dropped support for Ruby < 2.
@@ -63,9 +76,12 @@ You can see the scraped data like this:
     page.host                # Hostname of the page (like, sitevalidator.com, without the scheme)
     page.root_url            # Root url (scheme + host, like http://sitevalidator.com/)
     page.title               # title of the page, as string
-    page.links               # array of strings, with every link found on the page as an absolute URL
-    page.internal_links      # array of strings, with every internal link found on the page as an absolute URL
-    page.external_links      # array of strings, with every external link found on the page as an absolute URL
+    page.links.raw           # every link found, unprocessed
+    page.links.all           # every link found on the page as an absolute URL
+    page.links.http          # every HTTP link found
+    page.links.non_http      # every non-HTTP link found
+    page.links.internal      # every internal link found on the page as an absolute URL
+    page.links.external      # every external link found on the page as an absolute URL
     page.meta['keywords']    # meta keywords, as string
     page.meta['description'] # meta description, as string
     page.description         # returns the meta description, or the first long paragraph if no meta description is found

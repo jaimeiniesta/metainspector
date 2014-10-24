@@ -7,7 +7,7 @@ describe MetaInspector::Document do
     end
 
     it "should get correct links when the url html is passed as an option" do
-      @m.links.should == ["http://cnn.com/hello"]
+      @m.links.internal.should == ["http://cnn.com/hello"]
     end
 
     it "should get the title" do
@@ -25,22 +25,16 @@ describe MetaInspector::Document do
                             "url"             => "http://pagerankalert.com/",
                             "title"           => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "favicon"         => "http://pagerankalert.com/src/favicon.ico",
-                            "links"           => ["http://pagerankalert.com/",
-                                                  "http://pagerankalert.com/es?language=es",
-                                                  "http://pagerankalert.com/users/sign_up",
-                                                  "http://pagerankalert.com/users/sign_in",
-                                                  "mailto:pagerankalert@gmail.com",
-                                                  "http://pagerankalert.posterous.com/",
-                                                  "http://twitter.com/pagerankalert",
-                                                  "http://twitter.com/share"],
-                            "internal_links"  => ["http://pagerankalert.com/",
-                                                  "http://pagerankalert.com/es?language=es",
-                                                  "http://pagerankalert.com/users/sign_up",
-                                                  "http://pagerankalert.com/users/sign_in"],
-                            "external_links"  => ["mailto:pagerankalert@gmail.com",
-                                                  "http://pagerankalert.posterous.com/",
-                                                  "http://twitter.com/pagerankalert",
-                                                  "http://twitter.com/share"],
+                            "links"           => {
+                                                    'internal' => ["http://pagerankalert.com/",
+                                                                   "http://pagerankalert.com/es?language=es",
+                                                                   "http://pagerankalert.com/users/sign_up",
+                                                                   "http://pagerankalert.com/users/sign_in"],
+                                                    'external' => ["http://pagerankalert.posterous.com/",
+                                                                   "http://twitter.com/pagerankalert",
+                                                                   "http://twitter.com/share"],
+                                                    'non_http' => ["mailto:pagerankalert@gmail.com"]
+                                                  },
                             "images"          => ["http://pagerankalert.com/images/pagerank_alert.png?1305794559"],
                             "charset"         => "utf-8",
                             "feed"            => "http://feeds.feedburner.com/PageRankAlert",
