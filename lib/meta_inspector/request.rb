@@ -34,8 +34,6 @@ module MetaInspector
       response.headers["content-type"].split(";")[0] if response
     end
 
-    private
-
     def response
       request_count ||= 0
       request_count += 1
@@ -47,6 +45,8 @@ module MetaInspector
       @exception_log << e
       nil
     end
+
+    private
 
     def fetch
       session = Faraday.new(:url => url) do |faraday|
