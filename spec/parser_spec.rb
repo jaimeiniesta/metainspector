@@ -11,10 +11,6 @@ describe MetaInspector::Parser do
       @m = MetaInspector::Parser.new(doc 'http://pagerankalert.com')
     end
 
-    it "should not find an image" do
-      @m.image.should == nil
-    end
-
     describe "get image" do
       it "should find the og image" do
         @m = MetaInspector::Parser.new(doc 'http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
@@ -23,6 +19,10 @@ describe MetaInspector::Parser do
 
       it "should find image on youtube" do
         MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc').image.should == "http://i2.ytimg.com/vi/iaGSSrp49uc/mqdefault.jpg"
+      end
+
+      it "should find image when og:image and twitter:image metatags are missing" do
+        MetaInspector::Parser.new(doc 'http://www.alazan.com').image.should == "http://www.alazan.com/imagenes/logo.jpg"
       end
     end
 
