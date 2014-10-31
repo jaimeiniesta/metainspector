@@ -85,9 +85,8 @@ module MetaInspector
     # Most all major websites now define this property and is usually very relevant
     # See doc at http://developers.facebook.com/docs/opengraph/
     # If none found, tries with Twitter image
-    # TODO: if not found, try with images.first
     def image
-      meta['og:image'] || meta['twitter:image']
+      meta['og:image'] || meta['twitter:image'] || images.first
     end
 
     # Returns the parsed document meta rss link
