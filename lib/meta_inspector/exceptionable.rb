@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 module MetaInspector
   #
   # This module extracts two common methods for classes that use ExceptionLog

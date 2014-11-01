@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 require 'faraday'
 require 'faraday_middleware'
 require 'faraday-cookie_jar'

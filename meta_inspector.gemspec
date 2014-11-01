@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 require File.expand_path('../lib/meta_inspector/version', __FILE__)
 
 Gem::Specification.new do |gem|

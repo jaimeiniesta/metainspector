@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 module MetaInspector
   # A MetaInspector::Document knows about its URL and its contents
   class Document

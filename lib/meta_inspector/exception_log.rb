@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 module MetaInspector
 
   # Stores the exceptions passed to it, warning about them if required
