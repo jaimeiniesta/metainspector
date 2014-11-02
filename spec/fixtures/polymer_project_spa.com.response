@@ -1,0 +1,52 @@
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: *
+ETag: "ve7gBg"
+Date: Sun, 02 Nov 2014 10:02:36 GMT
+Expires: Sun, 02 Nov 2014 10:12:36 GMT
+Cache-Control: public, max-age=600
+Content-Type: text/html
+Server: Google Frontend
+Transfer-Encoding: chunked
+
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="Polymer - Building single page apps using web components">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="http://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Building single page apps using web components - 
+   Polymer
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="/images/logos/p-logo-32.png">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+
+
+  <link href="/css/site2.css?20141020" rel="stylesheet">
+
+<link href="/css/site2_sd_rules.css?20141020" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/platform.js?20141020"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/components/polymer/polymer.html">
+
+
+  <link rel="import" href="/elements/common_elements.vulcanized.html?20141020">
+
+
+</head>
+<body id="building-single-page-apps-using-web-components">
+</body>
+</html>

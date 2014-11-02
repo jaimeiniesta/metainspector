@@ -76,6 +76,11 @@ describe MetaInspector::Parser do
     p.title.should == 'An example page'
   end
 
+  it "should get the description from the metadata when /meta@name='description' is not present" do
+    p = MetaInspector::Parser.new(doc 'https://www.polymer-project.org/articles/spa.html')
+    p.description.should match(/Polymer is a library that uses the latest web technologies/)
+  end
+
   describe '#description' do
     it "should find description from meta description" do
       page = MetaInspector::Parser.new(doc 'http://www.youtube.com/watch?v=iaGSSrp49uc')

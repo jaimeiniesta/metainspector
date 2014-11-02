@@ -63,7 +63,7 @@ module MetaInspector
     # A description getter that first checks for a meta description and if not present will
     # guess by looking at the first paragraph with more than 120 characters
     def description
-      meta['description'] || secondary_description
+      meta['description'] || extract_description
     end
 
     # Links found on the page, as absolute URLs
@@ -135,8 +135,16 @@ module MetaInspector
       end
     end
 
+    def extract_description
+      metadata_based_description || content_based_description
+    end
+
+    def metadata_based_description
+      meta_tag['itemprop']['description'] if meta_tag['itemprop']['description']
+    end
+
     # Look for the first <p> block with 120 characters or more
-    def secondary_description
+    def content_based_description
       first_long_paragraph = parsed_search('//p[string-length() >= 120]').first
       first_long_paragraph ? first_long_paragraph.text : ''
     end
