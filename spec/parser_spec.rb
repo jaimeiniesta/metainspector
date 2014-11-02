@@ -321,6 +321,11 @@ describe MetaInspector::Parser do
                                                   'og:image:height' => ['300', '1000']
                                                 },
 
+                                  'itemprop' => {
+                                                  'name' => ['Itemprop name'],
+                                                  'description' => ['Itemprop description']
+                                                },
+
                                   'charset' => ['UTF-8']
                                 }
     end
@@ -350,27 +355,34 @@ describe MetaInspector::Parser do
                                                   'og:image:height' => '300'
                                                 },
 
+                                  'itemprop' => {
+                                                  'name' => 'Itemprop name',
+                                                  'description' => 'Itemprop description'
+                                                },
+
                                   'charset' => 'UTF-8'
                                 }
     end
 
     it "#meta" do
       page.meta.should == {
-                            'keywords'            => 'one, two, three',
-                            'description'         => 'the description',
-                            'author'              => 'Joe Sample',
-                            'robots'              => 'index,follow',
-                            'revisit'             => '15 days',
-                            'dc.date.issued'      => '2011-09-15',
-                            'content-type'        => 'text/html; charset=UTF-8',
-                            'content-style-type'  => 'text/css',
-                            'og:title'            => 'An OG title',
-                            'og:type'             => 'website',
-                            'og:url'              => 'http://example.com/meta-tags',
-                            'og:image'            => 'http://example.com/rock.jpg',
-                            'og:image:width'      => '300',
-                            'og:image:height'     => '300',
-                            'charset'             => 'UTF-8'
+                            'keywords'             => 'one, two, three',
+                            'description'          => 'the description',
+                            'author'               => 'Joe Sample',
+                            'robots'               => 'index,follow',
+                            'revisit'              => '15 days',
+                            'dc.date.issued'       => '2011-09-15',
+                            'content-type'         => 'text/html; charset=UTF-8',
+                            'content-style-type'   => 'text/css',
+                            'og:title'             => 'An OG title',
+                            'og:type'              => 'website',
+                            'og:url'               => 'http://example.com/meta-tags',
+                            'og:image'             => 'http://example.com/rock.jpg',
+                            'og:image:width'       => '300',
+                            'og:image:height'      => '300',
+                            'charset'              => 'UTF-8',
+                            'itemprop:name'        => 'Itemprop name',
+                            'itemprop:description' => 'Itemprop description'
                           }
     end
   end

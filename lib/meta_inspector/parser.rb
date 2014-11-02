@@ -20,6 +20,7 @@ module MetaInspector
         'name'        => meta_tags_by('name'),
         'http-equiv'  => meta_tags_by('http-equiv'),
         'property'    => meta_tags_by('property'),
+        'itemprop'    => meta_tags_by('itemprop'),
         'charset'     => [charset_from_meta_charset]
       }
     end
@@ -29,7 +30,11 @@ module MetaInspector
     end
 
     def meta
-      meta_tag['name'].merge(meta_tag['http-equiv']).merge(meta_tag['property']).merge({'charset' => meta_tag['charset']})
+      meta_tag['name']
+        .merge(meta_tag['http-equiv'])
+        .merge(meta_tag['property'])
+        .merge({'charset' => meta_tag['charset']})
+        .merge(generate_itemprop_hash)
     end
 
     # Returns the whole parsed document
@@ -155,6 +160,13 @@ module MetaInspector
 
     def charset_from_meta_content_type
       parsed.css("meta[http-equiv='Content-Type']")[0].attributes['content'].value.split(";")[1].split("=")[1] rescue nil
+    end
+
+    def generate_itemprop_hash
+      meta_tag['itemprop'].inject({}) do |h, (k, v)|
+        h["itemprop:#{k}"] = v
+        h
+      end
     end
 
     # Returns the base url to absolutify relative links. This can be the one set on a <base> tag,

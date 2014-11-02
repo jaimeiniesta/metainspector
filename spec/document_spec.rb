@@ -56,6 +56,7 @@ describe MetaInspector::Document do
                                                              },
                                                    "http-equiv" => {},
                                                    "property"   => {},
+                                                   "itemprop"   => {},
                                                    "charset"    => ["utf-8"]
                                                  },
                             "response"        => {

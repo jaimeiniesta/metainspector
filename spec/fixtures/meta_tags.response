@@ -47,6 +47,10 @@ Connection: keep-alive
     <meta property="og:image" content="http://example.com/rock2.jpg" />
     <meta property="og:image" content="http://example.com/rock3.jpg" />
     <meta property="og:image:height" content="1000" />
+
+    <!-- meta itemprop examples -->
+    <meta itemprop="name" content="Itemprop name">
+    <meta itemprop="description" content="Itemprop description">
   </head>
   <body>
     <p>A sample page with many types of meta tags</p>
