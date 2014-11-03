@@ -20,6 +20,7 @@ module MetaInspector
         'name'        => meta_tags_by('name'),
         'http-equiv'  => meta_tags_by('http-equiv'),
         'property'    => meta_tags_by('property'),
+        'itemprop'    => meta_tags_by('itemprop'),
         'charset'     => [charset_from_meta_charset]
       }
     end
@@ -29,7 +30,11 @@ module MetaInspector
     end
 
     def meta
-      meta_tag['name'].merge(meta_tag['http-equiv']).merge(meta_tag['property']).merge({'charset' => meta_tag['charset']})
+      meta_tag['name']
+        .merge(meta_tag['http-equiv'])
+        .merge(meta_tag['property'])
+        .merge({'charset' => meta_tag['charset']})
+        .merge(generate_itemprop_hash)
     end
 
     # Returns the whole parsed document
@@ -58,7 +63,7 @@ module MetaInspector
     # A description getter that first checks for a meta description and if not present will
     # guess by looking at the first paragraph with more than 120 characters
     def description
-      meta['description'] || secondary_description
+      meta['description'] || extract_description
     end
 
     # Links found on the page, as absolute URLs
@@ -130,8 +135,16 @@ module MetaInspector
       end
     end
 
+    def extract_description
+      metadata_based_description || content_based_description
+    end
+
+    def metadata_based_description
+      meta_tag['itemprop']['description'] if meta_tag['itemprop']['description']
+    end
+
     # Look for the first <p> block with 120 characters or more
-    def secondary_description
+    def content_based_description
       first_long_paragraph = parsed_search('//p[string-length() >= 120]').first
       first_long_paragraph ? first_long_paragraph.text : ''
     end
@@ -155,6 +168,13 @@ module MetaInspector
 
     def charset_from_meta_content_type
       parsed.css("meta[http-equiv='Content-Type']")[0].attributes['content'].value.split(";")[1].split("=")[1] rescue nil
+    end
+
+    def generate_itemprop_hash
+      meta_tag['itemprop'].inject({}) do |h, (k, v)|
+        h["itemprop:#{k}"] = v
+        h
+      end
     end
 
     # Returns the base url to absolutify relative links. This can be the one set on a <base> tag,

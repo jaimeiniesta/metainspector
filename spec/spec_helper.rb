@@ -81,3 +81,6 @@ FakeWeb.register_uri(:get, "https://www.facebook.com/",     :response => fixture
 # https://unsafe-facebook.com => http://unsafe-facebook.com
 FakeWeb.register_uri(:get, "https://unsafe-facebook.com/",  :response => fixture_file("unsafe_https.facebook.com.response"))
 FakeWeb.register_uri(:get, "http://unsafe-facebook.com/",   :response => fixture_file("unsafe_facebook.com.response"))
+
+# Following examples are used to test metadata
+FakeWeb.register_uri(:get, "https://www.polymer-project.org/articles/spa.html", :response => fixture_file("polymer_project_spa.com.response"))
