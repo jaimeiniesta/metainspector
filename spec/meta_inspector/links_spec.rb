@@ -200,10 +200,4 @@ describe MetaInspector do
       @m.feed.should == nil
     end
   end
-
-  private
-
-  def doc(url)
-    MetaInspector::Document.new(url)
-  end
 end

@@ -2,16 +2,14 @@ require 'spec_helper'
 
 describe MetaInspector::Document do
   describe 'passing the contents of the document as html' do
-    before(:each) do
-      @m = MetaInspector::Document.new('http://cnn.com/', :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>")
-    end
+    let(:doc) { MetaInspector::Document.new('http://cnn.com/', :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>") }
 
     it "should get correct links when the url html is passed as an option" do
-      @m.links.internal.should == ["http://cnn.com/hello"]
+      doc.links.internal.should == ["http://cnn.com/hello"]
     end
 
     it "should get the title" do
-      @m.title.should == "Hello From Passed Html"
+      doc.title.should == "Hello From Passed Html"
     end
   end
 
@@ -20,8 +18,8 @@ describe MetaInspector::Document do
   end
 
   it "should return a Hash with all the values set" do
-    @m = MetaInspector::Document.new('http://pagerankalert.com')
-    @m.to_hash.should == {
+    doc = MetaInspector::Document.new('http://pagerankalert.com')
+    doc.to_hash.should == {
                             "url"             => "http://pagerankalert.com/",
                             "title"           => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "favicon"         => "http://pagerankalert.com/src/favicon.ico",
