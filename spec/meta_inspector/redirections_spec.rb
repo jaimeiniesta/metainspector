@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), "/spec_helper")
+require 'spec_helper'
 
 describe MetaInspector do
   describe "redirections" do
@@ -28,7 +28,7 @@ describe MetaInspector do
       it "allows follows redirections while sending the cookies" do
         stub_request(:get, "http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/").to_return(
           :status => 302,
-          :headers => { 
+          :headers => {
             "Location" => "http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/?nclick_check=1",
             "Set-Cookie" => "EMETA_COOKIE_CHECK=1; path=/; domain=clarionledger.com"
           })
@@ -39,7 +39,7 @@ describe MetaInspector do
         m = MetaInspector.new("http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/", exception_log: logger)
 
         m.url.should == "http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/?nclick_check=1"
-      end      
+      end
     end
   end
 end

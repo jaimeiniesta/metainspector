@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), "/spec_helper")
+require 'spec_helper'
 
 describe MetaInspector::Document do
   describe 'passing the contents of the document as html' do
