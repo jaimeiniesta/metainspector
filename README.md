@@ -21,6 +21,8 @@ page.links.internal # Returns all internal HTTP links found
 page.links.external # Returns all external HTTP links found
 ```
 
+* The images API has been changed, now instead of `page.image` we have `page.images.best`, and instead of `page.favicon` we have `page.images.favicon`.
+
 * Now `page.image` will return the first image in `page.images` if no OG or Twitter image found, instead of returning `nil`.
 
 ## Changes in 3.0
@@ -85,12 +87,12 @@ You can see the scraped data like this:
     page.meta['keywords']    # meta keywords, as string
     page.meta['description'] # meta description, as string
     page.description         # returns the meta description, or the first long paragraph if no meta description is found
-    page.image               # Most relevant image, if defined with the og:image or twitter:image metatags. Fallback to the first page.images array element
-    page.images              # array of strings, with every img found on the page as an absolute URL
+    page.images              # enumerable collection, with every img found on the page as an absolute URL
+    page.images.best         # Most relevant image, if defined with the og:image or twitter:image metatags. Fallback to the first page.images array element
+    page.images.favicon      # absolute URL to the favicon
     page.feed                # Get rss or atom links in meta data fields as array
     page.charset             # UTF-8
     page.content_type        # content-type returned by the server when the url was requested
-    page.favicon             # absolute URL to the favicon
 
 ## Meta tags
 

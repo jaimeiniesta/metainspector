@@ -23,7 +23,7 @@ module MetaInspector
     def_delegators :@document,        :url, :scheme, :host
     def_delegators :@meta_tag_parser, :meta_tags, :meta_tag, :meta, :charset
     def_delegators :@links_parser,    :links, :feed, :base_url
-    def_delegators :@images_parser,   :images, :image, :favicon
+    def_delegators :@images_parser,   :images
     def_delegators :@texts_parser,    :title, :description
 
     # Returns the whole parsed document

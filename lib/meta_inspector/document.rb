@@ -42,12 +42,12 @@ module MetaInspector
         'url' => url,
         'title' => title,
         'links' => links.to_hash,
-        'images' => images,
+        'images' => images.to_a,
         'charset' => charset,
         'feed' => feed,
         'content_type' => content_type,
         'meta_tags' => meta_tags,
-        'favicon' => favicon,
+        'favicon' => images.favicon,
         'response' => { 'status'  => response.status,
                         'headers' => response.headers }
       }
