@@ -1,13 +1,15 @@
 module MetaInspector
   # A MetaInspector::Document knows about its URL and its contents
   class Document
-    attr_reader :timeout, :html_content_only, :allow_redirections, :warn_level, :headers
+    attr_reader :html_content_only, :allow_redirections, :warn_level, :headers
 
     include MetaInspector::Exceptionable
 
     # Initializes a new instance of MetaInspector::Document, setting the URL to the one given
     # Options:
-    # => timeout: defaults to 20 seconds
+    # => connection_timeout: defaults to 20 seconds
+    # => read_timeout: defaults to 20 seconds
+    # => retries: defaults to 3 times
     # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
     # => allow_redirections: when true, follow HTTP redirects. Defaults to true
     # => document: the html of the url as a string
@@ -15,7 +17,9 @@ module MetaInspector
     # => headers: object containing custom headers for the request
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
-      @timeout            = options[:timeout]
+      @connection_timeout = options[:connection_timeout]
+      @read_timeout       = options[:read_timeout]
+      @retries            = options[:retries]
       @html_content_only  = options[:html_content_only]
       @allow_redirections = options[:allow_redirections]
       @document           = options[:document]
@@ -24,7 +28,9 @@ module MetaInspector
       @exception_log      = options[:exception_log] || MetaInspector::ExceptionLog.new(warn_level: warn_level)
       @url                = MetaInspector::URL.new(initial_url, exception_log: @exception_log)
       @request            = MetaInspector::Request.new(@url,  allow_redirections: @allow_redirections,
-                                                              timeout:            @timeout,
+                                                              connection_timeout: @connection_timeout,
+                                                              read_timeout:       @read_timeout,
+                                                              retries:            @retries,
                                                               exception_log:      @exception_log,
                                                               headers:            @headers) unless @document
       @parser             = MetaInspector::Parser.new(self,  exception_log:      @exception_log)

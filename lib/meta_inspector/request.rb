@@ -1,7 +1,6 @@
 require 'faraday'
 require 'faraday_middleware'
 require 'faraday-cookie_jar'
-require 'timeout'
 
 module MetaInspector
 
@@ -13,7 +12,8 @@ module MetaInspector
       @url                = initial_url
 
       @allow_redirections = options[:allow_redirections]
-      @timeout            = options[:timeout]
+      @connection_timeout = options[:connection_timeout]
+      @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
       @exception_log      = options[:exception_log]
       @headers            = options[:headers]
@@ -35,11 +35,8 @@ module MetaInspector
     def response
       request_count ||= 0
       request_count += 1
-      Timeout::timeout(@timeout) { @response ||= fetch }
-    rescue Timeout::Error
-      retry unless @retries == request_count
-      @exception_log << TimeoutError.new("Attempt to fetch #{url} timed out 3 times.")
-    rescue Faraday::Error::ConnectionFailed, RuntimeError => e
+      @response ||= fetch
+    rescue Faraday::TimeoutError, Faraday::Error::ConnectionFailed, RuntimeError => e
       @exception_log << e
       nil
     end
@@ -48,21 +45,25 @@ module MetaInspector
 
     def fetch
       session = Faraday.new(:url => url) do |faraday|
+        faraday.request :retry, max: @retries
+
         if @allow_redirections
           faraday.use FaradayMiddleware::FollowRedirects, limit: 10
           faraday.use :cookie_jar
         end
+
         faraday.headers.merge!(@headers || {})
         faraday.adapter :net_http
       end
-      response = session.get
+
+      response = session.get do |req|
+        req.options.timeout      = @connection_timeout
+        req.options.open_timeout = @read_timeout
+      end
 
       @url.url = response.env.url.to_s
 
       response
-    end
-
-    class TimeoutError < StandardError
     end
   end
 end

@@ -25,6 +25,8 @@ page.links.external # Returns all external HTTP links found
 
 * Now `page.image` will return the first image in `page.images` if no OG or Twitter image found, instead of returning `nil`.
 
+* You can now specify 2 different timeouts, `connection_timeout` and `read_timeout`, instead of the previous single `timeout`.
+
 ## Changes in 3.0
 
 * The redirect API has been changed, now the `:allow_redirections` option will expect only a boolean, which by default is `true`. That is, no more specifying `:safe`, `:unsafe` or `:all`.
@@ -213,28 +215,36 @@ And the full scraped document is accessible from:
 
 ### Timeout & Retries
 
-By default, MetaInspector times out after 20 seconds of waiting for a page to respond,
-and it will retry fetching the page 3 times.
-You can specify different values for both of these, like this:
+You can specify 2 different timeouts when requesting a page:
 
-    # timeout after 5 seconds, retry 4 times
-    page = MetaInspector.new('sitevalidator.com', :timeout => 5, :retries => 4)
+* `connection_timeout` sets the maximum number of seconds to wait to get a connection to the page.
+* `read_timeout` sets the maximum number of seconds to wait to read the page, once connected.
+
+Both timeouts default to 20 seconds each.
+
+You can also specify the number of `retries`, which defaults to 3.
+
+For example, this will time out after 10 seconds waiting for a connection, or after 5 seconds waiting
+to read its contents, and will retry 4 times:
+
+```ruby
+page = MetaInspector.new('www.google', :connection_timeout => 10, :read_timeout => 5, :retries => 4)
+```
 
 If MetaInspector fails to fetch the page after it has exhausted its retries,
-it will raise `MetaInspector::Request::TimeoutError`, which you can rescue in your
+it will raise `Faraday::TimeoutError`, which you can rescue in your
 application code.
 
-    begin
-      data = MetaInspector.new(url)
-    rescue MetaInspector::Request::TimeoutError
-      enqueue_for_future_fetch_attempt(url)
-      render_simple(url)
-    rescue
-      log_fetch_error($!)
-      render_simple(url)
-    else
-      render_rich(data)
-    end
+```ruby
+begin
+  page = MetaInspector.new(url)
+rescue Faraday::TimeoutError
+  enqueue_for_future_fetch_attempt(url)
+  render_simple(url)
+else
+  render_rich(page)
+end
+```
 
 ### Redirections
 
