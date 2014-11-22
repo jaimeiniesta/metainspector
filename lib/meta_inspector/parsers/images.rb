@@ -1,8 +1,8 @@
 module MetaInspector
   module Parsers
     class ImagesParser < Base
-      def_delegators :@main_parser, :parsed, :meta, :base_url
-      def_delegators :images_collection, :each, :length, :size, :last, :[]
+      delegate [:parsed, :meta, :base_url]         => :@main_parser
+      delegate [:each, :length, :size, :[], :last] => :images_collection
 
       include Enumerable
 

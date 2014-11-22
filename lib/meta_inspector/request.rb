@@ -22,7 +22,7 @@ module MetaInspector
     end
 
     extend Forwardable
-    def_delegators :@url, :url
+    delegate :url => :@url
 
     def read
       response.body if response

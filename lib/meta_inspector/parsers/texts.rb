@@ -1,7 +1,7 @@
 module MetaInspector
   module Parsers
     class TextsParser < Base
-      def_delegators :@main_parser, :parsed, :meta
+      delegate [:parsed, :meta] => :@main_parser
 
       # Returns the parsed document title, from the content of the <title> tag
       # within the <head> section.

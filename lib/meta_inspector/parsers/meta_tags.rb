@@ -1,7 +1,7 @@
 module MetaInspector
   module Parsers
     class MetaTagsParser < Base
-      def_delegators :@main_parser, :parsed
+      delegate :parsed => :@main_parser
 
       def meta_tags
         {

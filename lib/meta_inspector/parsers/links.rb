@@ -1,7 +1,7 @@
 module MetaInspector
   module Parsers
     class LinksParser < Base
-      def_delegators :@main_parser, :parsed, :url, :scheme, :host
+      delegate [:parsed, :url, :scheme, :host] => :@main_parser
 
       def links
         self
