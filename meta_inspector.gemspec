@@ -3,8 +3,8 @@ require File.expand_path('../lib/meta_inspector/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Jaime Iniesta"]
   gem.email         = ["jaimeiniesta@gmail.com"]
-  gem.description   = %q{MetaInspector lets you scrape a web page and get its title, charset, link and meta tags}
-  gem.summary       = %q{MetaInspector is a ruby gem for web scraping purposes, that returns a hash with metadata from a given URL}
+  gem.description   = %q{MetaInspector lets you scrape a web page and get its links, images, texts, meta tags...}
+  gem.summary       = %q{MetaInspector is a ruby gem for web scraping purposes, that returns metadata from a given URL}
   gem.homepage      = "http://jaimeiniesta.github.io/metainspector/"
   gem.license       = "MIT"
 
