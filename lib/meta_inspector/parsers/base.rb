@@ -23,7 +23,7 @@ module MetaInspector
 
       # Cleans up nokogiri search results
       def cleanup(results)
-        results.map { |_| _.value.strip }.reject { |_| _.empty? }.uniq
+        results.map { |r| r.value.strip }.reject(&:empty?).uniq
       end
     end
   end

@@ -11,7 +11,7 @@ module MetaInspector
       end
 
       # Returns the parsed image from Facebook's open graph property tags
-      # Most all major websites now define this property and is usually very relevant
+      # Most major websites now define this property and is usually relevant
       # See doc at http://developers.facebook.com/docs/opengraph/
       # If none found, tries with Twitter image
       def best
@@ -30,11 +30,15 @@ module MetaInspector
       private
 
       def images_collection
-        @images_collection ||= parsed_images.map{ |i| URL.absolutify(i, base_url) }
+        @images_collection ||= absolutified_images
+      end
+
+      def absolutified_images
+        parsed_images.map { |i| URL.absolutify(i, base_url) }
       end
 
       def parsed_images
-        @parsed_images ||= cleanup(parsed.search('//img/@src'))
+        cleanup(parsed.search('//img/@src'))
       end
     end
   end

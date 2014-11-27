@@ -20,10 +20,10 @@ module MetaInspector
         meta_tag['name']
           .merge(meta_tag['http-equiv'])
           .merge(meta_tag['property'])
-          .merge({'charset' => meta_tag['charset']})
+          .merge('charset' => meta_tag['charset'])
       end
 
-      # Returns the charset from the meta tags, looking for it in the following order:
+      # Returns the charset from the meta tags, searching in this order:
       # <meta charset='utf-8' />
       # <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
       def charset
@@ -33,12 +33,12 @@ module MetaInspector
       private
 
       def charset_from_meta_charset
-        parsed.css("meta[charset]")[0].attributes['charset'].value rescue nil
+        parsed.css('meta[charset]')[0].attributes['charset'].value rescue nil
       end
 
       def charset_from_meta_content_type
         parsed.css("meta[http-equiv='Content-Type']")[0]
-          .attributes['content'].value.split(";")[1].split("=")[1] rescue nil
+          .attributes['content'].value.split(';')[1].split('=')[1] rescue nil
       end
 
       def meta_tags_by(attribute)
@@ -58,12 +58,12 @@ module MetaInspector
       def convert_each_array_to_first_element_on(hash)
         hash.each_pair do |k, v|
           hash[k] = if v.is_a?(Hash)
-            convert_each_array_to_first_element_on(v)
-          elsif v.is_a?(Array)
-            v.first
-          else
-            v
-          end
+                      convert_each_array_to_first_element_on(v)
+                    elsif v.is_a?(Array)
+                      v.first
+                    else
+                      v
+                    end
         end
       end
 

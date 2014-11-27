@@ -5,16 +5,18 @@ module MetaInspector
 
     include MetaInspector::Exceptionable
 
-    # Initializes a new instance of MetaInspector::Document, setting the URL to the one given
+    # Initializes a new instance of MetaInspector::Document, setting the URL
     # Options:
-    # => connection_timeout: defaults to 20 seconds
-    # => read_timeout: defaults to 20 seconds
-    # => retries: defaults to 3 times
-    # => html_content_type_only: if an exception should be raised if request content-type is not text/html. Defaults to false
-    # => allow_redirections: when true, follow HTTP redirects. Defaults to true
-    # => document: the html of the url as a string
-    # => warn_level: what to do when encountering exceptions. Can be :warn, :raise or nil
-    # => headers: object containing custom headers for the request
+    # * connection_timeout: defaults to 20 seconds
+    # * read_timeout: defaults to 20 seconds
+    # * retries: defaults to 3 times
+    # * html_content_type_only: if an exception should be raised if request
+    #   content-type is not text/html. Defaults to false.
+    # * allow_redirections: when true, follow HTTP redirects. Defaults to true
+    # * document: the html of the url as a string
+    # * warn_level: what to do when encountering exceptions.
+    #   Can be :warn, :raise or nil
+    # * headers: object containing custom headers for the request
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
       @connection_timeout = options[:connection_timeout]
@@ -48,17 +50,17 @@ module MetaInspector
     # Returns all document data as a nested Hash
     def to_hash
       {
-        'url' => url,
-        'title' => title,
-        'links' => links.to_hash,
-        'images' => images.to_a,
-        'charset' => charset,
-        'feed' => feed,
-        'content_type' => content_type,
-        'meta_tags' => meta_tags,
-        'favicon' => images.favicon,
-        'response' => { 'status'  => response.status,
-                        'headers' => response.headers }
+        'url'           => url,
+        'title'         => title,
+        'links'         => links.to_hash,
+        'images'        => images.to_a,
+        'charset'       => charset,
+        'feed'          => feed,
+        'content_type'  => content_type,
+        'meta_tags'     => meta_tags,
+        'favicon'       => images.favicon,
+        'response'      => { 'status'  => response.status,
+                             'headers' => response.headers }
       }
     end
 
@@ -70,18 +72,21 @@ module MetaInspector
     private
 
     def defaults
-      { :timeout => 20,
-        :retries => 3,
-        :html_content_only => false,
-        :warn_level => :raise,
-        :headers => {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"},
-        :allow_redirections => true
-      }
+      { :timeout            => 20,
+        :retries            => 3,
+        :html_content_only  => false,
+        :warn_level         => :raise,
+        :headers            => { 'User-Agent' => default_user_agent },
+        :allow_redirections => true }
+    end
+
+    def default_user_agent
+      "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"
     end
 
     def document
-      @document ||= if html_content_only && content_type != "text/html"
-                      raise "The url provided contains #{content_type} content instead of text/html content" and nil
+      @document ||= if html_content_only && content_type != 'text/html'
+                      fail "The url provided contains #{content_type} content instead of text/html content"
                     else
                       @request.read
                     end

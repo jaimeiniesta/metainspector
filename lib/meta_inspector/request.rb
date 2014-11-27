@@ -18,7 +18,7 @@ module MetaInspector
       @exception_log      = options[:exception_log]
       @headers            = options[:headers]
 
-      response            # as soon as it is set up, we make the request so we can fail early
+      response            # request early so we can fail early
     end
 
     extend Forwardable
@@ -29,14 +29,13 @@ module MetaInspector
     end
 
     def content_type
-      response.headers["content-type"].split(";")[0] if response
+      response.headers['content-type'].split(';')[0] if response
     end
 
     def response
-      request_count ||= 0
-      request_count += 1
       @response ||= fetch
-    rescue Faraday::TimeoutError, Faraday::Error::ConnectionFailed, RuntimeError => e
+    rescue Faraday::TimeoutError, Faraday::Error::ConnectionFailed,
+           RuntimeError => e
       @exception_log << e
       nil
     end

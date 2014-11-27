@@ -12,7 +12,7 @@ module MetaInspector
     def <<(exception)
       case warn_level
       when :raise
-        raise exception
+        fail exception
       when :warn
         warn exception
       when :store
@@ -24,7 +24,7 @@ module MetaInspector
       if warn_level == :store
         exceptions.empty?
       else
-        warn "ExceptionLog#ok? should only be used when warn_level is :store"
+        warn 'ExceptionLog#ok? should only be used when warn_level is :store'
       end
     end
   end

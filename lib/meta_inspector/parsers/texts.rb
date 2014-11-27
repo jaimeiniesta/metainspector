@@ -9,8 +9,9 @@ module MetaInspector
         @title ||= parsed.css('head title').inner_text rescue nil
       end
 
-      # A description getter that first checks for a meta description and if not present will
-      # guess by looking at the first paragraph with more than 120 characters
+      # A description getter that first checks for a meta description
+      # and if not present will guess by looking at the first paragraph
+      # with more than 120 characters
       def description
         meta['description'] || secondary_description
       end
