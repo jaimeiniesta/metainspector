@@ -7,3 +7,5 @@
 Gemfile.lock
 pkg/*
 .idea/
+.rubocop_todo.yml
+.rubocop.yml
