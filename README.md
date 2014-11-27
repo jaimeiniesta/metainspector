@@ -8,9 +8,26 @@ You give it an URL, and it lets you easily get its title, links, images, charset
 
 You can try MetaInspector live at this little demo: [https://metainspectordemo.herokuapp.com](https://metainspectordemo.herokuapp.com)
 
-## Changes in 3.0
+## Changes in 4.0
 
-This latest release introduces some backwards-incompatible changes, so we've decided to do a major version upgrade:
+* The links API has been changed, now instead of `page.links`, `page.internal_links` and `page.external_links` we have:
+
+```ruby
+page.links.raw      # Returns all links found, unprocessed
+page.links.all      # Returns all links found, unrelavitized and absolutified
+page.links.http     # Returns all HTTP links found
+page.links.non_http # Returns all non-HTTP links found
+page.links.internal # Returns all internal HTTP links found
+page.links.external # Returns all external HTTP links found
+```
+
+* The images API has been changed, now instead of `page.image` we have `page.images.best`, and instead of `page.favicon` we have `page.images.favicon`.
+
+* Now `page.image` will return the first image in `page.images` if no OG or Twitter image found, instead of returning `nil`.
+
+* You can now specify 2 different timeouts, `connection_timeout` and `read_timeout`, instead of the previous single `timeout`.
+
+## Changes in 3.0
 
 * The redirect API has been changed, now the `:allow_redirections` option will expect only a boolean, which by default is `true`. That is, no more specifying `:safe`, `:unsafe` or `:all`.
 * We've dropped support for Ruby < 2.
@@ -63,18 +80,21 @@ You can see the scraped data like this:
     page.host                # Hostname of the page (like, sitevalidator.com, without the scheme)
     page.root_url            # Root url (scheme + host, like http://sitevalidator.com/)
     page.title               # title of the page, as string
-    page.links               # array of strings, with every link found on the page as an absolute URL
-    page.internal_links      # array of strings, with every internal link found on the page as an absolute URL
-    page.external_links      # array of strings, with every external link found on the page as an absolute URL
+    page.links.raw           # every link found, unprocessed
+    page.links.all           # every link found on the page as an absolute URL
+    page.links.http          # every HTTP link found
+    page.links.non_http      # every non-HTTP link found
+    page.links.internal      # every internal link found on the page as an absolute URL
+    page.links.external      # every external link found on the page as an absolute URL
     page.meta['keywords']    # meta keywords, as string
     page.meta['description'] # meta description, as string
     page.description         # returns the meta description, or the first long paragraph if no meta description is found
-    page.image               # Most relevant image, if defined with the og:image meta tag
-    page.images              # array of strings, with every img found on the page as an absolute URL
+    page.images              # enumerable collection, with every img found on the page as an absolute URL
+    page.images.best         # Most relevant image, if defined with the og:image or twitter:image metatags. Fallback to the first page.images array element
+    page.images.favicon      # absolute URL to the favicon
     page.feed                # Get rss or atom links in meta data fields as array
     page.charset             # UTF-8
     page.content_type        # content-type returned by the server when the url was requested
-    page.favicon             # absolute URL to the favicon
 
 ## Meta tags
 
@@ -195,28 +215,36 @@ And the full scraped document is accessible from:
 
 ### Timeout & Retries
 
-By default, MetaInspector times out after 20 seconds of waiting for a page to respond,
-and it will retry fetching the page 3 times.
-You can specify different values for both of these, like this:
+You can specify 2 different timeouts when requesting a page:
 
-    # timeout after 5 seconds, retry 4 times
-    page = MetaInspector.new('sitevalidator.com', :timeout => 5, :retries => 4)
+* `connection_timeout` sets the maximum number of seconds to wait to get a connection to the page.
+* `read_timeout` sets the maximum number of seconds to wait to read the page, once connected.
+
+Both timeouts default to 20 seconds each.
+
+You can also specify the number of `retries`, which defaults to 3.
+
+For example, this will time out after 10 seconds waiting for a connection, or after 5 seconds waiting
+to read its contents, and will retry 4 times:
+
+```ruby
+page = MetaInspector.new('www.google', :connection_timeout => 10, :read_timeout => 5, :retries => 4)
+```
 
 If MetaInspector fails to fetch the page after it has exhausted its retries,
-it will raise `MetaInspector::Request::TimeoutError`, which you can rescue in your
+it will raise `Faraday::TimeoutError`, which you can rescue in your
 application code.
 
-    begin
-      data = MetaInspector.new(url)
-    rescue MetaInspector::Request::TimeoutError
-      enqueue_for_future_fetch_attempt(url)
-      render_simple(url)
-    rescue
-      log_fetch_error($!)
-      render_simple(url)
-    else
-      render_rich(data)
-    end
+```ruby
+begin
+  page = MetaInspector.new(url)
+rescue Faraday::TimeoutError
+  enqueue_for_future_fetch_attempt(url)
+  render_simple(url)
+else
+  render_rich(page)
+end
+```
 
 ### Redirections
 

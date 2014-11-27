@@ -22,5 +22,22 @@ Via: 1.1 varnish
         <rect x="10" y="10" width="200" height="50" style="fill:none; stroke:blue; stroke-width:1px"/>
       </g>
     </svg>
+
+    <!-- Internal relative links -->
+    <a href="/">Root</a>
+    <a href="/faqs">FAQs</a>
+    <a href="contact">Contact</a>
+
+    <!-- Internal absolute links -->
+    <a href="http://example.com/team.html">Team</a>
+
+    <!-- External links -->
+    <a href="https://twitter.com">Twitter</a>
+    <a href="https://github.com">Github</a>
+
+    <!-- Non-HTTP links -->
+    <a href="mailto:hello@example.com">email</a>
+    <a href="javascript:alert('hi');">hello</a>
+    <a href="ftp://ftp.example.com">FTP</a>
   </body>
 </html>

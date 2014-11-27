@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 require File.expand_path('../lib/meta_inspector/version', __FILE__)
 
 Gem::Specification.new do |gem|
@@ -29,4 +28,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'pry'
   gem.add_development_dependency 'guard'
   gem.add_development_dependency 'guard-rspec'
+  gem.add_development_dependency 'rubocop'
 end

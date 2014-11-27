@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 require 'addressable/uri'
 
 module MetaInspector
@@ -30,20 +28,23 @@ module MetaInspector
       @url = normalized(with_default_scheme(new_url))
     end
 
-    # Converts a protocol-relative url to its full form, depending on the scheme of the page that contains it
+    # Converts a protocol-relative url to its full form,
+    # depending on the scheme of the page that contains it
     def self.unrelativize(url, scheme)
       url =~ /^\/\// ? "#{scheme}://#{url[2..-1]}" : url
     end
 
-    # Convert a relative url like "/users" to an absolute one like "http://example.com/users"
-    # Respecting already absolute URLs like the ones starting with http:, ftp:, telnet:, mailto:, javascript: ...
+    # Converts a relative URL to an absolute URL, like:
+    #   "/faq" => "http://example.com/faq"
+    # Respecting already absolute URLs like the ones starting with
+    #   http:, ftp:, telnet:, mailto:, javascript: ...
     def self.absolutify(url, base_url)
       if url =~ /^\w*\:/i
         MetaInspector::URL.new(url).url
       else
         Addressable::URI.join(base_url, url).normalize.to_s
       end
-    rescue Addressable::URI::InvalidURIError => e
+    rescue Addressable::URI::InvalidURIError
       nil
     end
 
@@ -54,7 +55,8 @@ module MetaInspector
       parsed(url) && parsed(url).scheme.nil? ? 'http://' + url : url
     end
 
-    # Normalize url to deal with characters that should be encodes, add trailing slash, convert to downcase...
+    # Normalize url to deal with characters that should be encoded,
+    # add trailing slash, convert to downcase...
     def normalized(url)
       Addressable::URI.parse(url).normalize.to_s
     end

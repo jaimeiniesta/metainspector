@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 module MetaInspector
-  VERSION = "3.3.0"
+  VERSION = "4.0.0.rc3"
 end

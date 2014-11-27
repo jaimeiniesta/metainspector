@@ -1,19 +1,15 @@
-# -*- encoding: utf-8 -*-
-
-require File.join(File.dirname(__FILE__), "/spec_helper")
+require 'spec_helper'
 
 describe MetaInspector::Document do
   describe 'passing the contents of the document as html' do
-    before(:each) do
-      @m = MetaInspector::Document.new('http://cnn.com/', :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>")
-    end
+    let(:doc) { MetaInspector::Document.new('http://cnn.com/', :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>") }
 
     it "should get correct links when the url html is passed as an option" do
-      @m.links.should == ["http://cnn.com/hello"]
+      doc.links.internal.should == ["http://cnn.com/hello"]
     end
 
     it "should get the title" do
-      @m.title.should == "Hello From Passed Html"
+      doc.title.should == "Hello From Passed Html"
     end
   end
 
@@ -22,27 +18,21 @@ describe MetaInspector::Document do
   end
 
   it "should return a Hash with all the values set" do
-    @m = MetaInspector::Document.new('http://pagerankalert.com')
-    @m.to_hash.should == {
+    doc = MetaInspector::Document.new('http://pagerankalert.com')
+    doc.to_hash.should == {
                             "url"             => "http://pagerankalert.com/",
                             "title"           => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "favicon"         => "http://pagerankalert.com/src/favicon.ico",
-                            "links"           => ["http://pagerankalert.com/",
-                                                  "http://pagerankalert.com/es?language=es",
-                                                  "http://pagerankalert.com/users/sign_up",
-                                                  "http://pagerankalert.com/users/sign_in",
-                                                  "mailto:pagerankalert@gmail.com",
-                                                  "http://pagerankalert.posterous.com/",
-                                                  "http://twitter.com/pagerankalert",
-                                                  "http://twitter.com/share"],
-                            "internal_links"  => ["http://pagerankalert.com/",
-                                                  "http://pagerankalert.com/es?language=es",
-                                                  "http://pagerankalert.com/users/sign_up",
-                                                  "http://pagerankalert.com/users/sign_in"],
-                            "external_links"  => ["mailto:pagerankalert@gmail.com",
-                                                  "http://pagerankalert.posterous.com/",
-                                                  "http://twitter.com/pagerankalert",
-                                                  "http://twitter.com/share"],
+                            "links"           => {
+                                                    'internal' => ["http://pagerankalert.com/",
+                                                                   "http://pagerankalert.com/es?language=es",
+                                                                   "http://pagerankalert.com/users/sign_up",
+                                                                   "http://pagerankalert.com/users/sign_in"],
+                                                    'external' => ["http://pagerankalert.posterous.com/",
+                                                                   "http://twitter.com/pagerankalert",
+                                                                   "http://twitter.com/share"],
+                                                    'non_http' => ["mailto:pagerankalert@gmail.com"]
+                                                  },
                             "images"          => ["http://pagerankalert.com/images/pagerank_alert.png?1305794559"],
                             "charset"         => "utf-8",
                             "feed"            => "http://feeds.feedburner.com/PageRankAlert",
