@@ -7,7 +7,6 @@
 require 'metainspector'
 
 class BrokenLinkChecker
-  attr_reader :broken
 
   def initialize(url)
     @url      = url
@@ -33,32 +32,26 @@ class BrokenLinkChecker
   private
 
   def check
-    # Resolve initial redirections
-    page = MetaInspector.new(@url)
+    # Resolves redirections of initial URL before placing it on the queue
+    @queue.push(MetaInspector.new(@url).url)
 
-    # Push this initial URL to the queue
-    @queue.push(page.url)
+    process_next_on_queue while @queue.any?
+  end
 
-    while @queue.any?
-      url = @queue.pop
+  def process_next_on_queue
+    page = MetaInspector.new(@queue.pop, :warn_level => :store)
 
-      page = MetaInspector.new(url, :warn_level => :store)
+    page.links.all.select {|l| l =~ /^http(s)?:\/\//i}.each do |link|
+      check_status(link, page.url)
+    end if page.ok?
 
-      if page.ok?
-        # Gets all HTTP links
-        page.links.select {|l| l =~ /^http(s)?:\/\//i}.each do |link|
-          check_status(link, page.url)
-        end
-      end
+    @visited.push(page.url)
 
-      @visited.push(page.url)
-
-      page.internal_links.each do |link|
-        @queue.push(link) unless @visited.include?(link) || @broken.include?(link) || @queue.include?(link)
-      end
-
-      puts "#{'%3s' % @visited.size} pages visited, #{'%3s' % @queue.size} pages on queue, #{'%2s' % @broken.size} broken links"
+    page.links.internal.each do |link|
+      @queue.push(link) if should_be_enqueued?(link)
     end
+
+    show_stats
   end
 
   # Checks the response status of the linked_url and stores it on the ok or broken collections
@@ -76,6 +69,14 @@ class BrokenLinkChecker
         end
       end
     end
+  end
+
+  def should_be_enqueued?(url)
+    !(@visited.include?(url) || @broken.include?(url) || @queue.include?(url))
+  end
+
+  def show_stats
+    puts "#{'%3s' % @visited.size} pages visited, #{'%3s' % @queue.size} pages on queue, #{'%2s' % @broken.size} broken links"
   end
 
   # A page is reachable if its response status is less than 400

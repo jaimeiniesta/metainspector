@@ -11,14 +11,25 @@ url = ARGV[0] || (puts "Enter an url"; gets.strip)
 
 page = MetaInspector.new(url)
 
-puts "Scraping #{page.url} returned these results:"
-puts "TITLE: #{page.title}"
+puts "\nScraping #{page.url} returned these results:"
+puts "\nTITLE: #{page.title}"
 puts "META DESCRIPTION: #{page.meta['description']}"
 puts "META KEYWORDS: #{page.meta['keywords']}"
-puts "#{page.links.size} links found..."
-page.links.each do |link|
+
+puts "\n#{page.links.internal.size} internal links found..."
+page.links.internal.each do |link|
   puts " ==> #{link}"
 end
 
-puts "to_hash..."
+puts "\n#{page.links.external.size} external links found..."
+page.links.external.each do |link|
+  puts " ==> #{link}"
+end
+
+puts "\n#{page.links.non_http.size} non-http links found..."
+page.links.non_http.each do |link|
+  puts " ==> #{link}"
+end
+
+puts "\nto_hash..."
 puts page.to_hash

@@ -28,7 +28,7 @@ while queue.any?
 
   page = MetaInspector.new(url)
 
-  page.internal_links.each do |link|
+  page.links.internal.each do |link|
     queue.push(link) unless visited.include?(link) || queue.include?(link)
   end
 
