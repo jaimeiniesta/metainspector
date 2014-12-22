@@ -28,7 +28,9 @@ module MetaInspector
       @headers            = options[:headers]
       @warn_level         = options[:warn_level]
       @exception_log      = options[:exception_log] || MetaInspector::ExceptionLog.new(warn_level: warn_level)
-      @url                = MetaInspector::URL.new(initial_url, exception_log: @exception_log)
+      @normalize_url      = options[:normalize_url]
+      @url                = MetaInspector::URL.new(initial_url, exception_log: @exception_log,
+                                                                normalize: @normalize_url)
       @request            = MetaInspector::Request.new(@url,  allow_redirections: @allow_redirections,
                                                               connection_timeout: @connection_timeout,
                                                               read_timeout:       @read_timeout,
@@ -77,7 +79,8 @@ module MetaInspector
         :html_content_only  => false,
         :warn_level         => :raise,
         :headers            => { 'User-Agent' => default_user_agent },
-        :allow_redirections => true }
+        :allow_redirections => true,
+        :normalize_url      => true }
     end
 
     def default_user_agent

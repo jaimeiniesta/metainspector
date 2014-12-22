@@ -171,4 +171,14 @@ describe MetaInspector::Document do
       MetaInspector::Document.new(url, headers: headers)
     end
   end
+
+  describe 'url' do
+    it 'should normalize' do
+      MetaInspector.new('http://example.com/%EF%BD%9E').url.should == 'http://example.com/~'
+    end
+
+    it 'should not normalize' do
+      MetaInspector.new('http://example.com/%EF%BD%9E', normalize_url: false).url.should == 'http://example.com/%EF%BD%9E'
+    end
+  end
 end
