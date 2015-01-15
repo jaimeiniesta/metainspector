@@ -7,7 +7,8 @@ module MetaInspector
     include MetaInspector::Exceptionable
 
     def initialize(initial_url, options = {})
-      options        = { :normalize => true }.merge(options)
+      options        = defaults.merge(options)
+
       @exception_log = options[:exception_log]
       @normalize     = options[:normalize]
 
@@ -27,7 +28,7 @@ module MetaInspector
     end
 
     def url=(new_url)
-      url = with_default_scheme(new_url)
+      url  = with_default_scheme(new_url)
       @url = @normalize ? normalized(url) : url
     end
 
@@ -52,6 +53,10 @@ module MetaInspector
     end
 
     private
+
+    def defaults
+      { :normalize => true }
+    end
 
     # Adds 'http' as default scheme, if there is none
     def with_default_scheme(url)

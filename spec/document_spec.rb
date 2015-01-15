@@ -172,12 +172,12 @@ describe MetaInspector::Document do
     end
   end
 
-  describe 'url' do
-    it 'should normalize' do
+  describe 'url normalization' do
+    it 'should normalize by default' do
       MetaInspector.new('http://example.com/%EF%BD%9E').url.should == 'http://example.com/~'
     end
 
-    it 'should not normalize' do
+    it 'should not normalize if the normalize_url option is false' do
       MetaInspector.new('http://example.com/%EF%BD%9E', normalize_url: false).url.should == 'http://example.com/%EF%BD%9E'
     end
   end

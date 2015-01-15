@@ -17,6 +17,7 @@ module MetaInspector
     # * warn_level: what to do when encountering exceptions.
     #   Can be :warn, :raise or nil
     # * headers: object containing custom headers for the request
+    # * normalize_url: true by default
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
       @connection_timeout = options[:connection_timeout]
@@ -30,7 +31,7 @@ module MetaInspector
       @exception_log      = options[:exception_log] || MetaInspector::ExceptionLog.new(warn_level: warn_level)
       @normalize_url      = options[:normalize_url]
       @url                = MetaInspector::URL.new(initial_url, exception_log: @exception_log,
-                                                                normalize: @normalize_url)
+                                                                normalize:     @normalize_url)
       @request            = MetaInspector::Request.new(@url,  allow_redirections: @allow_redirections,
                                                               connection_timeout: @connection_timeout,
                                                               read_timeout:       @read_timeout,
