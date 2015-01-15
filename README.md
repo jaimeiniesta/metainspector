@@ -321,7 +321,25 @@ page.content_type  # "image/png"
 page.description   # raises an exception
 ```
 
-## Exception handling
+### URL Normalization
+
+By default, URLs are normalized using the Addressable gem. For example:
+
+```ruby
+# Normalization will add a default scheme and a trailing slash...
+page = MetaInspector.new('sitevalidator.com')
+page.url # http://sitevalidator.com/
+
+# ...and it will also convert international characters
+page = MetaInspector.new('http://www.詹姆斯.com')
+page.url # http://www.xn--8ws00zhy3a.com/
+```
+
+While this is generally useful, it can be [tricky](https://github.com/sporkmonger/addressable/issues/182) [sometimes](https://github.com/sporkmonger/addressable/issues/160).
+
+You can disable URL normalization by passing the `normalize_url: false` option.
+
+## Exception Handling
 
 By default, MetaInspector will raise the exceptions found. We think that this is the safest default: in case the URL you're trying to scrape is unreachable, you should clearly be notified, and treat the exception as needed in your app.
 
