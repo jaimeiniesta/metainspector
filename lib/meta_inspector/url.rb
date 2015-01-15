@@ -7,7 +7,9 @@ module MetaInspector
     include MetaInspector::Exceptionable
 
     def initialize(initial_url, options = {})
+      options        = { :normalize => true }.merge(options)
       @exception_log = options[:exception_log]
+      @normalize     = options[:normalize]
 
       self.url = initial_url
     end
@@ -25,7 +27,8 @@ module MetaInspector
     end
 
     def url=(new_url)
-      @url = normalized(with_default_scheme(new_url))
+      url = with_default_scheme(new_url)
+      @url = @normalize ? normalized(url) : url
     end
 
     # Converts a protocol-relative url to its full form,
