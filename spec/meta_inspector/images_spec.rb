@@ -75,19 +75,29 @@ describe MetaInspector do
       page = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
 
       page.images.best.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
+      page.images.owner_suggested.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
     end
 
     it "should find image on youtube" do
       page = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
 
       page.images.best.should == "http://i2.ytimg.com/vi/iaGSSrp49uc/mqdefault.jpg"
+      page.images.owner_suggested.should == "http://i2.ytimg.com/vi/iaGSSrp49uc/mqdefault.jpg"
     end
 
     it "should find image when og:image and twitter:image metatags are missing" do
       page = MetaInspector.new('http://www.alazan.com')
 
       page.images.best.should == "http://www.alazan.com/imagenes/logo.jpg"
+      page.images.owner_suggested.should be nil
     end
+
+    it "should find the largest image on the page using html sizes" do
+      page = MetaInspector.new('http://www.alazan.com')
+
+      page.images.largest.should == "http://www.alazan.com/imagenes/index_principal1.jpg"
+    end
+
   end
 
   describe '#favicon' do
