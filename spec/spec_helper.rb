@@ -31,6 +31,12 @@ FakeWeb.register_uri(:get, "http://example.com/", :response => fixture_file("exa
 # Used to test response status codes
 FakeWeb.register_uri(:get, "http://example.com/404", :response => fixture_file("404.response"))
 
+# Used to test largest image in page logic
+FakeWeb.register_uri(:get, "http://example.com/largest_image_in_html", :response => fixture_file("largest_image_in_html.response"))
+FakeWeb.register_uri(:get, "http://example.com/largest_image_using_image_size", :response => fixture_file("largest_image_using_image_size.response"))
+FakeWeb.register_uri(:get, "http://example.com/10x10", :response => fixture_file("10x10.jpg.response"))
+FakeWeb.register_uri(:get, "http://example.com/100x100", :response => fixture_file("100x100.jpg.response"))
+
 # These are older fixtures
 FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
 FakeWeb.register_uri(:get, "http://pagerankalert-shortcut.com", :response => fixture_file("pagerankalert-shortcut.com.response"))
@@ -83,42 +89,4 @@ FakeWeb.register_uri(:get, "http://unsafe-facebook.com/",   :response => fixture
 # These examples are used to test normalize URLs
 FakeWeb.register_uri(:get, "http://example.com/%EF%BD%9E", :response => fixture_file("example.response"))
 FakeWeb.register_uri(:get, "http://example.com/~", :response => fixture_file("example.response"))
-
-# These images are used to test best image selection
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/bannercamara.gif", :response => fixture_file("alazan.com_imagenes_bannercamara.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/boton_entrar.gif", :response => fixture_file("alazan.com_imagenes_boton_entrar.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/cabecera_extranet.gif", :response => fixture_file("alazan.com_imagenes_cabecera_extranet.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/correo_info.gif", :response => fixture_file("alazan.com_imagenes_correo_info.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_alojamiento.gif", :response => fixture_file("alazan.com_imagenes_desplegable_alojamiento.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_cdroms.gif", :response => fixture_file("alazan.com_imagenes_desplegable_cdroms.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_contratar.gif", :response => fixture_file("alazan.com_imagenes_desplegable_contratar.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_demo.gif", :response => fixture_file("alazan.com_imagenes_desplegable_demo.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_intranets.gif", :response => fixture_file("alazan.com_imagenes_desplegable_intranets.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_oferta.gif", :response => fixture_file("alazan.com_imagenes_desplegable_oferta.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_preguntas.gif", :response => fixture_file("alazan.com_imagenes_desplegable_preguntas.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_premium.gif", :response => fixture_file("alazan.com_imagenes_desplegable_premium.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_profesional.gif", :response => fixture_file("alazan.com_imagenes_desplegable_profesional.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_tabla.gif", :response => fixture_file("alazan.com_imagenes_desplegable_tabla.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_trabaja.gif", :response => fixture_file("alazan.com_imagenes_desplegable_trabaja.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_ventajas.gif", :response => fixture_file("alazan.com_imagenes_desplegable_ventajas.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/desplegable_webcams.gif", :response => fixture_file("alazan.com_imagenes_desplegable_webcams.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/index_principal1.jpg", :response => fixture_file("alazan.com_imagenes_index_principal1.jpg.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/index_principal2.gif", :response => fixture_file("alazan.com_imagenes_index_principal2.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/logo.jpg", :response => fixture_file("alazan.com_imagenes_logo.jpg.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/mas.gif", :response => fixture_file("alazan.com_imagenes_mas.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/menu_dch_soporte.gif", :response => fixture_file("alazan.com_imagenes_menu_dch_soporte.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/menu_distribuidores.gif", :response => fixture_file("alazan.com_imagenes_menu_distribuidores.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/menu_que.gif", :response => fixture_file("alazan.com_imagenes_menu_que.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/menu_websolution.gif", :response => fixture_file("alazan.com_imagenes_menu_websolution.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/menusep.gif", :response => fixture_file("alazan.com_imagenes_menusep.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/nh-alojamiento.gif", :response => fixture_file("alazan.com_imagenes_nh_alojamiento.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/nh-cdroms.gif", :response => fixture_file("alazan.com_imagenes_nh_cdroms.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/nh-desarrollo-web.gif", :response => fixture_file("alazan.com_imagenes_nh_desarrollo_web.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/nh-dominios.gif", :response => fixture_file("alazan.com_imagenes_nh_dominios.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/nh-gestor-contenidos.gif", :response => fixture_file("alazan.com_imagenes_nh_gestor_contenidos.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/nh-otros-servicios.gif", :response => fixture_file("alazan.com_imagenes_nh_otros_servicios.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/nh-webcams.gif", :response => fixture_file("alazan.com_imagenes_nh_webcams.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/nh_que-hacemos.gif", :response => fixture_file("alazan.com_imagenes_nh_que_hacemos.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/sp.gif", :response => fixture_file("alazan.com_imagenes_sp.gif.response"))
-FakeWeb.register_uri(:get, "http://www.alazan.com/imagenes/webcam_guarderia_02.jpg", :response => fixture_file("alazan.com_imagenes_webcam_guarderia_02.jpg.response"))
 

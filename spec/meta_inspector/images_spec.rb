@@ -93,9 +93,15 @@ describe MetaInspector do
     end
 
     it "should find the largest image on the page using html sizes" do
-      page = MetaInspector.new('http://www.alazan.com')
+      page = MetaInspector.new('http://example.com/largest_image_in_html')
 
-      page.images.largest.should == "http://www.alazan.com/imagenes/index_principal1.jpg"
+      page.images.largest.should == "http://example.com/largest"
+    end
+
+    it "should find the largest image on the page using actual image sizes" do
+      page = MetaInspector.new('http://example.com/largest_image_using_image_size')
+
+      page.images.largest.should == "http://example.com/100x100"
     end
 
   end
