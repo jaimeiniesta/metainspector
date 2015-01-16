@@ -28,19 +28,28 @@ module MetaInspector
 
       # Returns the largest image from the image collection,
       # filtered for images that are more square than 10:1 or 1:10
-      def largest
-        img_nodes = parsed.search('//img')
-        sizes = img_nodes.map { |img_node| [URL.absolutify(img_node['src'], base_url), img_node['width'], img_node['height']] }
-        sizes.uniq! { |url, width, height| url }
-        sizes.map! do |url, width, height|
-          width, height = FastImage.size(url) if width.nil? || height.nil?
-          [url, width, height]
+      def largest(download_images = true)
+        @larget_image ||= begin
+          img_nodes = parsed.search('//img')
+          sizes = img_nodes.map { |img_node| [URL.absolutify(img_node['src'], base_url), img_node['width'], img_node['height']] }
+          sizes.uniq! { |url, width, height| url }
+          if download_images
+            sizes.map! do |url, width, height|
+              width, height = FastImage.size(url) if width.nil? || height.nil?
+              [url, width, height]
+            end
+          else
+            sizes.map! do |url, width, height|
+              width, height = [0, 0] if width.nil? || height.nil?
+              [url, width, height]
+            end
+          end
+          sizes.map! { |url, width, height| [url, width.to_i * height.to_i, width.to_f / height.to_f] }
+          sizes.keep_if { |url, area, ratio| ratio > 0.1 && ratio < 10 }
+          sizes.sort_by! { |url, area, ratio| -area }
+          url, area, ratio = sizes.first
+          url
         end
-        sizes.map! {|url, width, height| [url, width.to_i * height.to_i, width.to_f / height.to_f]}
-        sizes.keep_if { |url, area, ratio| ratio > 0.1 && ratio < 10 }
-        sizes.sort_by! { |url, area, ratio| -area }
-        url, area, ratio = sizes.first
-        url
       end
 
       # Return favicon url if exist

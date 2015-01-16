@@ -104,6 +104,12 @@ describe MetaInspector do
       page.images.largest.should == "http://example.com/100x100"
     end
 
+    it "should find the largest image without downloading images" do
+      page = MetaInspector.new('http://example.com/largest_image_using_image_size')
+
+      page.images.largest(false).should == "http://example.com/1x1"
+    end
+
   end
 
   describe '#favicon' do
