@@ -1,3 +1,5 @@
+require 'fastimage'
+
 module MetaInspector
   module Parsers
     class ImagesParser < Base
@@ -6,16 +8,53 @@ module MetaInspector
 
       include Enumerable
 
+      def initialize(main_parser, options = {})
+        @download_images = options[:download_images]
+        super(main_parser)
+      end
+
       def images
         self
+      end
+
+      # Returns either the Facebook Open Graph image, twitter suggested image or
+      # the first image in the image collection
+      def best
+        owner_suggested || largest
       end
 
       # Returns the parsed image from Facebook's open graph property tags
       # Most major websites now define this property and is usually relevant
       # See doc at http://developers.facebook.com/docs/opengraph/
       # If none found, tries with Twitter image
-      def best
-        meta['og:image'] || meta['twitter:image'] || images_collection.first
+      def owner_suggested
+        meta['og:image'] || meta['twitter:image']
+      end
+
+      # Returns the largest image from the image collection,
+      # filtered for images that are more square than 10:1 or 1:10
+      def largest()
+        @larget_image ||= begin
+          img_nodes = parsed.search('//img')
+          sizes = img_nodes.map { |img_node| [URL.absolutify(img_node['src'], base_url), img_node['width'], img_node['height']] }
+          sizes.uniq! { |url, width, height| url }
+          if @download_images
+            sizes.map! do |url, width, height|
+              width, height = FastImage.size(url) if width.nil? || height.nil?
+              [url, width, height]
+            end
+          else
+            sizes.map! do |url, width, height|
+              width, height = [0, 0] if width.nil? || height.nil?
+              [url, width, height]
+            end
+          end
+          sizes.map! { |url, width, height| [url, width.to_i * height.to_i, width.to_f / height.to_f] }
+          sizes.keep_if { |url, area, ratio| ratio > 0.1 && ratio < 10 }
+          sizes.sort_by! { |url, area, ratio| -area }
+          url, area, ratio = sizes.first
+          url
+        end
       end
 
       # Return favicon url if exist
