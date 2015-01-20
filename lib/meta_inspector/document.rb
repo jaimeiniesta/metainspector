@@ -26,19 +26,21 @@ module MetaInspector
       @html_content_only  = options[:html_content_only]
       @allow_redirections = options[:allow_redirections]
       @document           = options[:document]
+      @download_images    = options[:download_images]
       @headers            = options[:headers]
       @warn_level         = options[:warn_level]
       @exception_log      = options[:exception_log] || MetaInspector::ExceptionLog.new(warn_level: warn_level)
       @normalize_url      = options[:normalize_url]
-      @url                = MetaInspector::URL.new(initial_url, exception_log: @exception_log,
-                                                                normalize:     @normalize_url)
-      @request            = MetaInspector::Request.new(@url,  allow_redirections: @allow_redirections,
-                                                              connection_timeout: @connection_timeout,
-                                                              read_timeout:       @read_timeout,
-                                                              retries:            @retries,
-                                                              exception_log:      @exception_log,
-                                                              headers:            @headers) unless @document
-      @parser             = MetaInspector::Parser.new(self,  exception_log:      @exception_log)
+      @url                = MetaInspector::URL.new(initial_url, exception_log:      @exception_log,
+                                                                normalize:          @normalize_url)
+      @request            = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
+                                                                connection_timeout: @connection_timeout,
+                                                                read_timeout:       @read_timeout,
+                                                                retries:            @retries,
+                                                                exception_log:      @exception_log,
+                                                                headers:            @headers) unless @document
+      @parser             = MetaInspector::Parser.new(self,     exception_log:      @exception_log,
+                                                                download_images:    @download_images)
     end
 
     extend Forwardable
@@ -81,7 +83,8 @@ module MetaInspector
         :warn_level         => :raise,
         :headers            => { 'User-Agent' => default_user_agent },
         :allow_redirections => true,
-        :normalize_url      => true }
+        :normalize_url      => true,
+        :download_images    => true }
     end
 
     def default_user_agent

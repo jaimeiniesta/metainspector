@@ -3,10 +3,15 @@ require 'fastimage'
 module MetaInspector
   module Parsers
     class ImagesParser < Base
-      delegate [:parsed, :meta, :base_url] => :@main_parser
+      delegate [:parsed, :meta, :base_url]         => :@main_parser
       delegate [:each, :length, :size, :[], :last] => :images_collection
 
       include Enumerable
+
+      def initialize(main_parser, options = {})
+        @download_images = options[:download_images]
+        super(main_parser)
+      end
 
       def images
         self
@@ -15,7 +20,7 @@ module MetaInspector
       # Returns either the Facebook Open Graph image, twitter suggested image or
       # the first image in the image collection
       def best
-        owner_suggested || images_collection.first
+        owner_suggested || largest
       end
 
       # Returns the parsed image from Facebook's open graph property tags
@@ -28,12 +33,12 @@ module MetaInspector
 
       # Returns the largest image from the image collection,
       # filtered for images that are more square than 10:1 or 1:10
-      def largest(download_images = true)
+      def largest()
         @larget_image ||= begin
           img_nodes = parsed.search('//img')
           sizes = img_nodes.map { |img_node| [URL.absolutify(img_node['src'], base_url), img_node['width'], img_node['height']] }
           sizes.uniq! { |url, width, height| url }
-          if download_images
+          if @download_images
             sizes.map! do |url, width, height|
               width, height = FastImage.size(url) if width.nil? || height.nil?
               [url, width, height]

@@ -86,9 +86,9 @@ describe MetaInspector do
     end
 
     it "should find image when og:image and twitter:image metatags are missing" do
-      page = MetaInspector.new('http://www.alazan.com')
+      page = MetaInspector.new('http://example.com/largest_image_using_image_size')
 
-      page.images.best.should == "http://www.alazan.com/imagenes/logo.jpg"
+      page.images.best.should == "http://example.com/100x100"
       page.images.owner_suggested.should be nil
     end
 
@@ -105,9 +105,9 @@ describe MetaInspector do
     end
 
     it "should find the largest image without downloading images" do
-      page = MetaInspector.new('http://example.com/largest_image_using_image_size')
+      page = MetaInspector.new('http://example.com/largest_image_using_image_size', download_images: false)
 
-      page.images.largest(false).should == "http://example.com/1x1"
+      page.images.largest.should == "http://example.com/1x1"
     end
 
   end

@@ -15,7 +15,8 @@ module MetaInspector
       @exception_log   = options[:exception_log]
       @meta_tag_parser = MetaInspector::Parsers::MetaTagsParser.new(self)
       @links_parser    = MetaInspector::Parsers::LinksParser.new(self)
-      @images_parser   = MetaInspector::Parsers::ImagesParser.new(self)
+      @download_images = options[:download_images]
+      @images_parser   = MetaInspector::Parsers::ImagesParser.new(self, download_images: @download_images)
       @texts_parser    = MetaInspector::Parsers::TextsParser.new(self)
     end
 
