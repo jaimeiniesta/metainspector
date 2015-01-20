@@ -14,6 +14,10 @@ You can try MetaInspector live at this little demo: [https://metainspectordemo.h
 
 * The images API also now use html height and width attributes as well as `fastimage` to provide `page.images.largest` which will return the largest image on the page that has a ratio squarer than 1:10 or 10:1. This usually provides a good alternative to the OG or Twitter images if they are not supplied.
 
+## Changes in 4.1.0
+
+* Introduces the `:normalize_url` option, which allows to disable URL normalization.
+
 ## Changes in 4.0
 
 * The links API has been changed, now instead of `page.links`, `page.internal_links` and `page.external_links` we have:
