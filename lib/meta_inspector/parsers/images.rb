@@ -18,7 +18,7 @@ module MetaInspector
       end
 
       # Returns either the Facebook Open Graph image, twitter suggested image or
-      # the first image in the image collection
+      # the largest image in the image collection
       def best
         owner_suggested || largest
       end

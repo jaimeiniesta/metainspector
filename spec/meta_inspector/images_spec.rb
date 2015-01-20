@@ -70,28 +70,47 @@ describe MetaInspector do
     end
   end
 
-  describe "#image" do
+  describe "images.best" do
     it "should find the og image" do
       page = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
 
       page.images.best.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
-      page.images.owner_suggested.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
     end
 
     it "should find image on youtube" do
       page = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
 
       page.images.best.should == "http://i2.ytimg.com/vi/iaGSSrp49uc/mqdefault.jpg"
-      page.images.owner_suggested.should == "http://i2.ytimg.com/vi/iaGSSrp49uc/mqdefault.jpg"
     end
 
     it "should find image when og:image and twitter:image metatags are missing" do
       page = MetaInspector.new('http://example.com/largest_image_using_image_size')
 
       page.images.best.should == "http://example.com/100x100"
-      page.images.owner_suggested.should be nil
+    end
+  end
+
+  describe "images.owner_suggested" do
+    it "should find the og image" do
+      page = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
+
+      page.images.owner_suggested.should == "http://o.onionstatic.com/images/articles/article/2772/Apple-Claims-600w-R_jpg_130x110_q85.jpg"
     end
 
+    it "should find image on youtube" do
+      page = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
+
+      page.images.owner_suggested.should == "http://i2.ytimg.com/vi/iaGSSrp49uc/mqdefault.jpg"
+    end
+
+    it "should return nil when og:image and twitter:image metatags are missing" do
+      page = MetaInspector.new('http://example.com/largest_image_using_image_size')
+
+      page.images.owner_suggested.should be nil
+    end
+  end
+
+  describe "images.largest" do
     it "should find the largest image on the page using html sizes" do
       page = MetaInspector.new('http://example.com/largest_image_in_html')
 
@@ -109,7 +128,6 @@ describe MetaInspector do
 
       page.images.largest.should == "http://example.com/1x1"
     end
-
   end
 
   describe '#favicon' do

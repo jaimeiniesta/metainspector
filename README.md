@@ -10,9 +10,12 @@ You can try MetaInspector live at this little demo: [https://metainspectordemo.h
 
 ## Changes in 4.2.0
 
-* The images API has been extended, now as well as `page.images.best` there is also `page.images.owner_suggested` which provides the behaviour lost from `page.images.best` and `page.image` in 4.0. This returns the OG or Twitter image and `nil` if neither are present.
+* The images API has been extended, with two new methods:
 
-* The images API also now use html height and width attributes as well as `fastimage` to provide `page.images.largest` which will return the largest image on the page that has a ratio squarer than 1:10 or 10:1. This usually provides a good alternative to the OG or Twitter images if they are not supplied.
+  * `page.images.owner_suggested` returns the OG or Twitter image, or `nil` if neither are present.
+  * `page.images.largest` returns the largest image found in the page. This uses the HTML height and width attributes as well as the [fastimage](https://github.com/sdsykes/fastimage) gem to return the largest image on the page that has a ratio squarer than 1:10 or 10:1. This usually provides a good alternative to the OG or Twitter images if they are not supplied.
+
+* The criteria for `page.images.best` has changed slightly, we'll now return the largest image instead of the first image if no owner-suggested image is found.
 
 ## Changes in 4.1.0
 
@@ -348,6 +351,16 @@ page.url # http://www.xn--8ws00zhy3a.com/
 While this is generally useful, it can be [tricky](https://github.com/sporkmonger/addressable/issues/182) [sometimes](https://github.com/sporkmonger/addressable/issues/160).
 
 You can disable URL normalization by passing the `normalize_url: false` option.
+
+### Image downloading
+
+When you ask for the largest image on the page with `page.images.largest`, it will be determined by its height and width attributes on the HTML markup, and also by downloading a small portion of each image using the [fastimage](https://github.com/sdsykes/fastimage) gem. This is really fast as it doesn't download the entire images, normally just the headers of the image files.
+
+If you want to disable this, you can specify it like this:
+
+```ruby
+page = MetaInspector.new('http://example.com', download_images: false)
+```
 
 ## Exception Handling
 
