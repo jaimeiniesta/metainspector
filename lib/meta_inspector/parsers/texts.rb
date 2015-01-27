@@ -6,7 +6,6 @@ module MetaInspector
       # Returns the parsed document title, from the content of the <title> tag
       # within the <head> section.
       def title
-        #TODO look for title tag in body, then look for first h1
         @title ||= parsed.css('head title').inner_text rescue nil
       end
 
