@@ -37,6 +37,12 @@ FakeWeb.register_uri(:get, "http://example.com/largest_image_using_image_size", 
 FakeWeb.register_uri(:get, "http://example.com/10x10", :response => fixture_file("10x10.jpg.response"))
 FakeWeb.register_uri(:get, "http://example.com/100x100", :response => fixture_file("100x100.jpg.response"))
 
+# Used to test best_title logic
+FakeWeb.register_uri(:get, "http://example.com/title_in_head", :response => fixture_file("title_in_head.response"))
+FakeWeb.register_uri(:get, "http://example.com/title_in_body", :response => fixture_file("title_in_body.response"))
+FakeWeb.register_uri(:get, "http://example.com/title_in_h1", :response => fixture_file("title_in_h1.response"))
+FakeWeb.register_uri(:get, "http://example.com/title_best_choice", :response => fixture_file("title_best_choice.response"))
+
 # These are older fixtures
 FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
 FakeWeb.register_uri(:get, "http://pagerankalert-shortcut.com", :response => fixture_file("pagerankalert-shortcut.com.response"))

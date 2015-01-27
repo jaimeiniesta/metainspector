@@ -6,7 +6,26 @@ module MetaInspector
       # Returns the parsed document title, from the content of the <title> tag
       # within the <head> section.
       def title
+        #TODO look for title tag in body, then look for first h1
         @title ||= parsed.css('head title').inner_text rescue nil
+      end
+
+      def best_title
+        @best_title ||= begin
+          candidates = [
+              parsed.css('head title'),
+              parsed.css('body title'),
+              meta['og:title'],
+              parsed.css('h1').first
+          ]
+          candidates.flatten!
+          candidates.map! { |c| (c.respond_to? :inner_text) ? c.inner_text : c }
+          candidates.compact!
+          candidates.map! { |c| c.gsub(/\s+/, ' ') }
+          candidates.uniq!
+          candidates.sort_by! { |t| -t.length }
+          candidates.first
+        end
       end
 
       # A description getter that first checks for a meta description
