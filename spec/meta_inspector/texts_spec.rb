@@ -33,7 +33,8 @@ describe MetaInspector do
     end
 
     it "should strip leading and trailing whitespace and all line breaks" do
-
+      page = MetaInspector.new('http://example.com/title_in_head_with_whitespace')
+      page.best_title.should == 'This title came from the head and has leading and trailing whitespace'
     end
 
   end
