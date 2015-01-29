@@ -5,10 +5,10 @@ describe MetaInspector::Parser do
   let(:parser) { MetaInspector::Parser.new(doc) }
 
   it "should have a Nokogiri::HTML::Document as parsed" do
-    parser.parsed.class.should == Nokogiri::HTML::Document
+    expect(parser.parsed.class).to eq(Nokogiri::HTML::Document)
   end
 
   it "should return the document as a string" do
-    parser.to_s.class.should == String
+    expect(parser.to_s.class).to eq(String)
   end
 end

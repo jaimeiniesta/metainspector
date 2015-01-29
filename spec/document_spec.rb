@@ -5,21 +5,21 @@ describe MetaInspector::Document do
     let(:doc) { MetaInspector::Document.new('http://cnn.com/', :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>") }
 
     it "should get correct links when the url html is passed as an option" do
-      doc.links.internal.should == ["http://cnn.com/hello"]
+      expect(doc.links.internal).to eq(["http://cnn.com/hello"])
     end
 
     it "should get the title" do
-      doc.title.should == "Hello From Passed Html"
+      expect(doc.title).to eq("Hello From Passed Html")
     end
   end
 
   it "should return a String as to_s" do
-    MetaInspector::Document.new('http://pagerankalert.com').to_s.class.should == String
+    expect(MetaInspector::Document.new('http://pagerankalert.com').to_s.class).to eq(String)
   end
 
   it "should return a Hash with all the values set" do
     doc = MetaInspector::Document.new('http://pagerankalert.com')
-    doc.to_hash.should == {
+    expect(doc.to_hash).to eq({
                             "url"             => "http://pagerankalert.com/",
                             "scheme"          => "http",
                             "host"            => "pagerankalert.com",
@@ -71,28 +71,28 @@ describe MetaInspector::Document do
                                                                   "via" => "1.1 varnish"
                                                                 }
                                                  }
-                         }
+                         })
   end
 
   describe 'exception handling' do
     let(:logger) { MetaInspector::ExceptionLog.new }
 
     it "should parse images when parse_html_content_type_only is not specified" do
-      logger.should_not receive(:<<)
+      expect(logger).not_to receive(:<<)
 
       image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', exception_log: logger)
       image_url.title
     end
 
     it "should parse images when parse_html_content_type_only is false" do
-      logger.should_not receive(:<<)
+      expect(logger).not_to receive(:<<)
 
       image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: false, exception_log: logger)
       image_url.title
     end
 
     it "should handle errors when content is image/jpeg and html_content_type_only is true" do
-      logger.should_receive(:<<).with(an_instance_of(RuntimeError))
+      expect(logger).to receive(:<<).with(an_instance_of(RuntimeError))
 
       image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, exception_log: logger)
 
@@ -100,7 +100,7 @@ describe MetaInspector::Document do
     end
 
     it "should handle errors when content is not text/html and html_content_type_only is true" do
-      logger.should_receive(:<<).with(an_instance_of(RuntimeError))
+      expect(logger).to receive(:<<).with(an_instance_of(RuntimeError))
 
       tar_url = MetaInspector::Document.new('http://pagerankalert.com/file.tar.gz', html_content_only: true, exception_log: logger)
 
@@ -114,11 +114,11 @@ describe MetaInspector::Document do
       end
 
       it 'stores the exceptions' do
-        @bad_request.exceptions.should_not be_empty
+        expect(@bad_request.exceptions).not_to be_empty
       end
 
       it 'makes ok? to return false' do
-        @bad_request.should_not be_ok
+        expect(@bad_request).not_to be_ok
       end
     end
 
@@ -136,7 +136,7 @@ describe MetaInspector::Document do
         bad_request.title
 
         $stderr.rewind
-        $stderr.string.chomp.should eq("The url provided contains image/png content instead of text/html content")
+        expect($stderr.string.chomp).to eq("The url provided contains image/png content instead of text/html content")
       end
 
       it 'does not raise an exception' do
@@ -161,8 +161,8 @@ describe MetaInspector::Document do
       expected_headers = {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
 
       headers = {}
-      headers.should_receive(:merge!).with(expected_headers)
-      Faraday::Connection.any_instance.stub(:headers){headers}
+      expect(headers).to receive(:merge!).with(expected_headers)
+      allow_any_instance_of(Faraday::Connection).to receive(:headers){headers}
       MetaInspector::Document.new(url)
     end
 
@@ -171,19 +171,19 @@ describe MetaInspector::Document do
       headers = {'User-Agent' => 'Mozilla', 'Referer' => 'https://github.com/'}
 
       headers = {}
-      headers.should_receive(:merge!).with(headers)
-      Faraday::Connection.any_instance.stub(:headers){headers}
+      expect(headers).to receive(:merge!).with(headers)
+      allow_any_instance_of(Faraday::Connection).to receive(:headers){headers}
       MetaInspector::Document.new(url, headers: headers)
     end
   end
 
   describe 'url normalization' do
     it 'should normalize by default' do
-      MetaInspector.new('http://example.com/%EF%BD%9E').url.should == 'http://example.com/~'
+      expect(MetaInspector.new('http://example.com/%EF%BD%9E').url).to eq('http://example.com/~')
     end
 
     it 'should not normalize if the normalize_url option is false' do
-      MetaInspector.new('http://example.com/%EF%BD%9E', normalize_url: false).url.should == 'http://example.com/%EF%BD%9E'
+      expect(MetaInspector.new('http://example.com/%EF%BD%9E', normalize_url: false).url).to eq('http://example.com/%EF%BD%9E')
     end
   end
 end

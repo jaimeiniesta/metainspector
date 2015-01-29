@@ -8,17 +8,17 @@ describe MetaInspector do
       it "disallows redirections" do
         page = MetaInspector.new("http://facebook.com", :allow_redirections => false)
 
-        page.url.should == "http://facebook.com/"
+        expect(page.url).to eq("http://facebook.com/")
       end
     end
 
     context "when redirections are on (default)" do
       it "allows follows redirections" do
-        logger.should_not receive(:<<)
+        expect(logger).not_to receive(:<<)
 
         page = MetaInspector.new("http://facebook.com", exception_log: logger)
 
-        page.url.should == "https://www.facebook.com/"
+        expect(page.url).to eq("https://www.facebook.com/")
       end
     end
 
@@ -37,11 +37,11 @@ describe MetaInspector do
         stub_request(:get, "http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/?nclick_check=1")
           .with(:headers => {"Cookie" => "EMETA_COOKIE_CHECK=1"})
 
-        logger.should_not receive(:<<)
+        expect(logger).not_to receive(:<<)
 
         page = MetaInspector.new("http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/", exception_log: logger)
 
-        page.url.should == "http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/?nclick_check=1"
+        expect(page.url).to eq("http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/?nclick_check=1")
       end
     end
   end
