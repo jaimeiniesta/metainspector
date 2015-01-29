@@ -8,6 +8,13 @@ You give it an URL, and it lets you easily get its title, links, images, charset
 
 You can try MetaInspector live at this little demo: [https://metainspectordemo.herokuapp.com](https://metainspectordemo.herokuapp.com)
 
+## Changes in 4.2.1
+
+* The Document API has been extended with one new method:
+
+  * `page.best_title` returns the longest text available from a selection of candidates.
+
+
 ## Changes in 4.2.0
 
 * The images API has been extended, with two new methods:
