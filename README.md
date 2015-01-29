@@ -406,15 +406,21 @@ $ irb
 => "/plans-and-pricing"
 ```
 
-## ZOMG Fork! Thank you!
+## Contributing guidelines
 
-You're welcome to fork this project and send pull requests. Just remember to include specs.
+You're more than welcome to fork this project and send pull requests. Just remember to:
+
+* Create a topic branch for your changes.
+* Add specs.
+* Keep your fake responses as small as possible. For each change in `spec/fixtures`, a comment should be included explaining why it's needed.
+* Update `version.rb`, following the [semantic versioning convention](http://semver.org/).
+* Update `README.md` if needed (for example, when you're adding or changing a feature).
 
 Thanks to all the contributors:
 
 [https://github.com/jaimeiniesta/metainspector/graphs/contributors](https://github.com/jaimeiniesta/metainspector/graphs/contributors)
 
-You are more than welcome to come chat with us on our [Gitter room](https://gitter.im/jaimeiniesta/metainspector) and [Google group](https://groups.google.com/forum/#!forum/metainspector).
+You can also come to chat with us on our [Gitter room](https://gitter.im/jaimeiniesta/metainspector) and [Google group](https://groups.google.com/forum/#!forum/metainspector).
 
 ## Related projects
 
