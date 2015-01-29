@@ -110,7 +110,8 @@ page.url                 # URL of the page
 page.scheme              # Scheme of the page (http, https)
 page.host                # Hostname of the page (like, sitevalidator.com, without the scheme)
 page.root_url            # Root url (scheme + host, like http://sitevalidator.com/)
-page.title               # title of the page, as string
+page.title               # title of the page from the head section, as string
+page.best_title          # best title of the page, from a selection of candidates
 page.links.raw           # every link found, unprocessed
 page.links.all           # every link found on the page as an absolute URL
 page.links.http          # every HTTP link found
