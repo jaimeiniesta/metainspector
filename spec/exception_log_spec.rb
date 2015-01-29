@@ -4,7 +4,7 @@ describe MetaInspector::ExceptionLog do
 
   describe "warn_level" do
     it "should be :raise by default" do
-      MetaInspector::ExceptionLog.new.warn_level.should == :raise
+      expect(MetaInspector::ExceptionLog.new.warn_level).to eq(:raise)
     end
 
     it "should raise exceptions when warn_level is :raise" do
@@ -20,7 +20,7 @@ describe MetaInspector::ExceptionLog do
       logger    = MetaInspector::ExceptionLog.new(warn_level: :warn)
       exception = StandardError.new("an error message")
 
-      logger.should_receive(:warn).with(exception)
+      expect(logger).to receive(:warn).with(exception)
       logger << exception
     end
 
@@ -49,28 +49,28 @@ describe MetaInspector::ExceptionLog do
       logger << first
       logger << second
 
-      logger.exceptions.should == [first, second]
+      expect(logger.exceptions).to eq([first, second])
     end
 
     describe "ok?" do
       it "should be true if no exceptions stored" do
-        logger.should be_ok
+        expect(logger).to be_ok
       end
 
       it "should be false if some exception stored" do
         logger << StandardError.new("some message")
-        logger.should_not be_ok
+        expect(logger).not_to be_ok
       end
 
       it "should warn about misuse if warn_level is :raise" do
         logger    = MetaInspector::ExceptionLog.new(warn_level: :raise)
-        logger.should_receive(:warn).with("ExceptionLog#ok? should only be used when warn_level is :store")
+        expect(logger).to receive(:warn).with("ExceptionLog#ok? should only be used when warn_level is :store")
         logger.ok?
       end
 
       it "should warn about misuse if warn_level is :warn" do
         logger    = MetaInspector::ExceptionLog.new(warn_level: :warn)
-        logger.should_receive(:warn).with("ExceptionLog#ok? should only be used when warn_level is :store")
+        expect(logger).to receive(:warn).with("ExceptionLog#ok? should only be used when warn_level is :store")
         logger.ok?
       end
     end
