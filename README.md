@@ -8,14 +8,12 @@ You give it an URL, and it lets you easily get its title, links, images, charset
 
 You can try MetaInspector live at this little demo: [https://metainspectordemo.herokuapp.com](https://metainspectordemo.herokuapp.com)
 
-## Changes in 4.2.1
+## Changes in 4.3
 
-* The Document API has been extended with one new method:
+* The Document API has been extended with one new method `page.best_title` that returns the longest text available from a selection of candidates.
+* `to_hash` now includes `scheme`, `host`, `root_url`, `best_title` and `description`.
 
-  * `page.best_title` returns the longest text available from a selection of candidates.
-
-
-## Changes in 4.2.0
+## Changes in 4.2
 
 * The images API has been extended, with two new methods:
 
@@ -24,7 +22,7 @@ You can try MetaInspector live at this little demo: [https://metainspectordemo.h
 
 * The criteria for `page.images.best` has changed slightly, we'll now return the largest image instead of the first image if no owner-suggested image is found.
 
-## Changes in 4.1.0
+## Changes in 4.1
 
 * Introduces the `:normalize_url` option, which allows to disable URL normalization.
 
