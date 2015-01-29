@@ -21,7 +21,12 @@ describe MetaInspector::Document do
     doc = MetaInspector::Document.new('http://pagerankalert.com')
     doc.to_hash.should == {
                             "url"             => "http://pagerankalert.com/",
+                            "scheme"          => "http",
+                            "host"            => "pagerankalert.com",
+                            "root_url"        => "http://pagerankalert.com/",
                             "title"           => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
+                            "best_title"      => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
+                            "description"     => "Track your PageRank(TM) changes and receive alerts by email",
                             "favicon"         => "http://pagerankalert.com/src/favicon.ico",
                             "links"           => {
                                                     'internal' => ["http://pagerankalert.com/",

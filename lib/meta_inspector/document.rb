@@ -57,7 +57,12 @@ module MetaInspector
     def to_hash
       {
         'url'           => url,
+        'scheme'        => scheme,
+        'host'          => host,
+        'root_url'      => root_url,
         'title'         => title,
+        'best_title'    => best_title,
+        'description'   => description,
         'links'         => links.to_hash,
         'images'        => images.to_a,
         'charset'       => charset,
