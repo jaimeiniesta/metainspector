@@ -29,6 +29,7 @@ module MetaInspector
     end
 
     def content_type
+      return nil if response.headers['content-type'].nil?
       response.headers['content-type'].split(';')[0] if response
     end
 

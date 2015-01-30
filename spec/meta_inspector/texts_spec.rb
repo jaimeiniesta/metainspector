@@ -37,6 +37,11 @@ describe MetaInspector do
       expect(page.best_title).to eq('This title came from the head and has leading and trailing whitespace')
     end
 
+    it "should return nil if none of the candidates are present" do
+      page = MetaInspector.new('http://example.com/title_not_present')
+      expect(page.best_title).to be(nil)
+    end
+
   end
 
   describe '#description' do
