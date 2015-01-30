@@ -31,7 +31,7 @@ FakeWeb.register_uri(:get, "http://example.com/", :response => fixture_file("exa
 FakeWeb.register_uri(:get, "http://example.com/404", :response => fixture_file("404.response"))
 
 # Used to test headers
-FakeWeb.register_uri(:get, "http://exmaple.com/no-content-type", :response => fixture_file("no-content-type.response"))
+FakeWeb.register_uri(:get, "http://example.com/no-content-type", :response => fixture_file("no-content-type.response"))
 
 # Used to test largest image in page logic
 FakeWeb.register_uri(:get, "http://example.com/largest_image_in_html", :response => fixture_file("largest_image_in_html.response"))

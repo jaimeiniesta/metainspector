@@ -41,7 +41,7 @@ describe MetaInspector::Request do
     end
 
     it "should return nil if there is not content type present" do
-      request = MetaInspector::Request.new(url('http://exmaple.com/no-content-type'))
+      request = MetaInspector::Request.new(url('http://example.com/no-content-type'))
 
       expect(request.content_type).to be(nil)
     end
