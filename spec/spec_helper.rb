@@ -45,6 +45,7 @@ FakeWeb.register_uri(:get, "http://example.com/title_in_body", :response => fixt
 FakeWeb.register_uri(:get, "http://example.com/title_in_h1", :response => fixture_file("title_in_h1.response"))
 FakeWeb.register_uri(:get, "http://example.com/title_best_choice", :response => fixture_file("title_best_choice.response"))
 FakeWeb.register_uri(:get, "http://example.com/title_in_head_with_whitespace", :response => fixture_file("title_in_head_with_whitespace.response"))
+FakeWeb.register_uri(:get, "http://example.com/title_not_present", :response => fixture_file("title_not_present.response"))
 
 # These are older fixtures
 FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
