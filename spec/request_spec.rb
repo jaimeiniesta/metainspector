@@ -39,6 +39,12 @@ describe MetaInspector::Request do
 
       expect(image_request.content_type).to eq("image/png")
     end
+
+    it "should return nil if there is not content type present" do
+      request = MetaInspector::Request.new(url('http://exmaple.com/no-content-type'))
+
+      expect(request.content_type).to be(nil)
+    end
   end
 
   describe 'exception handling' do
