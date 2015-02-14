@@ -36,6 +36,7 @@ FakeWeb.register_uri(:get, "http://example.com/no-content-type", :response => fi
 # Used to test largest image in page logic
 FakeWeb.register_uri(:get, "http://example.com/largest_image_in_html", :response => fixture_file("largest_image_in_html.response"))
 FakeWeb.register_uri(:get, "http://example.com/largest_image_using_image_size", :response => fixture_file("largest_image_using_image_size.response"))
+FakeWeb.register_uri(:get, "http://example.com/malformed_image_in_html", :response => fixture_file("malformed_image_in_html.response"))
 FakeWeb.register_uri(:get, "http://example.com/10x10", :response => fixture_file("10x10.jpg.response"))
 FakeWeb.register_uri(:get, "http://example.com/100x100", :response => fixture_file("100x100.jpg.response"))
 

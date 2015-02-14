@@ -35,7 +35,7 @@ module MetaInspector
       # filtered for images that are more square than 10:1 or 1:10
       def largest()
         @larget_image ||= begin
-          img_nodes = parsed.search('//img')
+          img_nodes = parsed.search('//img').select{ |img_node| img_node['src'] }
           sizes = img_nodes.map { |img_node| [URL.absolutify(img_node['src'], base_url), img_node['width'], img_node['height']] }
           sizes.uniq! { |url, width, height| url }
           if @download_images
