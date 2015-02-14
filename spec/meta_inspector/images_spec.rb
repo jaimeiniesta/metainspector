@@ -88,6 +88,13 @@ describe MetaInspector do
 
       expect(page.images.best).to eq("http://example.com/100x100")
     end
+
+    it "should find image when some img tag has no src attribute" do
+      page = MetaInspector.new('http://example.com/malformed_image_in_html')
+
+      expect(page.images.best).to eq("http://example.com/largest")
+    end
+
   end
 
   describe "images.owner_suggested" do
