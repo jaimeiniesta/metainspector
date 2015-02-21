@@ -8,6 +8,7 @@ module MetaInspector
           'name'        => meta_tags_by('name'),
           'http-equiv'  => meta_tags_by('http-equiv'),
           'property'    => meta_tags_by('property'),
+          'language'    => [html_tags_by('lang')],
           'charset'     => [charset_from_meta_charset]
         }
       end
@@ -20,6 +21,7 @@ module MetaInspector
         meta_tag['name']
           .merge(meta_tag['http-equiv'])
           .merge(meta_tag['property'])
+          .merge('language' => meta_tag['language'])
           .merge('charset' => meta_tag['charset'])
       end
 
@@ -28,6 +30,10 @@ module MetaInspector
       # <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
       def charset
         @charset ||= (charset_from_meta_charset || charset_from_meta_content_type)
+      end
+
+      def language
+        @language ||= html_tags_by('lang')
       end
 
       private
@@ -53,6 +59,14 @@ module MetaInspector
           end
         end
         hash
+      end
+
+      def html_tags_by(attribute)
+        content = nil
+        parsed.css("html[@#{attribute}]").map do |tag|
+          content = tag.attributes[attribute].value rescue nil
+        end
+        content
       end
 
       def convert_each_array_to_first_element_on(hash)
