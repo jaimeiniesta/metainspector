@@ -2,7 +2,7 @@
 
 MetaInspector is a gem for web scraping purposes.
 
-You give it an URL, and it lets you easily get its title, links, images, charset, description, keywords, meta tags...
+You give it an URL, and it lets you easily get its title, links, images, charset, language, description, keywords, meta tags...
 
 ## See it in action!
 
@@ -123,6 +123,7 @@ page.images              # enumerable collection, with every img found on the pa
 page.images.best         # Most relevant image, if defined with the og:image or twitter:image metatags. Fallback to the first page.images array element
 page.images.favicon      # absolute URL to the favicon
 page.feed                # Get rss or atom links in meta data fields as array
+page.language            # Get language of site en-US / de
 page.charset             # UTF-8
 page.content_type        # content-type returned by the server when the url was requested
 ```
@@ -133,7 +134,7 @@ When it comes to meta tags, you have several options:
 
 ```ruby
 page.meta_tags  # Gives you all the meta tags by type:
-                # (meta name, meta http-equiv, meta property and meta charset)
+                # (meta name, meta http-equiv, meta property, meta charset and language)
                 # As meta tags can be repeated (in the case of 'og:image', for example),
                 # the values returned will be arrays
                 #
@@ -164,6 +165,8 @@ page.meta_tags  # Gives you all the meta tags by type:
                                     'og:image:width'  => ['300'],
                                     'og:image:height' => ['300', '1000']
                                    },
+
+                    'language' => ['en-US'],
 
                     'charset' => ['UTF-8']
                   }
@@ -227,6 +230,7 @@ page.meta   # Returns:
             #   'og:image'            => 'http://example.com/rock.jpg',
             #   'og:image:width'      => '300',
             #   'og:image:height'     => '300',
+            #   'language'            => 'en-US',
             #   'charset'             => 'UTF-8'
             # }
 ```

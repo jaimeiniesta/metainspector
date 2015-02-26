@@ -40,6 +40,7 @@ describe MetaInspector::Document do
                                                   },
                             "images"          => ["http://pagerankalert.com/images/pagerank_alert.png?1305794559"],
                             "charset"         => "utf-8",
+                            "language"        => "en-US",
                             "feed"            => "http://feeds.feedburner.com/PageRankAlert",
                             "content_type"    => "text/html",
                             "meta_tags"       => {
@@ -51,6 +52,7 @@ describe MetaInspector::Document do
                                                              },
                                                    "http-equiv" => {},
                                                    "property"   => {},
+                                                   "language"   => ["en-US"],
                                                    "charset"    => ["utf-8"]
                                                  },
                             "response"        => {

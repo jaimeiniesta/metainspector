@@ -21,11 +21,11 @@ module MetaInspector
     end
 
     extend Forwardable
-    delegate [:url, :scheme, :host]                   => :@document
-    delegate [:meta_tags, :meta_tag, :meta, :charset] => :@meta_tag_parser
-    delegate [:links, :feed, :base_url]               => :@links_parser
-    delegate :images                                  => :@images_parser
-    delegate [:title, :best_title, :description]      => :@texts_parser
+    delegate [:url, :scheme, :host]                              => :@document
+    delegate [:meta_tags, :meta_tag, :meta, :charset, :language] => :@meta_tag_parser
+    delegate [:links, :feed, :base_url]                          => :@links_parser
+    delegate :images                                             => :@images_parser
+    delegate [:title, :best_title, :description]                 => :@texts_parser
 
     # Returns the whole parsed document
     def parsed

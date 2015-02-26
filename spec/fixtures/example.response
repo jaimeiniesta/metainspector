@@ -9,7 +9,7 @@ X-Varnish: 2000423390
 Age: 0
 Via: 1.1 varnish
 
-<html>
+<html lang="en-US">
   <head>
     <title>An example page</title>
   </head>

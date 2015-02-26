@@ -32,6 +32,8 @@ describe MetaInspector do
                                                   'og:image:height' => ['300', '1000']
                                                 },
 
+                                  'language' => ['en-US'],
+
                                   'charset' => ['UTF-8']
                                 })
     end
@@ -61,6 +63,8 @@ describe MetaInspector do
                                                   'og:image:height' => '300'
                                                 },
 
+                                  'language' => 'en-US',
+
                                   'charset' => 'UTF-8'
                                 })
     end
@@ -81,6 +85,7 @@ describe MetaInspector do
                             'og:image'            => 'http://example.com/rock.jpg',
                             'og:image:width'      => '300',
                             'og:image:height'     => '300',
+                            'language'            => 'en-US',
                             'charset'             => 'UTF-8'
                           })
     end
@@ -103,6 +108,20 @@ describe MetaInspector do
       page = MetaInspector.new('http://charset000.com')
 
       expect(page.charset).to eq(nil)
+    end
+  end
+
+  describe 'language detection' do
+    it "should get the language from <html lang />" do
+      page = MetaInspector.new('http://charset001.com')
+
+      expect(page.language).to eq("en-US")
+    end
+
+    it "should get nil if no declared language is found" do
+      page = MetaInspector.new('http://charset000.com')
+
+      expect(page.language).to eq(nil)
     end
   end
 end
