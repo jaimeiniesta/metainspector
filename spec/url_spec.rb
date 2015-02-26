@@ -51,4 +51,19 @@ describe MetaInspector::URL do
       expect(url.url).to eq('http://second.com/')
     end
   end
+
+  describe "handling malformed URLs" do
+    before(:each) do
+      @logger = double('ExceptionLog')
+      expect(@logger).to receive(:<<)
+    end
+
+    it "handles empty URLs" do
+      MetaInspector::URL.new('', exception_log: @logger)
+    end
+
+    it "handles incomplete URLs" do
+      MetaInspector::URL.new('', exception_log: @logger)
+    end
+  end
 end

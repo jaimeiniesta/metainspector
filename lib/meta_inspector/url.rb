@@ -67,6 +67,9 @@ module MetaInspector
     # add trailing slash, convert to downcase...
     def normalized(url)
       Addressable::URI.parse(url).normalize.to_s
+    rescue Addressable::URI::InvalidURIError => e
+      @exception_log << e
+      nil
     end
 
     def parsed(url)
