@@ -8,6 +8,10 @@ You give it an URL, and it lets you easily get its title, links, images, charset
 
 You can try MetaInspector live at this little demo: [https://metainspectordemo.herokuapp.com](https://metainspectordemo.herokuapp.com)
 
+## Changes in 4.4
+
+The default headers now include `'Accept-Encoding' => 'identity'` to minimize trouble with servers that respond with malformed compressed responses, [as explained here](https://github.com/lostisland/faraday/issues/337).
+
 ## Changes in 4.3
 
 * The Document API has been extended with one new method `page.best_title` that returns the longest text available from a selection of candidates.
@@ -310,10 +314,15 @@ page = MetaInspector.new('facebook.com', :allow_redirections => false)
 By default, the following headers are set:
 
 ```ruby
-{'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
+{
+  'User-Agent'      => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)",
+  'Accept-Encoding' => 'identity'
+}
 ```
 
-If you want to set custom headers then use the `headers` option:
+The `Accept-Encoding` is set to `identity` to avoid exceptions being raised on servers that return malformed compressed responses, [as explained here](https://github.com/lostisland/faraday/issues/337).
+
+If you want to override the default headers then use the `headers` option:
 
 ```ruby
 # Set the User-Agent header

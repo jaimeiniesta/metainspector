@@ -87,7 +87,10 @@ module MetaInspector
         :retries            => 3,
         :html_content_only  => false,
         :warn_level         => :raise,
-        :headers            => { 'User-Agent' => default_user_agent },
+        :headers            => {
+                                 'User-Agent'      => default_user_agent,
+                                 'Accept-Encoding' => 'identity'
+                               },
         :allow_redirections => true,
         :normalize_url      => true,
         :download_images    => true }
