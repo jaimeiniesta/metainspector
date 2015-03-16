@@ -28,7 +28,8 @@ module MetaInspector
       # See doc at http://developers.facebook.com/docs/opengraph/
       # If none found, tries with Twitter image
       def owner_suggested
-        meta['og:image'] || meta['twitter:image']
+        suggested_img = meta['og:image'] || meta['twitter:image']
+        URL.absolutify(suggested_img, base_url) if suggested_img
       end
 
       # Returns the largest image from the image collection,

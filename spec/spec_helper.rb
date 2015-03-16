@@ -39,6 +39,7 @@ FakeWeb.register_uri(:get, "http://example.com/largest_image_using_image_size", 
 FakeWeb.register_uri(:get, "http://example.com/malformed_image_in_html", :response => fixture_file("malformed_image_in_html.response"))
 FakeWeb.register_uri(:get, "http://example.com/10x10", :response => fixture_file("10x10.jpg.response"))
 FakeWeb.register_uri(:get, "http://example.com/100x100", :response => fixture_file("100x100.jpg.response"))
+FakeWeb.register_uri(:get, "http://www.24-horas.mx/mexico-firma-acuerdo-bilateral-automotriz-con-argentina/", :response => fixture_file("relative_og_image.response"))
 
 # Used to test best_title logic
 FakeWeb.register_uri(:get, "http://example.com/title_in_head", :response => fixture_file("title_in_head.response"))
