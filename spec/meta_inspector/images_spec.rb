@@ -110,6 +110,12 @@ describe MetaInspector do
       expect(page.images.owner_suggested).to eq("http://i2.ytimg.com/vi/iaGSSrp49uc/mqdefault.jpg")
     end
 
+    it "should absolutify image" do
+      page = MetaInspector.new('http://www.24-horas.mx/mexico-firma-acuerdo-bilateral-automotriz-con-argentina/')
+
+      expect(page.images.owner_suggested).to eq("http://www.24-horas.mx/wp-content/uploads/2015/03/50316106.jpg")
+    end
+
     it "should return nil when og:image and twitter:image metatags are missing" do
       page = MetaInspector.new('http://example.com/largest_image_using_image_size')
 
