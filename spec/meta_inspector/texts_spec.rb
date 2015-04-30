@@ -42,6 +42,12 @@ describe MetaInspector do
       expect(page.best_title).to be(nil)
     end
 
+    it "should use the og:title for youtube in preference to h1" do
+      #youtube has a h1 value of 'This video is unavailable.' which is unhelpful
+      page = MetaInspector.new('http://www.youtube.com/watch?v=short_title')
+      expect(page.best_title).to eq('Angular 2 Forms')
+    end
+
   end
 
   describe '#description' do
