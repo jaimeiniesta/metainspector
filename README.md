@@ -8,6 +8,12 @@ You give it an URL, and it lets you easily get its title, links, images, charset
 
 You can try MetaInspector live at this little demo: [https://metainspectordemo.herokuapp.com](https://metainspectordemo.herokuapp.com)
 
+## Changes in 4.5
+
+* The Document API now includes access to head/link elements using the method `page.head_links` which returns an array of hashes.
+
+    * `page.head_links` also has two complimentors, `page.stylesheets` and `page.canonicals` which filter the results of `page.head_links` to only provide relevant links
+
 ## Changes in 4.4
 
 The default headers now include `'Accept-Encoding' => 'identity'` to minimize trouble with servers that respond with malformed compressed responses, [as explained here](https://github.com/lostisland/faraday/issues/337).
