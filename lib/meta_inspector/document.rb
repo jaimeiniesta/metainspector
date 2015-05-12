@@ -44,7 +44,8 @@ module MetaInspector
     end
 
     extend Forwardable
-    delegate [:url, :scheme, :host, :root_url]        => :@url
+    delegate [:url, :scheme, :host, :root_url,
+              :tracked?, :untracked_url, :untrack!]   => :@url
 
     delegate [:content_type, :response]               => :@request
 

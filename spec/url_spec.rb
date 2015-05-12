@@ -36,6 +36,47 @@ describe MetaInspector::URL do
     expect(MetaInspector::URL.new('http://example.com/faqs').root_url).to   eq('http://example.com/')
   end
 
+  it "should return an untracked url" do
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_source=1234').untracked_url).to eq('http://example.com/foo?not_utm_thing=bar')
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_medium=1234').untracked_url).to eq('http://example.com/foo?not_utm_thing=bar')
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_term=1234').untracked_url).to eq('http://example.com/foo?not_utm_thing=bar')
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_content=1234').untracked_url).to eq('http://example.com/foo?not_utm_thing=bar')
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_campaign=1234').untracked_url).to eq('http://example.com/foo?not_utm_thing=bar')
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_source=1234&utm_medium=5678&utm_term=4321&utm_content=9876&utm_campaign=5436').untracked_url).to eq('http://example.com/foo?not_utm_thing=bar')
+  end
+
+  it "should remove tracking parameters from url" do
+
+    tracked_urls = ['http://example.com/foo?not_utm_thing=bar&utm_source=1234',
+                    'http://example.com/foo?not_utm_thing=bar&utm_medium=1234',
+                    'http://example.com/foo?not_utm_thing=bar&utm_term=1234',
+                    'http://example.com/foo?not_utm_thing=bar&utm_content=1234',
+                    'http://example.com/foo?not_utm_thing=bar&utm_campaign=1234',
+                    'http://example.com/foo?not_utm_thing=bar&utm_source=1234&utm_medium=5678&utm_term=4321&utm_content=9876&utm_campaign=5436'
+    ]
+
+    tracked_urls.each do |tracked_url|
+      url = MetaInspector::URL.new(tracked_url)
+      url.untrack!
+      expect(url.url).to eq('http://example.com/foo?not_utm_thing=bar')
+    end
+  end
+
+  it "should say if the url is tracked" do
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_source=1234').tracked?).to be true
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_medium=1234').tracked?).to be true
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_term=1234').tracked?).to be true
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_content=1234').tracked?).to be true
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_campaign=1234').tracked?).to be true
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_source=1234&utm_medium=5678&utm_term=4321&utm_content=9876&utm_campaign=5436').tracked?).to be true
+
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&not_utm_source=1234').tracked?).to be false
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&not_utm_medium=1234').tracked?).to be false
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&not_utm_term=1234').tracked?).to be false
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&not_utm_content=1234').tracked?).to be false
+    expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&not_utm_campaign=1234').tracked?).to be false
+  end
+
   describe "url=" do
     it "should update the url" do
       url = MetaInspector::URL.new('http://first.com/')

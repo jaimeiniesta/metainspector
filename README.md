@@ -10,9 +10,15 @@ You can try MetaInspector live at this little demo: [https://metainspectordemo.h
 
 ## Changes in 4.5
 
-* The Document API now includes access to head/link elements using the method `page.head_links` which returns an array of hashes.
+* The Document API now includes access to head/link elements
+    * `page.head_links` returns an array of hashes of all head/links.
+    * `page.stylesheets` returns head/links where rel='stylesheet'
+    * `page.canonicals` returns head/links where rel='canonical'
 
-    * `page.head_links` also has two complimentors, `page.stylesheets` and `page.canonicals` which filter the results of `page.head_links` to only provide relevant links
+* The URL API can remove common tracking parameters from the querystring
+    * `url.tracked?` will tell you if the url contains known tracking parameters
+    * `url.untracked_url` will return the url with known tracking parameters removed
+    * `url.untrack!` will remove the tracking parameters from the url
 
 ## Changes in 4.4
 
