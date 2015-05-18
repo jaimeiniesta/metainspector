@@ -8,6 +8,18 @@ You give it an URL, and it lets you easily get its title, links, images, charset
 
 You can try MetaInspector live at this little demo: [https://metainspectordemo.herokuapp.com](https://metainspectordemo.herokuapp.com)
 
+## Changes in 4.5
+
+* The Document API now includes access to head/link elements
+    * `page.head_links` returns an array of hashes of all head/links.
+    * `page.stylesheets` returns head/links where rel='stylesheet'
+    * `page.canonicals` returns head/links where rel='canonical'
+
+* The URL API can remove common tracking parameters from the querystring
+    * `url.tracked?` will tell you if the url contains known tracking parameters
+    * `url.untracked_url` will return the url with known tracking parameters removed
+    * `url.untrack!` will remove the tracking parameters from the url
+
 ## Changes in 4.4
 
 The default headers now include `'Accept-Encoding' => 'identity'` to minimize trouble with servers that respond with malformed compressed responses, [as explained here](https://github.com/lostisland/faraday/issues/337).

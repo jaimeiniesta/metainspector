@@ -27,6 +27,24 @@ module MetaInspector
       "#{scheme}://#{host}/"
     end
 
+    WELL_KNOWN_TRACKING_PARAMS = %w( utm_source utm_medium utm_term utm_content utm_campaign )
+
+    def tracked?
+      u = parsed(url)
+      found_tracking_params = WELL_KNOWN_TRACKING_PARAMS & u.query_values.keys
+      return !found_tracking_params.empty?
+    end
+
+    def untracked_url
+      u = parsed(url)
+      u.query_values = u.query_values.delete_if { |key, _| WELL_KNOWN_TRACKING_PARAMS.include? key }
+      u.to_s
+    end
+
+    def untrack!
+      self.url = untracked_url
+    end
+
     def url=(new_url)
       url  = with_default_scheme(new_url)
       @url = @normalize ? normalized(url) : url

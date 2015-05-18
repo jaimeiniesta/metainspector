@@ -13,6 +13,7 @@ module MetaInspector
     def initialize(document, options = {})
       @document        = document
       @exception_log   = options[:exception_log]
+      @head_links_parser = MetaInspector::Parsers::HeadLinksParser.new(self)
       @meta_tag_parser = MetaInspector::Parsers::MetaTagsParser.new(self)
       @links_parser    = MetaInspector::Parsers::LinksParser.new(self)
       @download_images = options[:download_images]
@@ -23,6 +24,7 @@ module MetaInspector
     extend Forwardable
     delegate [:url, :scheme, :host]                   => :@document
     delegate [:meta_tags, :meta_tag, :meta, :charset] => :@meta_tag_parser
+    delegate [:head_links, :stylesheets, :canonicals] => :@head_links_parser
     delegate [:links, :feed, :base_url]               => :@links_parser
     delegate :images                                  => :@images_parser
     delegate [:title, :best_title, :description]      => :@texts_parser
