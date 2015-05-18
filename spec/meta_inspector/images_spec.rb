@@ -123,6 +123,44 @@ describe MetaInspector do
     end
   end
 
+  describe "images.with_size" do
+    it "should return sorted by area array of [img_url, width, height] using html sizes" do
+      page = MetaInspector.new('http://example.com/largest_image_in_html')
+
+      expect(page.images.with_size).to eq([
+        ["http://example.com/largest", 100, 100],
+        ["http://example.com/too_narrow", 10, 100],
+        ["http://example.com/too_wide", 100, 10],
+        ["http://example.com/smaller", 10, 10],
+        ["http://example.com/smallest", 1, 1]
+      ])
+    end
+
+    it "should return sorted by area array of [img_url, width, height] using actual image sizes" do
+      page = MetaInspector.new('http://example.com/largest_image_using_image_size')
+
+      expect(page.images.with_size).to eq([
+        ["http://example.com/100x100", 100, 100],
+        ["http://example.com/10x100", 10, 100],
+        ["http://example.com/100x10", 100, 10],
+        ["http://example.com/10x10", 10, 10],
+        ["http://example.com/1x1", 1, 1]
+      ])
+    end
+
+    it "should return sorted by area array of [img_url, width, height] without downloading images" do
+      page = MetaInspector.new('http://example.com/largest_image_using_image_size', download_images: false)
+
+      expect(page.images.with_size).to eq([
+        ["http://example.com/10x100", 10, 100],
+        ["http://example.com/100x10", 100, 10],
+        ["http://example.com/1x1", 1, 1],
+        ["http://example.com/10x10", 0, 0],
+        ["http://example.com/100x100", 0, 0]
+      ])
+    end
+  end
+
   describe "images.largest" do
     it "should find the largest image on the page using html sizes" do
       page = MetaInspector.new('http://example.com/largest_image_in_html')
