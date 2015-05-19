@@ -41,47 +41,72 @@ page = MetaInspector.new('sitevalidator.com')
 You can also include the html which will be used as the document to scrape:
 
 ```ruby
-page = MetaInspector.new("http://sitevalidator.com", :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>")
+page = MetaInspector.new("http://sitevalidator.com",
+                         :document => "<html>...</html>")
 ```
 
-## Accessing response status and headers
+## Accessing response
 
 You can check the status and headers from the response like this:
 
 ```ruby
 page.response.status  # 200
-page.response.headers # { "server"=>"nginx", "content-type"=>"text/html; charset=utf-8", "cache-control"=>"must-revalidate, private, max-age=0", ... }
+page.response.headers # { "server"=>"nginx", "content-type"=>"text/html; charset=utf-8",
+                      #   "cache-control"=>"must-revalidate, private, max-age=0", ... }
 ```
 
 ## Accessing scraped data
 
-You can see the scraped data like this:
+### URL
 
 ```ruby
 page.url                 # URL of the page
+page.tracked?            # returns true if the url contains known tracking parameters
+page.untracked_url       # returns the url with the known tracking parameters removed
+page.untrack!            # removes the known tracking parameters from the url
 page.scheme              # Scheme of the page (http, https)
 page.host                # Hostname of the page (like, sitevalidator.com, without the scheme)
 page.root_url            # Root url (scheme + host, like http://sitevalidator.com/)
+```
+
+### Head links
+
+```ruby
+page.head_links          # an array of hashes of all head/links
+page.stylesheets         # an array of hashes of all head/links where rel='stylesheet'
+page.canonicals          # an array of hashes of all head/links where rel='canonical'
+page.feed                # Get rss or atom links in meta data fields as array
+```
+
+### Texts
+
+```ruby
 page.title               # title of the page from the head section, as string
 page.best_title          # best title of the page, from a selection of candidates
+page.description         # returns the meta description, or the first long paragraph if no meta description is found
+```
+
+### Links
+
+```ruby
 page.links.raw           # every link found, unprocessed
 page.links.all           # every link found on the page as an absolute URL
 page.links.http          # every HTTP link found
 page.links.non_http      # every non-HTTP link found
 page.links.internal      # every internal link found on the page as an absolute URL
 page.links.external      # every external link found on the page as an absolute URL
-page.meta['keywords']    # meta keywords, as string
-page.meta['description'] # meta description, as string
-page.description         # returns the meta description, or the first long paragraph if no meta description is found
-page.images              # enumerable collection, with every img found on the page as an absolute URL
-page.images.best         # Most relevant image, if defined with the og:image or twitter:image metatags. Fallback to the first page.images array element
-page.images.favicon      # absolute URL to the favicon
-page.feed                # Get rss or atom links in meta data fields as array
-page.charset             # UTF-8
-page.content_type        # content-type returned by the server when the url was requested
 ```
 
-## Meta tags
+### Images
+
+```ruby
+page.images              # enumerable collection, with every img found on the page as an absolute URL
+page.images.with_size    # a sorted array (by descending area) of [image_url, width, height]
+page.images.best         # Most relevant image, if defined with the og:image or twitter:image metatags. Fallback to the first page.images array element
+page.images.favicon      # absolute URL to the favicon
+```
+
+### Meta tags
 
 When it comes to meta tags, you have several options:
 
@@ -192,6 +217,13 @@ page.meta['author']     # Returns "Joe Sample"
 ```
 
 Please be aware that all keys are converted to downcase, so it's `'dc.date.issued'` and not `'DC.date.issued'`.
+
+### Misc
+
+```ruby
+page.charset             # UTF-8
+page.content_type        # content-type returned by the server when the url was requested
+```
 
 ## Other representations
 
@@ -372,7 +404,6 @@ You're more than welcome to fork this project and send pull requests. Just remem
 * Create a topic branch for your changes.
 * Add specs.
 * Keep your fake responses as small as possible. For each change in `spec/fixtures`, a comment should be included explaining why it's needed.
-* Update `version.rb`, following the [semantic versioning convention](http://semver.org/).
 * Update `README.md` if needed (for example, when you're adding or changing a feature).
 
 Thanks to all the contributors:
