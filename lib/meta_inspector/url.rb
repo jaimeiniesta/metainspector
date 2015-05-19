@@ -32,7 +32,7 @@ module MetaInspector
     def tracked?
       u = parsed(url)
       found_tracking_params = WELL_KNOWN_TRACKING_PARAMS & u.query_values.keys
-      return !found_tracking_params.empty?
+      return found_tracking_params.any?
     end
 
     def untracked_url
