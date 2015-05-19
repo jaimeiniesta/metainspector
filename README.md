@@ -20,6 +20,9 @@ You can try MetaInspector live at this little demo: [https://metainspectordemo.h
     * `url.untracked_url` will return the url with known tracking parameters removed
     * `url.untrack!` will remove the tracking parameters from the url
 
+* The images API has been extended:
+    * `page.images.with_size` returns a sorted array (by descending area) of [image_url, width, height]
+
 ## Changes in 4.4
 
 The default headers now include `'Accept-Encoding' => 'identity'` to minimize trouble with servers that respond with malformed compressed responses, [as explained here](https://github.com/lostisland/faraday/issues/337).

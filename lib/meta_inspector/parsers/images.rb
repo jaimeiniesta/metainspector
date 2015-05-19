@@ -32,28 +32,37 @@ module MetaInspector
         URL.absolutify(suggested_img, base_url) if suggested_img
       end
 
-      # Returns the largest image from the image collection,
-      # filtered for images that are more square than 10:1 or 1:10
-      def largest()
-        @larget_image ||= begin
+      # Returns an array of [img_url, width, height] sorted by image area (width * height)
+      def with_size
+        @with_size ||= begin
           img_nodes = parsed.search('//img').select{ |img_node| img_node['src'] }
-          sizes = img_nodes.map { |img_node| [URL.absolutify(img_node['src'], base_url), img_node['width'], img_node['height']] }
-          sizes.uniq! { |url, width, height| url }
+          imgs_with_size = img_nodes.map { |img_node| [URL.absolutify(img_node['src'], base_url), img_node['width'], img_node['height']] }
+          imgs_with_size.uniq! { |url, width, height| url }
           if @download_images
-            sizes.map! do |url, width, height|
+            imgs_with_size.map! do |url, width, height|
               width, height = FastImage.size(url) if width.nil? || height.nil?
-              [url, width, height]
+              [url, width.to_i, height.to_i]
             end
           else
-            sizes.map! do |url, width, height|
+            imgs_with_size.map! do |url, width, height|
               width, height = [0, 0] if width.nil? || height.nil?
-              [url, width, height]
+              [url, width.to_i, height.to_i]
             end
           end
-          sizes.map! { |url, width, height| [url, width.to_i * height.to_i, width.to_f / height.to_f] }
-          sizes.keep_if { |url, area, ratio| ratio > 0.1 && ratio < 10 }
-          sizes.sort_by! { |url, area, ratio| -area }
-          url, area, ratio = sizes.first
+          imgs_with_size.sort_by { |url, width, height| -(width.to_i * height.to_i) }
+        end
+      end
+
+      # Returns the largest image from the image collection,
+      # filtered for images that are more square than 10:1 or 1:10
+      def largest
+        @largest_image ||= begin
+          imgs_with_size = with_size.dup
+          imgs_with_size.keep_if do |url, width, height|
+            ratio = width.to_f / height.to_f
+            ratio > 0.1 && ratio < 10
+          end
+          url, width, height = imgs_with_size.first
           url
         end
       end
