@@ -212,4 +212,26 @@ describe MetaInspector do
       expect(page.images.favicon).to eq(nil)
     end
   end
+
+  describe 'protocol-relative' do
+    before(:each) do
+      @m_http   = MetaInspector.new('http://protocol-relative.com')
+      @m_https  = MetaInspector.new('https://protocol-relative.com')
+    end
+
+    it 'should unrelativize images' do
+      expect(@m_http.images.to_a).to eq(['http://example.com/image.jpg'])
+      expect(@m_https.images.to_a).to eq(['https://example.com/image.jpg'])
+    end
+
+    it 'should unrelativize owner suggested image' do
+      expect(@m_http.images.owner_suggested).to eq('http://static-secure.guim.co.uk/sys-images/Guardian/Pix/pictures/2011/8/8/1312810126887/gu_192x115.jpg')
+      expect(@m_https.images.owner_suggested).to eq('https://static-secure.guim.co.uk/sys-images/Guardian/Pix/pictures/2011/8/8/1312810126887/gu_192x115.jpg')
+    end
+
+    it 'should unrelativize favicon' do
+      expect(@m_http.images.favicon).to eq('http://static-secure.guim.co.uk/sys-images/favicon.ico')
+      expect(@m_https.images.favicon).to eq('https://static-secure.guim.co.uk/sys-images/favicon.ico')
+    end
+  end
 end
