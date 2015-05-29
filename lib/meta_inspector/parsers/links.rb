@@ -14,8 +14,7 @@ module MetaInspector
 
       # Returns all links found, unrelavitized and absolutified
       def all
-        @all ||= raw.map { |link| URL.absolutify(URL.unrelativize(link, scheme), base_url) }
-                    .compact.uniq
+        @all ||= raw.map { |link| URL.absolutify(link, base_url) }.compact.uniq
       end
 
       # Returns all HTTP links found

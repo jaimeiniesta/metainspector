@@ -50,16 +50,12 @@ module MetaInspector
       @url = @normalize ? normalized(url) : url
     end
 
-    # Converts a protocol-relative url to its full form,
-    # depending on the scheme of the page that contains it
-    def self.unrelativize(url, scheme)
-      url =~ /^\/\// ? "#{scheme}://#{url[2..-1]}" : url
-    end
-
     # Converts a relative URL to an absolute URL, like:
     #   "/faq" => "http://example.com/faq"
     # Respecting already absolute URLs like the ones starting with
     #   http:, ftp:, telnet:, mailto:, javascript: ...
+    # Protocol-relative URLs are also resolved to use the same
+    # schema as the base_url
     def self.absolutify(url, base_url)
       if url =~ /^\w*\:/i
         MetaInspector::URL.new(url).url
