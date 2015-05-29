@@ -5,7 +5,14 @@ module MetaInspector
 
       def head_links
         @head_links ||= parsed.css('head link').map do |tag|
-          Hash[tag.attributes.keys.map { |key| [key.to_sym, tag.attributes[key].value] }]
+          Hash[
+            tag.attributes.keys.map do |key|
+              keysym = key.to_sym
+              val = tag.attributes[key].value
+              val = URL.absolutify(val, base_url) if keysym == :href
+              [keysym, val]
+            end
+          ]
         end
       end
 

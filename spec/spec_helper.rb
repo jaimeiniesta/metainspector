@@ -43,6 +43,7 @@ FakeWeb.register_uri(:get, "http://www.24-horas.mx/mexico-firma-acuerdo-bilatera
 
 #Used to test canonical URLs in head
 FakeWeb.register_uri(:get, "http://example.com/head_links", :response => fixture_file("head_links.response"))
+FakeWeb.register_uri(:get, "https://example.com/head_links", :response => fixture_file("head_links.response"))
 
 # Used to test best_title logic
 FakeWeb.register_uri(:get, "http://example.com/title_in_head", :response => fixture_file("title_in_head.response"))

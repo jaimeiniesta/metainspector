@@ -17,6 +17,7 @@ Via: 1.1 varnish
         href="http://example.com/canonical-from-head"
     />
     <link rel="stylesheet" href="/stylesheets/screen.css">
+    <link rel="stylesheet" href="//example2.com/stylesheets/screen.css">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="shorturl" href="http://gu.com/p/32v5a" />
     <link
