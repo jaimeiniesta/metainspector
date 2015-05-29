@@ -26,9 +26,11 @@ module MetaInspector
       # Look for candidates and pick the longest one
       def find_best_title
         candidates = [
+            microdata_title,
+            meta['og:title'],
+            meta['twitter:title'],
             parsed.css('head title'),
             parsed.css('body title'),
-            meta['og:title'],
             parsed.css('h1').first
         ]
         candidates.flatten!
@@ -40,6 +42,13 @@ module MetaInspector
         candidates.uniq!
         candidates.sort_by! { |t| -t.length }
         candidates.first
+      end
+
+      def microdata_title
+        query = '//*[@itemscope]/*[@itemprop="title"]'
+        parsed.xpath(query)[0].inner_text
+      rescue
+        nil
       end
 
       # Look for the first <p> block with 120 characters or more
