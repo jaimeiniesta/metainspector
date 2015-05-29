@@ -1,6 +1,6 @@
 # MetaInpector Changelog
 
-## Changes in 4.5
+## [Changes in 4.5](https://github.com/jaimeiniesta/metainspector/compare/v4.4.0...v4.5.0)
 
 * The Document API now includes access to head/link elements
     * `page.head_links` returns an array of hashes of all head/links.
@@ -15,16 +15,16 @@
 * The images API has been extended:
     * `page.images.with_size` returns a sorted array (by descending area) of [image_url, width, height]
 
-## Changes in 4.4
+## [Changes in 4.4](https://github.com/jaimeiniesta/metainspector/compare/v4.3.0...v4.4.0)
 
 The default headers now include `'Accept-Encoding' => 'identity'` to minimize trouble with servers that respond with malformed compressed responses, [as explained here](https://github.com/lostisland/faraday/issues/337).
 
-## Changes in 4.3
+## [Changes in 4.3](https://github.com/jaimeiniesta/metainspector/compare/v4.3.0...v4.4.0)
 
 * The Document API has been extended with one new method `page.best_title` that returns the longest text available from a selection of candidates.
 * `to_hash` now includes `scheme`, `host`, `root_url`, `best_title` and `description`.
 
-## Changes in 4.2
+## [Changes in 4.2](https://github.com/jaimeiniesta/metainspector/compare/v4.1.0...v4.2.0)
 
 * The images API has been extended, with two new methods:
 
@@ -33,11 +33,11 @@ The default headers now include `'Accept-Encoding' => 'identity'` to minimize tr
 
 * The criteria for `page.images.best` has changed slightly, we'll now return the largest image instead of the first image if no owner-suggested image is found.
 
-## Changes in 4.1
+## [Changes in 4.1](https://github.com/jaimeiniesta/metainspector/compare/v4.0.0...v4.1.0)
 
 * Introduces the `:normalize_url` option, which allows to disable URL normalization.
 
-## Changes in 4.0
+## [Changes in 4.0](https://github.com/jaimeiniesta/metainspector/compare/v3.0.0...v4.0.0)
 
 * The links API has been changed, now instead of `page.links`, `page.internal_links` and `page.external_links` we have:
 
@@ -56,7 +56,7 @@ page.links.external # Returns all external HTTP links found
 
 * You can now specify 2 different timeouts, `connection_timeout` and `read_timeout`, instead of the previous single `timeout`.
 
-## Changes in 3.0
+## [Changes in 3.0](https://github.com/jaimeiniesta/metainspector/compare/v2.0.0...v3.0.0)
 
 * The redirect API has been changed, now the `:allow_redirections` option will expect only a boolean, which by default is `true`. That is, no more specifying `:safe`, `:unsafe` or `:all`.
 * We've dropped support for Ruby < 2.
