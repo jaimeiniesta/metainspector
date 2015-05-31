@@ -9,7 +9,7 @@ module MetaInspector
       include Enumerable
 
       def initialize(main_parser, options = {})
-        @download_images = options[:download_images]
+        @download_images = options.fetch(:download_images, true)
         super(main_parser)
       end
 
@@ -20,7 +20,11 @@ module MetaInspector
       # Returns either the Facebook Open Graph image, twitter suggested image or
       # the largest image in the image collection
       def best
-        owner_suggested || largest
+        owner_suggested || detect_best_image
+      end
+
+      def detect_best_image
+        meaningful_images.first
       end
 
       # Returns the parsed image from Facebook's open graph property tags
@@ -28,7 +32,7 @@ module MetaInspector
       # See doc at http://developers.facebook.com/docs/opengraph/
       # If none found, tries with Twitter image
       def owner_suggested
-        suggested_img = meta['og:image'] || meta['twitter:image']
+        suggested_img = (microdata_image || meta['og:image'] || meta['twitter:image'])
         URL.absolutify(suggested_img, base_url) if suggested_img
       end
 
@@ -53,20 +57,6 @@ module MetaInspector
         end
       end
 
-      # Returns the largest image from the image collection,
-      # filtered for images that are more square than 10:1 or 1:10
-      def largest
-        @largest_image ||= begin
-          imgs_with_size = with_size.dup
-          imgs_with_size.keep_if do |url, width, height|
-            ratio = width.to_f / height.to_f
-            ratio > 0.1 && ratio < 10
-          end
-          url, width, height = imgs_with_size.first
-          url
-        end
-      end
-
       # Return favicon url if exist
       def favicon
         query = '//link[@rel="icon" or contains(@rel, "shortcut")]'
@@ -77,6 +67,24 @@ module MetaInspector
       end
 
       private
+
+      def microdata_image
+        query = '//*[@itemscope]/*[@itemprop="image"]'
+        query = parsed.xpath(query)[0]
+        query && query.inner_text
+      end
+
+      def meaningful_images
+        @meaningful_images ||= with_size.reject { |url, w, h|
+          url =~ blacklist
+        }.reject { |url, w, h|
+           !h || !w
+        }.reject { |url, w, h|
+          (w != 0 && h != 0) ? (h / w > 10 || w / h > 10 || h * w < 5000) : false
+        }.sort_by { |url, w, h|
+          -h * w
+        }.map(&:first)
+      end
 
       def images_collection
         @images_collection ||= absolutified_images
@@ -89,6 +97,11 @@ module MetaInspector
       def parsed_images
         cleanup(parsed.search('//img/@src'))
       end
+
+      def blacklist
+        Regexp.union 'banner', 'background', 'empty', 'sprite', 'base64', '.gif', '.tiff'
+      end
+
     end
   end
 end
