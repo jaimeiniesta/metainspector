@@ -9,8 +9,11 @@ WebMock.disable!
 
 def fixture_file(filename)
   return '' if filename == ''
-  file_path = File.expand_path(File.dirname(__FILE__) + '/fixtures/' + filename)
-  File.read(file_path)
+  File.read(fixture_path(filename))
+end
+
+def fixture_path(filename)
+  File.expand_path(File.dirname(__FILE__) + '/fixtures/' + filename)
 end
 
 RSpec.configure do |config|
@@ -37,8 +40,11 @@ FakeWeb.register_uri(:get, "http://example.com/no-content-type", :response => fi
 FakeWeb.register_uri(:get, "http://example.com/largest_image_in_html", :response => fixture_file("largest_image_in_html.response"))
 FakeWeb.register_uri(:get, "http://example.com/largest_image_using_image_size", :response => fixture_file("largest_image_using_image_size.response"))
 FakeWeb.register_uri(:get, "http://example.com/malformed_image_in_html", :response => fixture_file("malformed_image_in_html.response"))
-FakeWeb.register_uri(:get, "http://example.com/10x10", :response => fixture_file("10x10.jpg.response"))
-FakeWeb.register_uri(:get, "http://example.com/100x100", :response => fixture_file("100x100.jpg.response"))
+FakeWeb.register_uri(:get, "http://example.com/1x1", :body => fixture_path("1x1.jpg"))
+FakeWeb.register_uri(:get, "http://example.com/10x10", :body => fixture_path("10x10.jpg"))
+FakeWeb.register_uri(:get, "http://example.com/100x10", :body => fixture_path("100x10.jpg"))
+FakeWeb.register_uri(:get, "http://example.com/10x100", :body => fixture_path("10x100.jpg"))
+FakeWeb.register_uri(:get, "http://example.com/100x100", :body => fixture_path("100x100.jpg"))
 FakeWeb.register_uri(:get, "http://www.24-horas.mx/mexico-firma-acuerdo-bilateral-automotriz-con-argentina/", :response => fixture_file("relative_og_image.response"))
 
 #Used to test canonical URLs in head
@@ -107,4 +113,3 @@ FakeWeb.register_uri(:get, "http://unsafe-facebook.com/",   :response => fixture
 # These examples are used to test normalize URLs
 FakeWeb.register_uri(:get, "http://example.com/%EF%BD%9E", :response => fixture_file("example.response"))
 FakeWeb.register_uri(:get, "http://example.com/~", :response => fixture_file("example.response"))
-

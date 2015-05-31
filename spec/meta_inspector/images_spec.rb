@@ -90,7 +90,7 @@ describe MetaInspector do
     end
 
     it "should find image when some img tag has no src attribute" do
-      page = MetaInspector.new('http://example.com/malformed_image_in_html')
+      page = MetaInspector.new('http://example.com/malformed_image_in_html', download_images: false)
 
       expect(page.images.best).to eq("http://example.com/largest")
     end
@@ -165,19 +165,19 @@ describe MetaInspector do
     it "should find the largest image on the page using html sizes" do
       page = MetaInspector.new('http://example.com/largest_image_in_html')
 
-      expect(page.images.largest).to eq("http://example.com/largest")
+      expect(page.images.detect_best_image).to eq("http://example.com/largest")
     end
 
     it "should find the largest image on the page using actual image sizes" do
       page = MetaInspector.new('http://example.com/largest_image_using_image_size')
 
-      expect(page.images.largest).to eq("http://example.com/100x100")
+      expect(page.images.detect_best_image).to eq("http://example.com/100x100")
     end
 
     it "should find the largest image without downloading images" do
       page = MetaInspector.new('http://example.com/largest_image_using_image_size', download_images: false)
 
-      expect(page.images.largest).to eq("http://example.com/1x1")
+      expect(page.images.detect_best_image).to eq("http://example.com/10x10")
     end
   end
 

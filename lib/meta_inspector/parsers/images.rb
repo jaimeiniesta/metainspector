@@ -9,7 +9,7 @@ module MetaInspector
       include Enumerable
 
       def initialize(main_parser, options = {})
-        @download_images = options[:download_images]
+        @download_images = options.fetch(:download_images, true)
         super(main_parser)
       end
 
@@ -21,6 +21,10 @@ module MetaInspector
       # the largest image in the image collection
       def best
         owner_suggested || detect_best_image
+      end
+
+      def detect_best_image
+        meaningful_images.first
       end
 
       # Returns the parsed image from Facebook's open graph property tags
@@ -70,18 +74,14 @@ module MetaInspector
         query && query.inner_text
       end
 
-      def detect_best_image
-        meaningful_images.first
-      end
-
       def meaningful_images
-        @meaningful_images ||= images_collection.reject { |name|
-          name =~ blacklist
-        }.map { |name|
-          [name, FastImage.size(name)]
-        }.reject { |(_, (h, w))|
-          !h || !w || h / w > 3 || w / h > 3 || h * w < 5000
-        }.sort_by { |(_, (h, w))|
+        @meaningful_images ||= with_size.reject { |url, w, h|
+          url =~ blacklist
+        }.reject { |url, w, h|
+           !h || !w
+        }.reject { |url, w, h|
+          (w != 0 && h != 0) ? (h / w > 3 || w / h > 3 || h * w < 5000) : false
+        }.sort_by { |url, w, h|
           -h * w
         }.map(&:first)
       end
