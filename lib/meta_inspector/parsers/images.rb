@@ -28,7 +28,7 @@ module MetaInspector
       # See doc at http://developers.facebook.com/docs/opengraph/
       # If none found, tries with Twitter image
       def owner_suggested
-        suggested_img = (microdata_image || meta['og:image'] || meta['twitter:image']).presence
+        suggested_img = (microdata_image || meta['og:image'] || meta['twitter:image'])
         URL.absolutify(suggested_img, base_url) if suggested_img
       end
 
@@ -66,7 +66,8 @@ module MetaInspector
 
       def microdata_image
         query = '//*[@itemscope]/*[@itemprop="image"]'
-        parsed.xpath(query)[0].try(:inner_text).presence
+        query = parsed.xpath(query)[0]
+        query && query.inner_text
       end
 
       def detect_best_image
