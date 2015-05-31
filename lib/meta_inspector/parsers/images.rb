@@ -80,7 +80,7 @@ module MetaInspector
         }.reject { |url, w, h|
            !h || !w
         }.reject { |url, w, h|
-          (w != 0 && h != 0) ? (h / w > 3 || w / h > 3 || h * w < 5000) : false
+          (w != 0 && h != 0) ? (h / w > 10 || w / h > 10 || h * w < 5000) : false
         }.sort_by { |url, w, h|
           -h * w
         }.map(&:first)
