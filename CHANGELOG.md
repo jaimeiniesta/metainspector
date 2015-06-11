@@ -1,6 +1,6 @@
 # MetaInpector Changelog
 
-## Changes in 4.6
+## [Changes in 4.6](https://github.com/jaimeiniesta/metainspector/compare/v4.5.0...v4.6.0)
 
 Faraday can be passed options via `:faraday_options`. This is useful in cases where we need to
 customize the way we request the page, like for example disabling SSL verification, like this:
