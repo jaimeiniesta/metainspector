@@ -17,6 +17,7 @@ module MetaInspector
       @retries            = options[:retries]
       @exception_log      = options[:exception_log]
       @headers            = options[:headers]
+      @faraday_options    = options[:faraday_options] || {}
 
       response            # request early so we can fail early
     end
@@ -44,7 +45,9 @@ module MetaInspector
     private
 
     def fetch
-      session = Faraday.new(:url => url) do |faraday|
+      @faraday_options.merge!(:url => url)
+
+      session = Faraday.new(@faraday_options) do |faraday|
         faraday.request :retry, max: @retries
 
         if @allow_redirections

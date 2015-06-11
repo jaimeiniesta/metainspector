@@ -18,6 +18,7 @@ module MetaInspector
     #   Can be :warn, :raise or nil
     # * headers: object containing custom headers for the request
     # * normalize_url: true by default
+    # * faraday_options: an optional hash of options to pass to Faraday on the request
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
       @connection_timeout = options[:connection_timeout]
@@ -31,6 +32,7 @@ module MetaInspector
       @warn_level         = options[:warn_level]
       @exception_log      = options[:exception_log] || MetaInspector::ExceptionLog.new(warn_level: warn_level)
       @normalize_url      = options[:normalize_url]
+      @faraday_options    = options[:faraday_options]
       @url                = MetaInspector::URL.new(initial_url, exception_log:      @exception_log,
                                                                 normalize:          @normalize_url)
       @request            = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
@@ -38,7 +40,8 @@ module MetaInspector
                                                                 read_timeout:       @read_timeout,
                                                                 retries:            @retries,
                                                                 exception_log:      @exception_log,
-                                                                headers:            @headers) unless @document
+                                                                headers:            @headers,
+                                                                faraday_options:    @faraday_options) unless @document
       @parser             = MetaInspector::Parser.new(self,     exception_log:      @exception_log,
                                                                 download_images:    @download_images)
     end

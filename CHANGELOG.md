@@ -1,5 +1,18 @@
 # MetaInpector Changelog
 
+## Changes in 4.6
+
+Faraday can be passed options via `:faraday_options`. This is useful in cases where we need to
+customize the way we request the page, like for example disabling SSL verification, like this:
+
+```ruby
+MetaInspector.new('https://example.com')
+# Faraday::SSLError: SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
+
+MetaInpector.new('https://example.com', faraday_options: { ssl: { verify: false } })
+# Now we can access the page
+```
+
 ## [Changes in 4.5](https://github.com/jaimeiniesta/metainspector/compare/v4.4.0...v4.5.0)
 
 * The Document API now includes access to head/link elements

@@ -311,6 +311,21 @@ If you want to override the default headers then use the `headers` option:
 page = MetaInspector.new('example.com', :headers => {'User-Agent' => 'My custom User-Agent'})
 ```
 
+### Disabling SSL verification (or any other Faraday options)
+
+Faraday can be passed options via `:faraday_options`.
+
+This is useful in cases where we need to
+customize the way we request the page, like for example disabling SSL verification, like this:
+
+```ruby
+MetaInspector.new('https://example.com')
+# Faraday::SSLError: SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
+
+MetaInpector.new('https://example.com', faraday_options: { ssl: { verify: false } })
+# Now we can access the page
+```
+
 ### HTML Content Only
 
 MetaInspector will try to parse all URLs by default. If you want to raise an exception when trying to parse a non-html URL (one that has a content-type different than text/html), you can state it like this:
