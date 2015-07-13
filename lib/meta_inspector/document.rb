@@ -55,7 +55,7 @@ module MetaInspector
     delegate [:parsed, :title, :best_title,
               :description, :links,
               :images, :feed, :charset, :meta_tags,
-              :meta_tag, :meta, :favicon,
+              :meta_tag, :meta, :favicon, :language,
               :head_links, :stylesheets, :canonicals] => :@parser
 
     # Returns all document data as a nested Hash
@@ -71,6 +71,7 @@ module MetaInspector
         'links'         => links.to_hash,
         'images'        => images.to_a,
         'charset'       => charset,
+        'language'      => language,
         'feed'          => feed,
         'content_type'  => content_type,
         'meta_tags'     => meta_tags,

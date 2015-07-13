@@ -14,7 +14,7 @@ Age: 0
 Via: 1.1 varnish
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
   <meta charset=utf-8>
   <link rel="alternate" type="application/rss+xml" title="PageRankAlert.com blog" href="http://feeds.feedburner.com/PageRankAlert" />
