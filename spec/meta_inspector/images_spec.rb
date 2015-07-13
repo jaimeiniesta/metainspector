@@ -110,10 +110,54 @@ describe MetaInspector do
       expect(page.images.owner_suggested).to eq("http://i2.ytimg.com/vi/iaGSSrp49uc/mqdefault.jpg")
     end
 
+    it "should absolutify image" do
+      page = MetaInspector.new('http://www.24-horas.mx/mexico-firma-acuerdo-bilateral-automotriz-con-argentina/')
+
+      expect(page.images.owner_suggested).to eq("http://www.24-horas.mx/wp-content/uploads/2015/03/50316106.jpg")
+    end
+
     it "should return nil when og:image and twitter:image metatags are missing" do
       page = MetaInspector.new('http://example.com/largest_image_using_image_size')
 
       expect(page.images.owner_suggested).to be nil
+    end
+  end
+
+  describe "images.with_size" do
+    it "should return sorted by area array of [img_url, width, height] using html sizes" do
+      page = MetaInspector.new('http://example.com/largest_image_in_html')
+
+      expect(page.images.with_size).to eq([
+        ["http://example.com/largest", 100, 100],
+        ["http://example.com/too_narrow", 10, 100],
+        ["http://example.com/too_wide", 100, 10],
+        ["http://example.com/smaller", 10, 10],
+        ["http://example.com/smallest", 1, 1]
+      ])
+    end
+
+    it "should return sorted by area array of [img_url, width, height] using actual image sizes" do
+      page = MetaInspector.new('http://example.com/largest_image_using_image_size')
+
+      expect(page.images.with_size).to eq([
+        ["http://example.com/100x100", 100, 100],
+        ["http://example.com/10x100", 10, 100],
+        ["http://example.com/100x10", 100, 10],
+        ["http://example.com/10x10", 10, 10],
+        ["http://example.com/1x1", 1, 1]
+      ])
+    end
+
+    it "should return sorted by area array of [img_url, width, height] without downloading images" do
+      page = MetaInspector.new('http://example.com/largest_image_using_image_size', download_images: false)
+
+      expect(page.images.with_size).to eq([
+        ["http://example.com/10x100", 10, 100],
+        ["http://example.com/100x10", 100, 10],
+        ["http://example.com/1x1", 1, 1],
+        ["http://example.com/10x10", 0, 0],
+        ["http://example.com/100x100", 0, 0]
+      ])
     end
   end
 
@@ -166,6 +210,28 @@ describe MetaInspector do
       page = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
 
       expect(page.images.favicon).to eq(nil)
+    end
+  end
+
+  describe 'protocol-relative' do
+    before(:each) do
+      @m_http   = MetaInspector.new('http://protocol-relative.com')
+      @m_https  = MetaInspector.new('https://protocol-relative.com')
+    end
+
+    it 'should unrelativize images' do
+      expect(@m_http.images.to_a).to eq(['http://example.com/image.jpg'])
+      expect(@m_https.images.to_a).to eq(['https://example.com/image.jpg'])
+    end
+
+    it 'should unrelativize owner suggested image' do
+      expect(@m_http.images.owner_suggested).to eq('http://static-secure.guim.co.uk/sys-images/Guardian/Pix/pictures/2011/8/8/1312810126887/gu_192x115.jpg')
+      expect(@m_https.images.owner_suggested).to eq('https://static-secure.guim.co.uk/sys-images/Guardian/Pix/pictures/2011/8/8/1312810126887/gu_192x115.jpg')
+    end
+
+    it 'should unrelativize favicon' do
+      expect(@m_http.images.favicon).to eq('http://static-secure.guim.co.uk/sys-images/favicon.ico')
+      expect(@m_https.images.favicon).to eq('https://static-secure.guim.co.uk/sys-images/favicon.ico')
     end
   end
 end

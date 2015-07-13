@@ -160,7 +160,7 @@ describe MetaInspector::Document do
   describe 'headers' do
     it "should include default headers" do
       url = "http://pagerankalert.com/"
-      expected_headers = {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
+      expected_headers = {'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)", 'Accept-Encoding' => 'identity'}
 
       headers = {}
       expect(headers).to receive(:merge!).with(expected_headers)

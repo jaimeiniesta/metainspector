@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'nokogiri', '~> 1.6'
   gem.add_dependency 'faraday', '~> 0.9.0'
-  gem.add_dependency 'faraday_middleware', '~> 0.9.1'
+  gem.add_dependency 'faraday_middleware', '~> 0.10'
   gem.add_dependency 'faraday-cookie_jar', '~> 0.0.6'
   gem.add_dependency 'addressable', '~> 2.3.5'
   gem.add_dependency 'fastimage'

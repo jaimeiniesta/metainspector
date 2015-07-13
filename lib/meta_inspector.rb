@@ -7,6 +7,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parse
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/base'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/images'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/links'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/head_links'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/meta_tags'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/texts'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/document'))

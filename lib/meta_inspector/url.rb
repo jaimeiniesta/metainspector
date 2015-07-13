@@ -27,21 +27,35 @@ module MetaInspector
       "#{scheme}://#{host}/"
     end
 
+    WELL_KNOWN_TRACKING_PARAMS = %w( utm_source utm_medium utm_term utm_content utm_campaign )
+
+    def tracked?
+      u = parsed(url)
+      found_tracking_params = WELL_KNOWN_TRACKING_PARAMS & u.query_values.keys
+      return found_tracking_params.any?
+    end
+
+    def untracked_url
+      u = parsed(url)
+      u.query_values = u.query_values.delete_if { |key, _| WELL_KNOWN_TRACKING_PARAMS.include? key }
+      u.to_s
+    end
+
+    def untrack!
+      self.url = untracked_url
+    end
+
     def url=(new_url)
       url  = with_default_scheme(new_url)
       @url = @normalize ? normalized(url) : url
-    end
-
-    # Converts a protocol-relative url to its full form,
-    # depending on the scheme of the page that contains it
-    def self.unrelativize(url, scheme)
-      url =~ /^\/\// ? "#{scheme}://#{url[2..-1]}" : url
     end
 
     # Converts a relative URL to an absolute URL, like:
     #   "/faq" => "http://example.com/faq"
     # Respecting already absolute URLs like the ones starting with
     #   http:, ftp:, telnet:, mailto:, javascript: ...
+    # Protocol-relative URLs are also resolved to use the same
+    # schema as the base_url
     def self.absolutify(url, base_url)
       if url =~ /^\w*\:/i
         MetaInspector::URL.new(url).url
@@ -67,6 +81,9 @@ module MetaInspector
     # add trailing slash, convert to downcase...
     def normalized(url)
       Addressable::URI.parse(url).normalize.to_s
+    rescue Addressable::URI::InvalidURIError => e
+      @exception_log << e
+      nil
     end
 
     def parsed(url)

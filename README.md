@@ -8,52 +8,6 @@ You give it an URL, and it lets you easily get its title, links, images, charset
 
 You can try MetaInspector live at this little demo: [https://metainspectordemo.herokuapp.com](https://metainspectordemo.herokuapp.com)
 
-## Changes in 4.3
-
-* The Document API has been extended with one new method `page.best_title` that returns the longest text available from a selection of candidates.
-* `to_hash` now includes `scheme`, `host`, `root_url`, `best_title` and `description`.
-
-## Changes in 4.2
-
-* The images API has been extended, with two new methods:
-
-  * `page.images.owner_suggested` returns the OG or Twitter image, or `nil` if neither are present.
-  * `page.images.largest` returns the largest image found in the page. This uses the HTML height and width attributes as well as the [fastimage](https://github.com/sdsykes/fastimage) gem to return the largest image on the page that has a ratio squarer than 1:10 or 10:1. This usually provides a good alternative to the OG or Twitter images if they are not supplied.
-
-* The criteria for `page.images.best` has changed slightly, we'll now return the largest image instead of the first image if no owner-suggested image is found.
-
-## Changes in 4.1
-
-* Introduces the `:normalize_url` option, which allows to disable URL normalization.
-
-## Changes in 4.0
-
-* The links API has been changed, now instead of `page.links`, `page.internal_links` and `page.external_links` we have:
-
-```ruby
-page.links.raw      # Returns all links found, unprocessed
-page.links.all      # Returns all links found, unrelavitized and absolutified
-page.links.http     # Returns all HTTP links found
-page.links.non_http # Returns all non-HTTP links found
-page.links.internal # Returns all internal HTTP links found
-page.links.external # Returns all external HTTP links found
-```
-
-* The images API has been changed, now instead of `page.image` we have `page.images.best`, and instead of `page.favicon` we have `page.images.favicon`.
-
-* Now `page.image` will return the first image in `page.images` if no OG or Twitter image found, instead of returning `nil`.
-
-* You can now specify 2 different timeouts, `connection_timeout` and `read_timeout`, instead of the previous single `timeout`.
-
-## Changes in 3.0
-
-* The redirect API has been changed, now the `:allow_redirections` option will expect only a boolean, which by default is `true`. That is, no more specifying `:safe`, `:unsafe` or `:all`.
-* We've dropped support for Ruby < 2.
-
-Also, we've introduced a new feature:
-
-* Persist cookies across redirects. Now MetaInspector will include the received cookies when following redirects. This fixes some cases where a redirect would fail, sometimes caught in a redirection loop.
-
 ## Installation
 
 Install the gem from RubyGems:
@@ -87,48 +41,73 @@ page = MetaInspector.new('sitevalidator.com')
 You can also include the html which will be used as the document to scrape:
 
 ```ruby
-page = MetaInspector.new("http://sitevalidator.com", :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>")
+page = MetaInspector.new("http://sitevalidator.com",
+                         :document => "<html>...</html>")
 ```
 
-## Accessing response status and headers
+## Accessing response
 
 You can check the status and headers from the response like this:
 
 ```ruby
 page.response.status  # 200
-page.response.headers # { "server"=>"nginx", "content-type"=>"text/html; charset=utf-8", "cache-control"=>"must-revalidate, private, max-age=0", ... }
+page.response.headers # { "server"=>"nginx", "content-type"=>"text/html; charset=utf-8",
+                      #   "cache-control"=>"must-revalidate, private, max-age=0", ... }
 ```
 
 ## Accessing scraped data
 
-You can see the scraped data like this:
+### URL
 
 ```ruby
 page.url                 # URL of the page
+page.tracked?            # returns true if the url contains known tracking parameters
+page.untracked_url       # returns the url with the known tracking parameters removed
+page.untrack!            # removes the known tracking parameters from the url
 page.scheme              # Scheme of the page (http, https)
 page.host                # Hostname of the page (like, sitevalidator.com, without the scheme)
 page.root_url            # Root url (scheme + host, like http://sitevalidator.com/)
+```
+
+### Head links
+
+```ruby
+page.head_links          # an array of hashes of all head/links
+page.stylesheets         # an array of hashes of all head/links where rel='stylesheet'
+page.canonicals          # an array of hashes of all head/links where rel='canonical'
+page.feed                # Get rss or atom links in meta data fields as array
+```
+
+### Texts
+
+```ruby
 page.title               # title of the page from the head section, as string
 page.best_title          # best title of the page, from a selection of candidates
+page.description         # returns the meta description, or the first long paragraph if no meta description is found
+```
+
+### Links
+
+```ruby
 page.links.raw           # every link found, unprocessed
 page.links.all           # every link found on the page as an absolute URL
 page.links.http          # every HTTP link found
 page.links.non_http      # every non-HTTP link found
 page.links.internal      # every internal link found on the page as an absolute URL
 page.links.external      # every external link found on the page as an absolute URL
-page.meta['keywords']    # meta keywords, as string
-page.meta['description'] # meta description, as string
-page.description         # returns the meta description, or the first long paragraph if no meta description is found
-page.images              # enumerable collection, with every img found on the page as an absolute URL
-page.images.best         # Most relevant image, if defined with the og:image or twitter:image metatags. Fallback to the first page.images array element
-page.images.favicon      # absolute URL to the favicon
-page.feed                # Get rss or atom links in meta data fields as array
-page.language            # Get language of site en-US / de
-page.charset             # UTF-8
-page.content_type        # content-type returned by the server when the url was requested
 ```
 
-## Meta tags
+### Images
+
+```ruby
+page.images              # enumerable collection, with every img found on the page as an absolute URL
+page.images.with_size    # a sorted array (by descending area) of [image_url, width, height]
+page.images.best         # Most relevant image, if defined with the og:image or twitter:image metatags. Fallback to the first page.images array element
+page.images.favicon      # absolute URL to the favicon
+page.language            # Get language of site en-US / de
+```
+
+### Meta tags
 
 When it comes to meta tags, you have several options:
 
@@ -243,6 +222,13 @@ page.meta['author']     # Returns "Joe Sample"
 
 Please be aware that all keys are converted to downcase, so it's `'dc.date.issued'` and not `'DC.date.issued'`.
 
+### Misc
+
+```ruby
+page.charset             # UTF-8
+page.content_type        # content-type returned by the server when the url was requested
+```
+
 ## Other representations
 
 You can also access most of the scraped data as a hash:
@@ -314,14 +300,34 @@ page = MetaInspector.new('facebook.com', :allow_redirections => false)
 By default, the following headers are set:
 
 ```ruby
-{'User-Agent' => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)"}
+{
+  'User-Agent'      => "MetaInspector/#{MetaInspector::VERSION} (+https://github.com/jaimeiniesta/metainspector)",
+  'Accept-Encoding' => 'identity'
+}
 ```
 
-If you want to set custom headers then use the `headers` option:
+The `Accept-Encoding` is set to `identity` to avoid exceptions being raised on servers that return malformed compressed responses, [as explained here](https://github.com/lostisland/faraday/issues/337).
+
+If you want to override the default headers then use the `headers` option:
 
 ```ruby
 # Set the User-Agent header
 page = MetaInspector.new('example.com', :headers => {'User-Agent' => 'My custom User-Agent'})
+```
+
+### Disabling SSL verification (or any other Faraday options)
+
+Faraday can be passed options via `:faraday_options`.
+
+This is useful in cases where we need to
+customize the way we request the page, like for example disabling SSL verification, like this:
+
+```ruby
+MetaInspector.new('https://example.com')
+# Faraday::SSLError: SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
+
+MetaInpector.new('https://example.com', faraday_options: { ssl: { verify: false } })
+# Now we can access the page
 ```
 
 ### HTML Content Only
@@ -417,7 +423,6 @@ You're more than welcome to fork this project and send pull requests. Just remem
 * Create a topic branch for your changes.
 * Add specs.
 * Keep your fake responses as small as possible. For each change in `spec/fixtures`, a comment should be included explaining why it's needed.
-* Update `version.rb`, following the [semantic versioning convention](http://semver.org/).
 * Update `README.md` if needed (for example, when you're adding or changing a feature).
 
 Thanks to all the contributors:

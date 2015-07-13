@@ -14,8 +14,7 @@ module MetaInspector
 
       # Returns all links found, unrelavitized and absolutified
       def all
-        @all ||= raw.map { |link| URL.absolutify(URL.unrelativize(link, scheme), base_url) }
-                    .compact.uniq
+        @all ||= raw.map { |link| URL.absolutify(link, base_url) }.compact.uniq
       end
 
       # Returns all HTTP links found
@@ -44,23 +43,11 @@ module MetaInspector
           'non_http' => non_http }
       end
 
-      # Returns the parsed document meta rss link
-      def feed
-        @feed ||= (parsed_feed('rss') || parsed_feed('atom'))
-      end
-
       # Returns the base url to absolutify relative links.
       # This can be the one set on a <base> tag,
       # or the url of the document if no <base> tag was found.
       def base_url
         base_href || url
-      end
-
-      private
-
-      def parsed_feed(format)
-        feed = parsed.search("//link[@type='application/#{format}+xml']").first
-        feed ? URL.absolutify(feed.attributes['href'].value, base_url) : nil
       end
 
       # Returns the value of the href attribute on the <base /> tag, if exists

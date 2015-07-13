@@ -18,6 +18,7 @@ module MetaInspector
     #   Can be :warn, :raise or nil
     # * headers: object containing custom headers for the request
     # * normalize_url: true by default
+    # * faraday_options: an optional hash of options to pass to Faraday on the request
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
       @connection_timeout = options[:connection_timeout]
@@ -31,6 +32,7 @@ module MetaInspector
       @warn_level         = options[:warn_level]
       @exception_log      = options[:exception_log] || MetaInspector::ExceptionLog.new(warn_level: warn_level)
       @normalize_url      = options[:normalize_url]
+      @faraday_options    = options[:faraday_options]
       @url                = MetaInspector::URL.new(initial_url, exception_log:      @exception_log,
                                                                 normalize:          @normalize_url)
       @request            = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
@@ -38,20 +40,23 @@ module MetaInspector
                                                                 read_timeout:       @read_timeout,
                                                                 retries:            @retries,
                                                                 exception_log:      @exception_log,
-                                                                headers:            @headers) unless @document
+                                                                headers:            @headers,
+                                                                faraday_options:    @faraday_options) unless @document
       @parser             = MetaInspector::Parser.new(self,     exception_log:      @exception_log,
                                                                 download_images:    @download_images)
     end
 
     extend Forwardable
-    delegate [:url, :scheme, :host, :root_url]        => :@url
+    delegate [:url, :scheme, :host, :root_url,
+              :tracked?, :untracked_url, :untrack!]   => :@url
 
     delegate [:content_type, :response]               => :@request
 
     delegate [:parsed, :title, :best_title,
               :description, :links,
               :images, :feed, :charset, :meta_tags,
-              :meta_tag, :meta, :favicon, :language]             => :@parser
+              :meta_tag, :meta, :favicon, :language,
+              :head_links, :stylesheets, :canonicals] => :@parser
 
     # Returns all document data as a nested Hash
     def to_hash
@@ -88,7 +93,10 @@ module MetaInspector
         :retries            => 3,
         :html_content_only  => false,
         :warn_level         => :raise,
-        :headers            => { 'User-Agent' => default_user_agent },
+        :headers            => {
+                                 'User-Agent'      => default_user_agent,
+                                 'Accept-Encoding' => 'identity'
+                               },
         :allow_redirections => true,
         :normalize_url      => true,
         :download_images    => true }
