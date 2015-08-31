@@ -107,4 +107,3 @@ FakeWeb.register_uri(:get, "http://unsafe-facebook.com/",   :response => fixture
 # These examples are used to test normalize URLs
 FakeWeb.register_uri(:get, "http://example.com/%EF%BD%9E", :response => fixture_file("example.response"))
 FakeWeb.register_uri(:get, "http://example.com/~", :response => fixture_file("example.response"))
-

@@ -96,7 +96,7 @@ describe MetaInspector do
         it "should not crash when processing malformed hrefs" do
           m = MetaInspector.new('http://example.com/malformed_href')
           expect(m.links.non_http).to eq(["skype:joeuser?call", "telnet://telnet.cdrom.com", "javascript:alert('ok');",
-                                        "javascript://", "mailto:email(at)example.com"])
+                                          "tel:08%208267%203255", "javascript://", "mailto:email(at)example.com"])
         end
       end
     end

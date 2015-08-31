@@ -58,7 +58,7 @@ module MetaInspector
     # schema as the base_url
     def self.absolutify(url, base_url)
       if url =~ /^\w*\:/i
-        MetaInspector::URL.new(url).url
+        MetaInspector::URL.new(url, exception_log: MetaInspector::ExceptionLog.new(warn_level: :store)).url
       else
         Addressable::URI.join(base_url, url).normalize.to_s
       end
