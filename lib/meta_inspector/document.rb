@@ -33,6 +33,7 @@ module MetaInspector
       @exception_log      = options[:exception_log] || MetaInspector::ExceptionLog.new(warn_level: warn_level)
       @normalize_url      = options[:normalize_url]
       @faraday_options    = options[:faraday_options]
+      @faraday_cache_opts = options[:faraday_cache_options]
       @url                = MetaInspector::URL.new(initial_url, exception_log:      @exception_log,
                                                                 normalize:          @normalize_url)
       @request            = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
@@ -41,7 +42,8 @@ module MetaInspector
                                                                 retries:            @retries,
                                                                 exception_log:      @exception_log,
                                                                 headers:            @headers,
-                                                                faraday_options:    @faraday_options) unless @document
+                                                                faraday_options:    @faraday_options,
+                                                                faraday_cache_opts: @faraday_cache_opts) unless @document
       @parser             = MetaInspector::Parser.new(self,     exception_log:      @exception_log,
                                                                 download_images:    @download_images)
     end

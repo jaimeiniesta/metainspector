@@ -1,6 +1,7 @@
 require 'faraday'
 require 'faraday_middleware'
 require 'faraday-cookie_jar'
+require 'faraday-http-cache'
 
 module MetaInspector
 
@@ -18,6 +19,7 @@ module MetaInspector
       @exception_log      = options[:exception_log]
       @headers            = options[:headers]
       @faraday_options    = options[:faraday_options] || {}
+      @faraday_cache_opts = options[:faraday_cache_opts]
 
       response            # request early so we can fail early
     end
@@ -53,6 +55,11 @@ module MetaInspector
         if @allow_redirections
           faraday.use FaradayMiddleware::FollowRedirects, limit: 10
           faraday.use :cookie_jar
+        end
+
+        if @faraday_cache_opts.is_a?(Hash)
+          @faraday_cache_opts[:serializer] ||= Marshal
+          faraday.use Faraday::HttpCache, @faraday_cache_opts
         end
 
         faraday.headers.merge!(@headers || {})
