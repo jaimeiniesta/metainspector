@@ -31,18 +31,21 @@ module MetaInspector
 
     def tracked?
       u = parsed(url)
+      return false unless u.query_values
       found_tracking_params = WELL_KNOWN_TRACKING_PARAMS & u.query_values.keys
       return found_tracking_params.any?
     end
 
     def untracked_url
       u = parsed(url)
-      u.query_values = u.query_values.delete_if { |key, _| WELL_KNOWN_TRACKING_PARAMS.include? key }
+      return url unless u.query_values
+      query_values = u.query_values.delete_if { |key, _| WELL_KNOWN_TRACKING_PARAMS.include? key }
+      u.query_values = query_values.length > 0 ? query_values : nil
       u.to_s
     end
 
     def untrack!
-      self.url = untracked_url
+      self.url = untracked_url if tracked?
     end
 
     def url=(new_url)
