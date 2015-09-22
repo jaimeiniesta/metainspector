@@ -19,7 +19,7 @@ module MetaInspector
       @exception_log      = options[:exception_log]
       @headers            = options[:headers]
       @faraday_options    = options[:faraday_options] || {}
-      @faraday_cache_opts = options[:faraday_cache_opts]
+      @faraday_http_cache = options[:faraday_http_cache]
 
       response            # request early so we can fail early
     end
@@ -57,9 +57,9 @@ module MetaInspector
           faraday.use :cookie_jar
         end
 
-        if @faraday_cache_opts.is_a?(Hash)
-          @faraday_cache_opts[:serializer] ||= Marshal
-          faraday.use Faraday::HttpCache, @faraday_cache_opts
+        if @faraday_http_cache.is_a?(Hash)
+          @faraday_http_cache[:serializer] ||= Marshal
+          faraday.use Faraday::HttpCache, @faraday_http_cache
         end
 
         faraday.headers.merge!(@headers || {})

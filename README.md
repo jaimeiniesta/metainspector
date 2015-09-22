@@ -376,11 +376,11 @@ page = MetaInspector.new('http://example.com', download_images: false)
 
 ### Caching responses
 
-MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_cache_options` option with at least the `:store` key, for example:
+MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option with at least the `:store` key, for example:
 
 ```ruby
 cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
-page = MetaInspector.new('http://example.com', faraday_cache_options: { store: cache })
+page = MetaInspector.new('http://example.com', faraday_http_cache: { store: cache })
 ```
 
 ## Exception Handling

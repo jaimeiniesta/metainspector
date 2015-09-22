@@ -11,7 +11,7 @@ describe MetaInspector do
     def cache.read(k) self[k]; end
     def cache.write(k, v) self[k] = v; end
 
-    expect(MetaInspector.new('http://example.com', warn_level: :store, faraday_cache_options: { store: cache })).to be_ok
+    expect(MetaInspector.new('http://example.com', warn_level: :store, faraday_http_cache: { store: cache })).to be_ok
 
     expect(cache.keys).not_to be_empty
   end
