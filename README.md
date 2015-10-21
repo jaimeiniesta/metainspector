@@ -374,6 +374,15 @@ If you want to disable this, you can specify it like this:
 page = MetaInspector.new('http://example.com', download_images: false)
 ```
 
+### Caching responses
+
+MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option with at least the `:store` key, for example:
+
+```ruby
+cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
+page = MetaInspector.new('http://example.com', faraday_http_cache: { store: cache })
+```
+
 ## Exception Handling
 
 By default, MetaInspector will raise the exceptions found. We think that this is the safest default: in case the URL you're trying to scrape is unreachable, you should clearly be notified, and treat the exception as needed in your app.
