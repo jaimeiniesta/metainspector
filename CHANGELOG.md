@@ -1,5 +1,14 @@
 # MetaInpector Changelog
 
+## [Changes in 4.7](https://github.com/jaimeiniesta/metainspector/compare/v4.6.0...v4.7.0)
+
+MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option with at least the `:store` key, for example:
+
+```ruby
+cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
+page = MetaInspector.new('http://example.com', faraday_http_cache: { store: cache })
+```
+
 ## [Changes in 4.6](https://github.com/jaimeiniesta/metainspector/compare/v4.5.0...v4.6.0)
 
 Faraday can be passed options via `:faraday_options`. This is useful in cases where we need to
