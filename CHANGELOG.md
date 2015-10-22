@@ -1,6 +1,6 @@
 # MetaInpector Changelog
 
-## [Changes in 4.7](https://github.com/jaimeiniesta/metainspector/compare/v4.6.0...v4.7.0)
+## [Changes in 4.7](https://github.com/jaimeiniesta/metainspector/compare/v4.6.0...v4.7.1)
 
 MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option with at least the `:store` key, for example:
 
@@ -8,6 +8,11 @@ MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/p
 cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
 page = MetaInspector.new('http://example.com', faraday_http_cache: { store: cache })
 ```
+
+Bugfixes:
+
+* Parsing of the document is done as soon as it is initialized (just like we do with the request), so
+that parsing errors will be catched earlier.
 
 ## [Changes in 4.6](https://github.com/jaimeiniesta/metainspector/compare/v4.5.0...v4.6.0)
 

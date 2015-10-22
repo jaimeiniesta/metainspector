@@ -393,6 +393,21 @@ You can also set the `warn_level: :store` option so that exceptions found will b
 
 You should avoid using the `:store` option, or use it wisely, as silencing errors can be problematic, it's always better to face the errors and treat them accordingly.
 
+If you're using this exception store, you're advised to first initialize the document, check if it seems OK, and then proceed with the extractions, like this:
+
+```ruby
+# This will fail because the URL will return a text/xml document
+page = MetaInspector.new("http://example.com/rss",
+                          html_content_only: true,
+                          warn_level: :store )
+
+if page.ok?
+  puts "TITLE: #{page.title}"
+else
+  puts "There were some exceptions: #{page.exceptions}"
+end
+```
+
 ## Examples
 
 You can find some sample scripts on the `examples` folder, including a basic scraping and a spider that will follow external links using a queue. What follows is an example of use from irb:
