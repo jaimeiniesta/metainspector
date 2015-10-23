@@ -13,6 +13,7 @@ Bugfixes:
 
 * Parsing of the document is done as soon as it is initialized (just like we do with the request), so
 that parsing errors will be catched earlier.
+* Rescues from Faraday::SSLError.
 
 ## [Changes in 4.6](https://github.com/jaimeiniesta/metainspector/compare/v4.5.0...v4.6.0)
 
