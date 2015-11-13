@@ -22,6 +22,25 @@ describe MetaInspector do
       end
     end
 
+    context "when there are too many redirects" do
+      before(:all) { WebMock.enable! }
+      after(:all)  { WebMock.disable! }
+
+      before do
+        12.times { |i| register_redirect(i, i+1) }
+      end
+
+      let(:perform_request) do
+        MetaInspector.new("http://example.org/1", exception_log: logger)
+      end
+
+      it "it raises an error" do
+        expect {
+          perform_request
+        }.to raise_error FaradayMiddleware::RedirectLimitReached
+      end
+    end
+
     context "when there are cookies required for proper redirection" do
       before(:all) { WebMock.enable! }
       after(:all)  { WebMock.disable! }
@@ -44,5 +63,12 @@ describe MetaInspector do
         expect(page.url).to eq("http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/?nclick_check=1")
       end
     end
+  end
+
+  private
+
+  def register_redirect(from, to)
+    stub_request(:get, "http://example.org/#{from}")
+      .to_return(:status => 302, :body => "", :headers => { "Location" => "http://example.org/#{to}" })
   end
 end
