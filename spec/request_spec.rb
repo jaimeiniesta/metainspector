@@ -61,7 +61,7 @@ describe MetaInspector::Request do
 
       expect do
         MetaInspector::Request.new(url('http://example.com/fail'))
-      end.to raise_error(Faraday::Error::ConnectionFailed)
+      end.to raise_error(MetaInspector::RequestError)
     end
   end
 

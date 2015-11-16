@@ -113,13 +113,13 @@ describe MetaInspector::URL do
     it "detects empty URLs" do
       expect do
         MetaInspector::URL.new('')
-      end.to raise_error(Addressable::URI::InvalidURIError)
+      end.to raise_error(MetaInspector::ParserError)
     end
 
     it "detects incomplete URLs" do
       expect do
         MetaInspector::URL.new('http:')
-      end.to raise_error(Addressable::URI::InvalidURIError)
+      end.to raise_error(MetaInspector::ParserError)
     end
   end
 end

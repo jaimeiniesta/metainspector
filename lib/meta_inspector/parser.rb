@@ -31,8 +31,6 @@ module MetaInspector
     # Returns the whole parsed document
     def parsed
       @parsed ||= Nokogiri::HTML(@document.to_s)
-    rescue Exception => e
-      fail e
     end
   end
 end

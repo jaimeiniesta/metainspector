@@ -101,12 +101,10 @@ module MetaInspector
 
     def document
       @document ||= if html_content_only && content_type != 'text/html'
-                      fail "The url provided contains #{content_type} content instead of text/html content"
+                      fail MetaInspector::ParserError.new "The url provided contains #{content_type} content instead of text/html content"
                     else
                       @request.read
                     end
-    rescue Exception => e
-      fail e
     end
   end
 end

@@ -94,7 +94,7 @@ describe MetaInspector::Document do
         image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true)
 
         image_url.title
-      end.to raise_error(RuntimeError)
+      end.to raise_error(MetaInspector::ParserError)
     end
 
     it "should handle errors when content is not text/html and html_content_type_only is true" do
@@ -102,7 +102,7 @@ describe MetaInspector::Document do
         tar_url = MetaInspector::Document.new('http://pagerankalert.com/file.tar.gz', html_content_only: true)
 
         tar_url.title
-      end.to raise_error(RuntimeError)
+      end.to raise_error(MetaInspector::ParserError)
     end
   end
 
