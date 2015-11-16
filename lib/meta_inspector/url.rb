@@ -4,12 +4,9 @@ module MetaInspector
   class URL
     attr_reader :url
 
-    include MetaInspector::Exceptionable
-
     def initialize(initial_url, options = {})
       options        = defaults.merge(options)
 
-      @exception_log = options[:exception_log]
       @normalize     = options[:normalize]
 
       self.url = initial_url
@@ -61,7 +58,7 @@ module MetaInspector
     # schema as the base_url
     def self.absolutify(url, base_url)
       if url =~ /^\w*\:/i
-        MetaInspector::URL.new(url, exception_log: MetaInspector::ExceptionLog.new(warn_level: :store)).url
+        MetaInspector::URL.new(url).url
       else
         Addressable::URI.join(base_url, url).normalize.to_s
       end
@@ -85,15 +82,13 @@ module MetaInspector
     def normalized(url)
       Addressable::URI.parse(url).normalize.to_s
     rescue Addressable::URI::InvalidURIError => e
-      @exception_log << e
-      nil
+      fail e
     end
 
     def parsed(url)
       Addressable::URI.parse(url)
     rescue Addressable::URI::InvalidURIError => e
-      @exception_log << e
-      nil
+      fail e
     end
   end
 end

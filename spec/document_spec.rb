@@ -75,83 +75,34 @@ describe MetaInspector::Document do
   end
 
   describe 'exception handling' do
-    let(:logger) { MetaInspector::ExceptionLog.new }
-
     it "should parse images when parse_html_content_type_only is not specified" do
-      expect(logger).not_to receive(:<<)
-
-      image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', exception_log: logger)
-      image_url.title
+      expect do
+        image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png')
+        image_url.title
+      end.to_not raise_error
     end
 
     it "should parse images when parse_html_content_type_only is false" do
-      expect(logger).not_to receive(:<<)
-
-      image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: false, exception_log: logger)
-      image_url.title
+      expect do
+        image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: false)
+        image_url.title
+      end.to_not raise_error
     end
 
     it "should handle errors when content is image/jpeg and html_content_type_only is true" do
-      expect(logger).to receive(:<<).with(an_instance_of(RuntimeError))
+      expect do
+        image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true)
 
-      image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, exception_log: logger)
-
-      image_url.title
+        image_url.title
+      end.to raise_error(RuntimeError)
     end
 
     it "should handle errors when content is not text/html and html_content_type_only is true" do
-      expect(logger).to receive(:<<).with(an_instance_of(RuntimeError))
+      expect do
+        tar_url = MetaInspector::Document.new('http://pagerankalert.com/file.tar.gz', html_content_only: true)
 
-      tar_url = MetaInspector::Document.new('http://pagerankalert.com/file.tar.gz', html_content_only: true, exception_log: logger)
-
-      tar_url.title
-    end
-
-    context 'when a warn_level of :store is passed in' do
-      before do
-        @bad_request = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :store)
-        @bad_request.title
-      end
-
-      it 'stores the exceptions' do
-        expect(@bad_request.exceptions).not_to be_empty
-      end
-
-      it 'makes ok? to return false' do
-        expect(@bad_request).not_to be_ok
-      end
-    end
-
-    context 'when a warn_level of :warn is passed in' do
-      before do
-        $stderr = StringIO.new
-      end
-
-      after do
-        $stderr = STDERR
-      end
-
-      it 'warns on STDERR' do
-        bad_request = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :warn)
-        bad_request.title
-
-        $stderr.rewind
-        expect($stderr.string.chomp).to eq("The url provided contains image/png content instead of text/html content")
-      end
-
-      it 'does not raise an exception' do
-        expect {
-          bad_request = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :warn)
-          bad_request.title
-        }.to_not raise_exception
-      end
-
-      it 'does not store exceptions' do
-        bad_request = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true, warn_level: :warn)
-        bad_request.title
-
-        expect( bad_request.exceptions ).to be_empty
-      end
+        tar_url.title
+      end.to raise_error(RuntimeError)
     end
   end
 

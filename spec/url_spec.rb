@@ -110,17 +110,16 @@ describe MetaInspector::URL do
   end
 
   describe "handling malformed URLs" do
-    before(:each) do
-      @logger = double('ExceptionLog')
-      expect(@logger).to receive(:<<)
+    it "detects empty URLs" do
+      expect do
+        MetaInspector::URL.new('')
+      end.to raise_error(Addressable::URI::InvalidURIError)
     end
 
-    it "handles empty URLs" do
-      MetaInspector::URL.new('', exception_log: @logger)
-    end
-
-    it "handles incomplete URLs" do
-      MetaInspector::URL.new('', exception_log: @logger)
+    it "detects incomplete URLs" do
+      expect do
+        MetaInspector::URL.new('http:')
+      end.to raise_error(Addressable::URI::InvalidURIError)
     end
   end
 end

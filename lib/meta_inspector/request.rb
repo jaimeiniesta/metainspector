@@ -7,8 +7,6 @@ module MetaInspector
 
   # Makes the request to the server
   class Request
-    include MetaInspector::Exceptionable
-
     def initialize(initial_url, options = {})
       @url                = initial_url
 
@@ -16,7 +14,6 @@ module MetaInspector
       @connection_timeout = options[:connection_timeout]
       @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
-      @exception_log      = options[:exception_log]
       @headers            = options[:headers]
       @faraday_options    = options[:faraday_options] || {}
       @faraday_http_cache = options[:faraday_http_cache]
@@ -40,8 +37,7 @@ module MetaInspector
       @response ||= fetch
     rescue Faraday::TimeoutError, Faraday::Error::ConnectionFailed, Faraday::SSLError,
            RuntimeError, URI::InvalidURIError => e
-      @exception_log << e
-      nil
+      fail e
     end
 
     private
