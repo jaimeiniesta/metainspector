@@ -35,8 +35,9 @@ module MetaInspector
 
     def response
       @response ||= fetch
-    rescue Faraday::TimeoutError, Faraday::Error::ConnectionFailed, Faraday::SSLError,
-           RuntimeError, URI::InvalidURIError => e
+    rescue Faraday::TimeoutError => e
+      raise MetaInspector::TimeoutError.new(e)
+    rescue Faraday::Error::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError => e
       raise MetaInspector::RequestError.new(e)
     end
 

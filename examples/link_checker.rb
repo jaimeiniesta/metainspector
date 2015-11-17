@@ -90,7 +90,7 @@ class BrokenLinkChecker
     else
       false
     end
-  rescue Exception => e
+  rescue
     false
   end
 end
