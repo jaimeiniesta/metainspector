@@ -64,6 +64,13 @@ describe MetaInspector::Request do
 
       MetaInspector::Request.new(url('http://caca232dsdsaer3sdsd-asd343.org'), exception_log: logger)
     end
+
+    it "should handle ssl errors" do
+      allow(TCPSocket).to receive(:open).and_raise(OpenSSL::SSL::SSLError)
+      expect(logger).to receive(:<<).with(an_instance_of(Faraday::SSLError))
+
+      MetaInspector::Request.new(url('https://example.com'), exception_log: logger)
+    end
   end
 
   private
