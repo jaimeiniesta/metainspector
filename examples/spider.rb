@@ -2,9 +2,10 @@
 #
 # Usage example:
 #
-#   ruby spider.rb jaimeiniesta.com
+#   ruby spider.rb example.com
 
-require 'metainspector'
+require '../lib/metainspector'
+puts "Using MetaInspector #{MetaInspector::VERSION}"
 
 # Two arrays, one for the scraping queue and one for the visited links
 queue   = []

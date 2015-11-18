@@ -2,9 +2,10 @@
 #
 # Usage example:
 #
-#   ruby link_checker.rb alazan.com
+#   ruby link_checker.rb example.com
 
-require 'metainspector'
+require '../lib/metainspector'
+puts "Using MetaInspector #{MetaInspector::VERSION}"
 
 class BrokenLinkChecker
 
@@ -39,11 +40,11 @@ class BrokenLinkChecker
   end
 
   def process_next_on_queue
-    page = MetaInspector.new(@queue.pop, :warn_level => :store)
+    page = MetaInspector.new(@queue.pop)
 
     page.links.all.select {|l| l =~ /^http(s)?:\/\//i}.each do |link|
       check_status(link, page.url)
-    end if page.ok?
+    end
 
     @visited.push(page.url)
 
