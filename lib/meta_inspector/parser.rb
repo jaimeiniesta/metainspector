@@ -8,11 +8,8 @@ module MetaInspector
   # passing itself as a reference for coordination purposes
   #
   class Parser
-    include MetaInspector::Exceptionable
-
     def initialize(document, options = {})
       @document        = document
-      @exception_log   = options[:exception_log]
       @head_links_parser = MetaInspector::Parsers::HeadLinksParser.new(self)
       @meta_tag_parser = MetaInspector::Parsers::MetaTagsParser.new(self)
       @links_parser    = MetaInspector::Parsers::LinksParser.new(self)
@@ -34,8 +31,6 @@ module MetaInspector
     # Returns the whole parsed document
     def parsed
       @parsed ||= Nokogiri::HTML(@document.to_s)
-    rescue Exception => e
-      @exception_log << e
     end
   end
 end

@@ -4,7 +4,8 @@
 #
 #   ruby basic_scraping.rb jaimeiniesta.com
 
-require 'metainspector'
+require '../lib/metainspector'
+puts "Using MetaInspector #{MetaInspector::VERSION}"
 
 # Get the starting URL
 url = ARGV[0] || (puts "Enter an url"; gets.strip)
