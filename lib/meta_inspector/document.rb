@@ -1,7 +1,7 @@
 module MetaInspector
   # A MetaInspector::Document knows about its URL and its contents
   class Document
-    attr_reader :html_content_only, :allow_redirections, :warn_level, :headers
+    attr_reader :html_content_only, :allow_redirections, :headers
 
     # Initializes a new instance of MetaInspector::Document, setting the URL
     # Options:
@@ -25,7 +25,6 @@ module MetaInspector
       @document           = options[:document]
       @download_images    = options[:download_images]
       @headers            = options[:headers]
-      @warn_level         = options[:warn_level]
       @normalize_url      = options[:normalize_url]
       @faraday_options    = options[:faraday_options]
       @faraday_http_cache = options[:faraday_http_cache]
@@ -85,7 +84,6 @@ module MetaInspector
       { :timeout            => 20,
         :retries            => 3,
         :html_content_only  => false,
-        :warn_level         => :raise,
         :headers            => {
                                  'User-Agent'      => default_user_agent,
                                  'Accept-Encoding' => 'identity'
