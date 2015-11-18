@@ -385,28 +385,11 @@ page = MetaInspector.new('http://example.com', faraday_http_cache: { store: cach
 
 ## Exception Handling
 
-By default, MetaInspector will raise the exceptions found. We think that this is the safest default: in case the URL you're trying to scrape is unreachable, you should clearly be notified, and treat the exception as needed in your app.
+Web page scraping is tricky, you can expect to find different exceptions during the request of the page or the parsing of its contents. MetaInspector will encapsulate these exceptions on these main errors:
 
-However, if you prefer you can also set the `warn_level: :warn` option, so that exceptions found will just be warned on the standard output, instead of being raised.
-
-You can also set the `warn_level: :store` option so that exceptions found will be silenced, and left for you to inspect on `page.exceptions`. You can also ask for `page.ok?`, wich will return `true` if no exceptions are stored.
-
-You should avoid using the `:store` option, or use it wisely, as silencing errors can be problematic, it's always better to face the errors and treat them accordingly.
-
-If you're using this exception store, you're advised to first initialize the document, check if it seems OK, and then proceed with the extractions, like this:
-
-```ruby
-# This will fail because the URL will return a text/xml document
-page = MetaInspector.new("http://example.com/rss",
-                          html_content_only: true,
-                          warn_level: :store )
-
-if page.ok?
-  puts "TITLE: #{page.title}"
-else
-  puts "There were some exceptions: #{page.exceptions}"
-end
-```
+* `MetaInspector::TimeoutError`. When fetching a web page has taken too long.
+* `MetaInspector::RequestError`. When there has been an error on the request phase. Examples: page not found, SSL failure, invalid URI.
+* `MetaInspector::ParserError`. When there has been an error parsing the contents of the page. Example: trying to parse an image file.
 
 ## Examples
 
