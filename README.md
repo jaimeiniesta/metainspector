@@ -322,7 +322,7 @@ customize the way we request the page, like for example disabling SSL verificati
 MetaInspector.new('https://example.com')
 # Faraday::SSLError: SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
 
-MetaInpector.new('https://example.com', faraday_options: { ssl: { verify: false } })
+MetaInspector.new('https://example.com', faraday_options: { ssl: { verify: false } })
 # Now we can access the page
 ```
 
