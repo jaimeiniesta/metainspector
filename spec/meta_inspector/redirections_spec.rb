@@ -26,13 +26,9 @@ describe MetaInspector do
         12.times { |i| register_redirect(i, i+1) }
       end
 
-      let(:perform_request) do
-        MetaInspector.new("http://example.org/1")
-      end
-
-      it "it raises an error" do
+      it "raises an error" do
         expect {
-          perform_request
+          MetaInspector.new("http://example.org/1")
         }.to raise_error MetaInspector::RequestError
       end
     end
