@@ -48,8 +48,6 @@ describe MetaInspector::Request do
   end
 
   describe 'exception handling' do
-    let(:logger) { MetaInspector::ExceptionLog.new }
-
     before(:each) do
       FakeWeb.allow_net_connect = true
     end
@@ -60,9 +58,10 @@ describe MetaInspector::Request do
 
     it "should handle socket errors" do
       allow(TCPSocket).to receive(:open).and_raise(SocketError)
-      expect(logger).to receive(:<<).with(an_instance_of(Faraday::Error::ConnectionFailed))
 
-      MetaInspector::Request.new(url('http://caca232dsdsaer3sdsd-asd343.org'), exception_log: logger)
+      expect do
+        MetaInspector::Request.new(url('http://example.com/fail'))
+      end.to raise_error(MetaInspector::RequestError)
     end
 
     it "should handle ssl errors" do

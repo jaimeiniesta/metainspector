@@ -1,9 +1,7 @@
 module MetaInspector
   # A MetaInspector::Document knows about its URL and its contents
   class Document
-    attr_reader :html_content_only, :allow_redirections, :warn_level, :headers
-
-    include MetaInspector::Exceptionable
+    attr_reader :html_content_only, :allow_redirections, :headers
 
     # Initializes a new instance of MetaInspector::Document, setting the URL
     # Options:
@@ -14,8 +12,6 @@ module MetaInspector
     #   content-type is not text/html. Defaults to false.
     # * allow_redirections: when true, follow HTTP redirects. Defaults to true
     # * document: the html of the url as a string
-    # * warn_level: what to do when encountering exceptions.
-    #   Can be :warn, :raise or nil
     # * headers: object containing custom headers for the request
     # * normalize_url: true by default
     # * faraday_options: an optional hash of options to pass to Faraday on the request
@@ -29,23 +25,18 @@ module MetaInspector
       @document           = options[:document]
       @download_images    = options[:download_images]
       @headers            = options[:headers]
-      @warn_level         = options[:warn_level]
-      @exception_log      = options[:exception_log] || MetaInspector::ExceptionLog.new(warn_level: warn_level)
       @normalize_url      = options[:normalize_url]
       @faraday_options    = options[:faraday_options]
       @faraday_http_cache = options[:faraday_http_cache]
-      @url                = MetaInspector::URL.new(initial_url, exception_log:      @exception_log,
-                                                                normalize:          @normalize_url)
+      @url                = MetaInspector::URL.new(initial_url, normalize:          @normalize_url)
       @request            = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
                                                                 connection_timeout: @connection_timeout,
                                                                 read_timeout:       @read_timeout,
                                                                 retries:            @retries,
-                                                                exception_log:      @exception_log,
                                                                 headers:            @headers,
                                                                 faraday_options:    @faraday_options,
                                                                 faraday_http_cache: @faraday_http_cache) unless @document
-      @parser             = MetaInspector::Parser.new(self,     exception_log:      @exception_log,
-                                                                download_images:    @download_images)
+      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images)
     end
 
     extend Forwardable
@@ -93,7 +84,6 @@ module MetaInspector
       { :timeout            => 20,
         :retries            => 3,
         :html_content_only  => false,
-        :warn_level         => :raise,
         :headers            => {
                                  'User-Agent'      => default_user_agent,
                                  'Accept-Encoding' => 'identity'
@@ -109,12 +99,10 @@ module MetaInspector
 
     def document
       @document ||= if html_content_only && content_type != 'text/html'
-                      fail "The url provided contains #{content_type} content instead of text/html content"
+                      fail MetaInspector::ParserError.new "The url provided contains #{content_type} content instead of text/html content"
                     else
                       @request.read
                     end
-    rescue Exception => e
-      @exception_log << e
     end
   end
 end

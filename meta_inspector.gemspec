@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'faraday-http-cache', '~> 1.2.2'
   gem.add_dependency 'addressable', '~> 2.3.5'
   gem.add_dependency 'fastimage'
+  gem.add_dependency 'nesty', '~> 1.0'
 
   gem.add_development_dependency 'rspec', '~> 3.0'
   gem.add_development_dependency 'fakeweb', '1.3.0'
