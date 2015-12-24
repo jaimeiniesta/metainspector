@@ -101,9 +101,9 @@ describe MetaInspector do
       end
     end
 
-    it "should not crash with links that have weird href values" do
+    it "should not crash with links that have weird href values, filtering them out" do
       m = MetaInspector.new('http://example.com/invalid_href')
-      expect(m.links.non_http).to eq(["%3Cp%3Eftp://ftp.cdrom.com", "skype:joeuser?call", "telnet://telnet.cdrom.com"])
+      expect(m.links.non_http).to eq(["skype:joeuser?call", "telnet://telnet.cdrom.com"])
     end
   end
 

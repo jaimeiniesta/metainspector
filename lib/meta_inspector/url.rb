@@ -62,7 +62,7 @@ module MetaInspector
       else
         Addressable::URI.join(base_url, url).normalize.to_s
       end
-    rescue MetaInspector::ParserError
+    rescue MetaInspector::ParserError, Addressable::URI::InvalidURIError
       nil
     end
 
