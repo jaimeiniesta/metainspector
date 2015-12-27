@@ -10,6 +10,8 @@ module MetaInspector
     def initialize(initial_url, options = {})
       @url                = initial_url
 
+      fail MetaInspector::RequestError.new('URL must be HTTP') unless @url.url =~ /http[s]?:\/\//i
+
       @allow_redirections = options[:allow_redirections]
       @connection_timeout = options[:connection_timeout]
       @read_timeout       = options[:read_timeout]

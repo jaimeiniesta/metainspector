@@ -2,6 +2,12 @@ require 'spec_helper'
 
 describe MetaInspector::Request do
 
+  it "raises an error if the URL is non-HTTP" do
+    expect do
+      MetaInspector::Request.new(url('ftp://ftp.example.com'))
+    end.to raise_error(MetaInspector::RequestError)
+  end
+
   describe "read" do
     it "should return the content of the page" do
       page_request = MetaInspector::Request.new(url('http://pagerankalert.com'))
