@@ -22,7 +22,7 @@ If you're using it on a Rails application, just add it to your Gemfile and run `
 gem 'metainspector'
 ```
 
-This gem is tested on Ruby versions 2.0.0 and 2.1.3.
+This gem is tested on Ruby versions 2.0.0, 2.1.8 and 2.2.4.
 
 ## Usage
 
