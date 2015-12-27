@@ -1,5 +1,11 @@
 # MetaInpector Changelog
 
+
+## [Changes in 5.0](https://github.com/jaimeiniesta/metainspector/compare/v4.7.1...v5.0.0)
+
+Removes the ExceptionLog, all exceptions are now encapsulated in our own exception classes and
+always raised.
+
 ## [Changes in 4.7](https://github.com/jaimeiniesta/metainspector/compare/v4.6.0...v4.7.1)
 
 MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option with at least the `:store` key, for example:
