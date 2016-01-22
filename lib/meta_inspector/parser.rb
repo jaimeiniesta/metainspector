@@ -32,5 +32,17 @@ module MetaInspector
     def parsed
       @parsed ||= Nokogiri::HTML(@document.to_s)
     end
+
+    # Returns true if the content type is an image
+    def image?
+      content_type = @document.content_type
+      return unless content_type
+      content_type.start_with? 'image/'
+    end
+
+    # Returns the url currently parsed
+    def url
+      @document.url
+    end
   end
 end

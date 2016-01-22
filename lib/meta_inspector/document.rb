@@ -43,7 +43,7 @@ module MetaInspector
     delegate [:url, :scheme, :host, :root_url,
               :tracked?, :untracked_url, :untrack!]   => :@url
 
-    delegate [:content_type, :response]               => :@request
+    delegate :response                                => :@request
 
     delegate [:parsed, :title, :best_title,
               :description, :links,
@@ -71,6 +71,10 @@ module MetaInspector
         'response'      => { 'status'  => response.status,
                              'headers' => response.headers }
       }
+    end
+
+    def content_type
+      @request && @request.content_type
     end
 
     # Returns the contents of the document as a string
