@@ -68,6 +68,13 @@ describe MetaInspector do
 
       expect(page.images.size).to eq(11)
     end
+
+    it "uses the fetched url as image if content is an image" do
+      url = "http://pagerankalert.com/image.png"
+      page = MetaInspector.new(url)
+
+      expect(page.images.to_a).to eq([url])
+    end
   end
 
   describe "images.best" do
@@ -95,6 +102,12 @@ describe MetaInspector do
       expect(page.images.best).to eq("http://example.com/largest")
     end
 
+    it "uses the fetched url as image if content type is image" do
+      url = "http://pagerankalert.com/image.png"
+      page = MetaInspector.new(url)
+
+      expect(page.images.best).to eq(url)
+    end
   end
 
   describe "images.owner_suggested" do

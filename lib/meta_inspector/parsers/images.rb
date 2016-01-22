@@ -28,6 +28,7 @@ module MetaInspector
       # See doc at http://developers.facebook.com/docs/opengraph/
       # If none found, tries with Twitter image
       def owner_suggested
+        return @main_parser.url if @main_parser.image?
         suggested_img = meta['og:image'] || meta['twitter:image']
         URL.absolutify(suggested_img, base_url) if suggested_img
       end
@@ -79,6 +80,7 @@ module MetaInspector
       private
 
       def images_collection
+        return [@main_parser.url] if @main_parser.image?
         @images_collection ||= absolutified_images
       end
 

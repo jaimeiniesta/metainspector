@@ -6,10 +6,12 @@ module MetaInspector
       # Returns the parsed document title, from the content of the <title> tag
       # within the <head> section.
       def title
+        return nil if @main_parser.image?
         @title ||= parsed.css('head title').inner_text rescue nil
       end
 
       def best_title
+        return nil if @main_parser.image?
         @best_title = meta['og:title'] if @main_parser.host =~ /\.youtube\.com$/
         @best_title ||= find_best_title
       end
@@ -18,6 +20,7 @@ module MetaInspector
       # and if not present will guess by looking at the first paragraph
       # with more than 120 characters
       def description
+        return nil if @main_parser.image?
         meta['description'] || secondary_description
       end
 
