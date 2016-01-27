@@ -34,6 +34,7 @@ module MetaInspector
         ]
         candidates.flatten!
         candidates.compact!
+        candidates.map! { |c| c.search('//script').remove if c.respond_to?(:search); c }
         candidates.map! { |c| (c.respond_to? :inner_text) ? c.inner_text : c }
         candidates.map! { |c| c.strip }
         return nil if candidates.empty?
