@@ -137,4 +137,14 @@ describe MetaInspector::Document do
       expect(MetaInspector.new('http://example.com/%EF%BD%9E', normalize_url: false).url).to eq('http://example.com/%EF%BD%9E')
     end
   end
+
+  describe 'page encoding' do
+    it 'should encode title according to the charset' do
+      expect(MetaInspector.new('http://example-rtl.com/').title).to eq('بالفيديو.. "مصطفى بكري" : انتخابات الائتلاف غير نزيهة وموجهة لفوز أشخاص بعينها')
+    end
+
+    it 'should encode description according to the charset' do
+      expect(MetaInspector.new('http://example-rtl.com/').description).to eq('أعلن النائب مصطفى بكري انسحابه من ائتلاف  دعم مصر  بعد اعتراضه على نتيجة الانتخابات الداخلية للائتلاف، وخسارته فيها، وقال إنه سيترشح غدا على منصب الوكيل بالمجلس')
+    end
+  end
 end
