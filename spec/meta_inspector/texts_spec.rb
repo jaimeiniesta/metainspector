@@ -48,6 +48,10 @@ describe MetaInspector do
       expect(page.best_title).to eq('Angular 2 Forms')
     end
 
+    it "should strip unrelevant content like javascripts" do 
+      page = MetaInspector.new('http://example.com/h1_with_various_tags')
+      expect(page.best_title).to eq('This is the inner text of title')
+    end
   end
 
   describe '#description' do
