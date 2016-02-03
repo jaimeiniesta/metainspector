@@ -346,9 +346,9 @@ page.description   # will return a garbled string
 
 ### Sanitize HTML tags
 
-Sometimes the title of the inspected page there are tags with unrelevant content, e.g. `<script>`. They are removed by MetaInspector by default.
+Sometimes the title of the inspected page contains tags with irrelevant text inside, e.g. `<script>`. They are removed by MetaInspector by default.
 
-However if you would like to keep the content, supply `sanitize_html` option
+However, if you would like to keep the content, supply `sanitize_html` option:
 
 ```ruby
 page = MetaInspector.new('http://example.com/', sanitize_html: false)
