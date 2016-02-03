@@ -5,6 +5,11 @@ module MetaInspector
     class TextsParser < Base
       delegate [:parsed, :meta] => :@main_parser
 
+      def initialize(main_parser, options = {})
+        @sanitize_html = options[:sanitize_html]
+        super(main_parser)
+      end
+
       # Returns the parsed document title, from the content of the <title> tag
       # within the <head> section.
       def title
@@ -36,7 +41,7 @@ module MetaInspector
         ]
         candidates.flatten!
         candidates.compact!
-        candidates.map! { |c| Loofah.xml_fragment(c).scrub!(:prune) }
+        candidates.map! { |c| Loofah.xml_fragment(c).scrub!(:prune) } if @sanitize_html
         candidates.map! { |c| (c.respond_to? :inner_text) ? c.inner_text : c }
         candidates.map! { |c| c.strip }
         return nil if candidates.empty?
