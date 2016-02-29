@@ -2,6 +2,7 @@ require 'faraday'
 require 'faraday_middleware'
 require 'faraday-cookie_jar'
 require 'faraday-http-cache'
+require 'faraday/encoding'
 
 module MetaInspector
 
@@ -62,6 +63,7 @@ module MetaInspector
         end
 
         faraday.headers.merge!(@headers || {})
+        faraday.response :encoding
         faraday.adapter :net_http
       end
 

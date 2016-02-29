@@ -1,0 +1,27 @@
+HTTP/1.1 200 OK
+Server: nginx admin
+Date: Mon, 01 Feb 2016 16:18:35 GMT
+Content-Type: text/html; charset=windows-1256
+Transfer-Encoding: chunked
+Connection: keep-alive
+Vary: Accept-Encoding
+X-Powered-By: PHP/5.3.29
+Set-Cookie: PHPSESSID=a0ddee5488c7480bbc7b0a50ac472d2a; path=/
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+Pragma: no-cache
+
+
+<!doctype html>
+<html class="no-js" lang="ar" dir="rtl">
+<head>
+  <title>»«·›ÌœÌÊ.. "„’ÿ›Ï »ﬂ—Ì" : «‰ Œ«»«  «·«∆ ·«› €Ì— ‰“ÌÂ… Ê„ÊÃÂ… ·›Ê“ √‘Œ«’ »⁄Ì‰Â«</title>
+  <meta name="description" content="√⁄·‰ «·‰«∆» „’ÿ›Ï »ﬂ—Ì «‰”Õ«»Â „‰ «∆ ·«›  œ⁄„ „’—  »⁄œ «⁄ —«÷Â ⁄·Ï ‰ ÌÃ… «·«‰ Œ«»«  «·œ«Œ·Ì… ··«∆ ·«›° ÊŒ”«— Â ›ÌÂ«° Êﬁ«· ≈‰Â ”Ì —‘Õ €œ« ⁄·Ï „‰’» «·ÊﬂÌ· »«·„Ã·”">
+  <meta name="keywords" content="»«·›ÌœÌÊ,,,,„’ÿ›Ï,»ﬂ—Ì,,,,«‰ Œ«»« ,«·«∆ ·«›,€Ì—,‰“ÌÂ…,Ê„ÊÃÂ…,·›Ê“,√‘Œ«’,»⁄Ì‰Â«">
+  <meta property='og:title' content='»«·›ÌœÌÊ.. "„’ÿ›Ï »ﬂ—Ì" : «‰ Œ«»«  «·«∆ ·«› €Ì— ‰“ÌÂ… Ê„ÊÃÂ… ·›Ê“ √‘Œ«’ »⁄Ì‰Â«' />
+</head>
+<body class="page-front">
+  <h1 class="hide">ﬂ·„ Ï</h1>
+
+</body>
+</html>
