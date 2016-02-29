@@ -75,11 +75,11 @@ describe MetaInspector::Document do
   end
 
   describe 'exception handling' do
-    it "should parse images when parse_html_content_type_only is not specified" do
+    it "should not parse images when parse_html_content_type_only is not specified" do
       expect do
         image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png')
         image_url.title
-      end.to_not raise_error
+      end.to raise_error
     end
 
     it "should parse images when parse_html_content_type_only is false" do

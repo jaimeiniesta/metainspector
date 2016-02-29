@@ -328,13 +328,13 @@ MetaInspector.new('https://example.com', faraday_options: { ssl: { verify: false
 
 ### HTML Content Only
 
-MetaInspector will try to parse all URLs by default. If you want to raise an exception when trying to parse a non-html URL (one that has a content-type different than text/html), you can state it like this:
+MetaInspector will try to parse all URLs by default. By default, it will raise an exception when trying to parse a non-html URL (one that has a content-type different than text/html). You can disable this behaviour with:
 
 ```ruby
-page = MetaInspector.new('sitevalidator.com', :html_content_only => true)
+page = MetaInspector.new('sitevalidator.com', :html_content_only => false)
 ```
 
-This is useful when using MetaInspector on web spidering. Although on the initial URL you'll probably have an HTML URL, following links you may find yourself trying to parse non-html URLs.
+This option is deprecated since 5.1.0 and will be removed in 5.2.0.
 
 ```ruby
 page = MetaInspector.new('http://example.com/image.png')

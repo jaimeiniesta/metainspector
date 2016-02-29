@@ -8,8 +8,6 @@ module MetaInspector
     # * connection_timeout: defaults to 20 seconds
     # * read_timeout: defaults to 20 seconds
     # * retries: defaults to 3 times
-    # * html_content_type_only: if an exception should be raised if request
-    #   content-type is not text/html. Defaults to false.
     # * allow_redirections: when true, follow HTTP redirects. Defaults to true
     # * document: the html of the url as a string
     # * headers: object containing custom headers for the request
@@ -20,7 +18,16 @@ module MetaInspector
       @connection_timeout = options[:connection_timeout]
       @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
-      @html_content_only  = options[:html_content_only]
+
+      unless options[:html_content_only].nil?
+        @html_content_only = options[:html_content_only]
+
+        puts <<-EOS
+          DEPRECATION NOTICE: html_content_only is deprecated and turned on by default since 5.1.0,
+          this option will be removed in 5.2.0
+        EOS
+      end
+
       @allow_redirections = options[:allow_redirections]
       @document           = options[:document]
       @download_images    = options[:download_images]
@@ -83,7 +90,7 @@ module MetaInspector
     def defaults
       { :timeout            => 20,
         :retries            => 3,
-        :html_content_only  => false,
+        :html_content_only  => true,
         :headers            => {
                                  'User-Agent'      => default_user_agent,
                                  'Accept-Encoding' => 'identity'
@@ -98,11 +105,11 @@ module MetaInspector
     end
 
     def document
-      @document ||= if html_content_only && content_type != 'text/html'
-                      fail MetaInspector::ParserError.new "The url provided contains #{content_type} content instead of text/html content"
-                    else
-                      @request.read
-                    end
+      @document ||= if html_content_only && !content_type.nil? && content_type != 'text/html'
+        fail MetaInspector::ParserError.new "The url provided contains #{content_type} content instead of text/html content"
+      else
+        @request.read
+      end
     end
   end
 end
