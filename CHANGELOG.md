@@ -1,5 +1,8 @@
 # MetaInpector Changelog
 
+## [Changes in 5.1](https://github.com/jaimeiniesta/metainspector/compare/v5.0.0...v5.1.0)
+
+Deprecates the `html_content_only` option, and turns it on by default.
 
 ## [Changes in 5.0](https://github.com/jaimeiniesta/metainspector/compare/v4.7.1...v5.0.0)
 
