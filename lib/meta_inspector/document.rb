@@ -14,19 +14,17 @@ module MetaInspector
     # * normalize_url: true by default
     # * faraday_options: an optional hash of options to pass to Faraday on the request
     def initialize(initial_url, options = {})
-      options             = defaults.merge(options)
-      @connection_timeout = options[:connection_timeout]
-      @read_timeout       = options[:read_timeout]
-      @retries            = options[:retries]
-
       unless options[:html_content_only].nil?
-        @html_content_only = options[:html_content_only]
-
         puts <<-EOS
           DEPRECATION NOTICE: html_content_only is deprecated and turned on by default since 5.1.0,
           this option will be removed in 5.2.0
         EOS
       end
+      options             = defaults.merge(options)
+      @connection_timeout = options[:connection_timeout]
+      @read_timeout       = options[:read_timeout]
+      @retries            = options[:retries]
+      @html_content_only  = options[:html_content_only]
 
       @allow_redirections = options[:allow_redirections]
       @document           = options[:document]
