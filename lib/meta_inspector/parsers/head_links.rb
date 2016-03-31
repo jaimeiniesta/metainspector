@@ -32,8 +32,8 @@ module MetaInspector
       private
 
       def parsed_feed(format)
-        feed = parsed.search("//link[@type='application/#{format}+xml']").first
-        feed ? URL.absolutify(feed.attributes['href'].value, base_url) : nil
+        feed = parsed.search("//link[@type='application/#{format}+xml']").find{|link| link.attributes["href"] }
+        feed ? URL.absolutify(feed['href'], base_url) : nil
       end
     end
   end
