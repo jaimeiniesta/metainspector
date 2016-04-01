@@ -37,6 +37,12 @@ describe MetaInspector do
                                     ])
     end
 
+    context "on page with some broken feed links" do
+      let(:page){ MetaInspector.new('http://example.com/broken_head_links') }
+      it "tries to find correct one" do
+        expect(page.feed).to eq("http://www.guardian.co.uk/media/techcrunch/rss")
+      end
+    end
   end
 
 end
