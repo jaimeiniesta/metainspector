@@ -1,7 +1,7 @@
 module MetaInspector
   # A MetaInspector::Document knows about its URL and its contents
   class Document
-    attr_reader :html_content_only, :allow_redirections, :headers
+    attr_reader :allow_non_html_content, :allow_redirections, :headers
 
     # Initializes a new instance of MetaInspector::Document, setting the URL
     # Options:
@@ -14,19 +14,14 @@ module MetaInspector
     # * normalize_url: true by default
     # * faraday_options: an optional hash of options to pass to Faraday on the request
     def initialize(initial_url, options = {})
-      unless options[:html_content_only].nil?
-        puts <<-EOS
-          DEPRECATION NOTICE: html_content_only is deprecated and turned on by default since 5.1.0,
-          this option will be removed in 5.2.0
-        EOS
-      end
       options             = defaults.merge(options)
       @connection_timeout = options[:connection_timeout]
       @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
-      @html_content_only  = options[:html_content_only]
 
-      @allow_redirections = options[:allow_redirections]
+      @allow_redirections     = options[:allow_redirections]
+      @allow_non_html_content = options[:allow_non_html_content]
+
       @document           = options[:document]
       @download_images    = options[:download_images]
       @headers            = options[:headers]
@@ -86,16 +81,16 @@ module MetaInspector
     private
 
     def defaults
-      { :timeout            => 20,
-        :retries            => 3,
-        :html_content_only  => true,
-        :headers            => {
-                                 'User-Agent'      => default_user_agent,
-                                 'Accept-Encoding' => 'identity'
-                               },
-        :allow_redirections => true,
-        :normalize_url      => true,
-        :download_images    => true }
+      { :timeout                => 20,
+        :retries                => 3,
+        :headers                => {
+                                     'User-Agent'      => default_user_agent,
+                                     'Accept-Encoding' => 'identity'
+                                  },
+        :allow_redirections     => true,
+        :allow_non_html_content => false,
+        :normalize_url          => true,
+        :download_images        => true }
     end
 
     def default_user_agent
@@ -103,7 +98,7 @@ module MetaInspector
     end
 
     def document
-      @document ||= if html_content_only && !content_type.nil? && content_type != 'text/html'
+      @document ||= if !allow_non_html_content && !content_type.nil? && content_type != 'text/html'
         fail MetaInspector::ParserError.new "The url provided contains #{content_type} content instead of text/html content"
       else
         @request.read

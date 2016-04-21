@@ -1,5 +1,9 @@
 # MetaInpector Changelog
 
+## [Changes in 5.2](https://github.com/jaimeiniesta/metainspector/compare/v5.1.0...v5.2.0)
+
+Removes the deprecated `html_content_only` option, and replaces it by `allow_non_html_content`, by default `false`.
+
 ## [Changes in 5.1](https://github.com/jaimeiniesta/metainspector/compare/v5.0.0...v5.1.0)
 
 Deprecates the `html_content_only` option, and turns it on by default.

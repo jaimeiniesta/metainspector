@@ -74,35 +74,26 @@ describe MetaInspector::Document do
                          })
   end
 
-  describe 'exception handling' do
-    it "should not parse images when parse_html_content_type_only is not specified" do
+  describe "allow_non_html_content option" do
+    it "should not allow non-html content type by default" do
       expect do
         image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png')
         image_url.title
       end.to raise_error(MetaInspector::ParserError)
     end
 
-    it "should parse images when parse_html_content_type_only is false" do
+    it "should not allow non-html content type when explicitly disallowed" do
       expect do
-        image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: false)
-        image_url.title
-      end.to_not raise_error
-    end
-
-    it "should handle errors when content is image/jpeg and html_content_type_only is true" do
-      expect do
-        image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', html_content_only: true)
-
+        image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', allow_non_html_content: false)
         image_url.title
       end.to raise_error(MetaInspector::ParserError)
     end
 
-    it "should handle errors when content is not text/html and html_content_type_only is true" do
+    it "should allow non-html content type when explicitly allowed" do
       expect do
-        tar_url = MetaInspector::Document.new('http://pagerankalert.com/file.tar.gz', html_content_only: true)
-
-        tar_url.title
-      end.to raise_error(MetaInspector::ParserError)
+        image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', allow_non_html_content: true)
+        image_url.title
+      end.to_not raise_error(MetaInspector::ParserError)
     end
   end
 
