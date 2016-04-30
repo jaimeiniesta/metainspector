@@ -18,7 +18,8 @@ module MetaInspector
       # and if not present will guess by looking at the first paragraph
       # with more than 120 characters
       def description
-        meta['description'] || secondary_description
+        return meta['description'] unless meta['description'].nil? || meta['description'].empty?
+        secondary_description
       end
 
       private

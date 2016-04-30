@@ -112,3 +112,6 @@ FakeWeb.register_uri(:get, "http://example.com/~", :response => fixture_file("ex
 
 # Example to test correct encoding
 FakeWeb.register_uri(:get, "http://example-rtl.com/", :response => fixture_file("encoding.response"))
+
+# Example used to test empty description metatags
+FakeWeb.register_uri(:get, "http://example.com/empty-meta-description", :response => fixture_file("empty_metatag_description.response"))
