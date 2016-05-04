@@ -49,7 +49,7 @@ describe MetaInspector::Document do
                                                                "csrf-param"  => ["authenticity_token"],
                                                                "csrf-token"  => ["iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="]
                                                              },
-                                                   "http-equiv" => {},
+                                                   "http-equiv" => {"content-type"=>["text/html; charset=UTF-8"]},
                                                    "property"   => {},
                                                    "charset"    => ["utf-8"]
                                                  },
