@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["jaimeiniesta@gmail.com"]
   gem.description   = %q{MetaInspector lets you scrape a web page and get its links, images, texts, meta tags...}
   gem.summary       = %q{MetaInspector is a ruby gem for web scraping purposes, that returns metadata from a given URL}
-  gem.homepage      = "http://jaimeiniesta.github.io/metainspector/"
+  gem.homepage      = "https://github.com/jaimeiniesta/metainspector"
   gem.license       = "MIT"
 
   gem.files         = `git ls-files`.split("\n")
