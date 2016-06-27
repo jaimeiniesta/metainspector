@@ -267,13 +267,13 @@ page = MetaInspector.new('www.google', :connection_timeout => 10, :read_timeout 
 ```
 
 If MetaInspector fails to fetch the page after it has exhausted its retries,
-it will raise `Faraday::TimeoutError`, which you can rescue in your
+it will raise `MetaInspector::TimeoutError`, which you can rescue in your
 application code.
 
 ```ruby
 begin
   page = MetaInspector.new(url)
-rescue Faraday::TimeoutError
+rescue MetaInspector::TimeoutError
   enqueue_for_future_fetch_attempt(url)
   render_simple(url)
 else
