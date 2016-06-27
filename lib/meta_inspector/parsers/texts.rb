@@ -6,7 +6,7 @@ module MetaInspector
       # Returns the parsed document title, from the content of the <title> tag
       # within the <head> section.
       def title
-        @title ||= parsed.css('head title').inner_text rescue nil
+        @title ||= parsed.css('title').inner_text rescue nil
       end
 
       def best_title
