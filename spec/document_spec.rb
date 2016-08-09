@@ -137,5 +137,13 @@ describe MetaInspector::Document do
     it 'should encode description according to the charset' do
       expect(MetaInspector.new('http://example-rtl.com/').description).to eq('أعلن النائب مصطفى بكري انسحابه من ائتلاف  دعم مصر  بعد اعتراضه على نتيجة الانتخابات الداخلية للائتلاف، وخسارته فيها، وقال إنه سيترشح غدا على منصب الوكيل بالمجلس')
     end
+
+    it 'should replace NULL characters' do
+      doc = MetaInspector.new('http://example-rtl.com/').parsed
+
+      image_src = doc.css('.some_class').first.attribute('src').value
+
+      expect(image_src).to eq('/path/to/image.jpg')
+    end
   end
 end

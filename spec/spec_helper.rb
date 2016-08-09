@@ -41,7 +41,7 @@ FakeWeb.register_uri(:get, "http://example.com/10x10", :response => fixture_file
 FakeWeb.register_uri(:get, "http://example.com/100x100", :response => fixture_file("100x100.jpg.response"))
 FakeWeb.register_uri(:get, "http://www.24-horas.mx/mexico-firma-acuerdo-bilateral-automotriz-con-argentina/", :response => fixture_file("relative_og_image.response"))
 
-#Used to test canonical URLs in head
+# Used to test canonical URLs in head
 FakeWeb.register_uri(:get, "http://example.com/head_links", :response => fixture_file("head_links.response"))
 FakeWeb.register_uri(:get, "https://example.com/head_links", :response => fixture_file("head_links.response"))
 FakeWeb.register_uri(:get, "http://example.com/broken_head_links", :response => fixture_file("broken_head_links.response"))
