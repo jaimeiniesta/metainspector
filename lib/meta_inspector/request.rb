@@ -28,7 +28,7 @@ module MetaInspector
     delegate :url => :@url
 
     def read
-      response.body if response
+      response.body.tr("\000", '') if response
     end
 
     def content_type
