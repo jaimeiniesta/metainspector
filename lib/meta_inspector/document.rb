@@ -81,7 +81,8 @@ module MetaInspector
     private
 
     def defaults
-      { :timeout                => 20,
+      { :connection_timeout     => 20,
+        :read_timeout           => 20,
         :retries                => 3,
         :headers                => {
                                      'User-Agent'      => default_user_agent,
