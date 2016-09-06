@@ -3,6 +3,7 @@ require 'faraday_middleware'
 require 'faraday-cookie_jar'
 require 'faraday-http-cache'
 require 'faraday/encoding'
+require 'timeout'
 
 module MetaInspector
 
@@ -47,34 +48,49 @@ module MetaInspector
     private
 
     def fetch
-      @faraday_options.merge!(:url => url)
+      Timeout::timeout(fatal_timeout) do
+        @faraday_options.merge!(:url => url)
 
-      session = Faraday.new(@faraday_options) do |faraday|
-        faraday.request :retry, max: @retries
+        session = Faraday.new(@faraday_options) do |faraday|
+          faraday.request :retry, max: @retries
 
-        if @allow_redirections
-          faraday.use FaradayMiddleware::FollowRedirects, limit: 10
-          faraday.use :cookie_jar
+          if @allow_redirections
+            faraday.use FaradayMiddleware::FollowRedirects, limit: 10
+            faraday.use :cookie_jar
+          end
+
+          if @faraday_http_cache.is_a?(Hash)
+            @faraday_http_cache[:serializer] ||= Marshal
+            faraday.use Faraday::HttpCache, @faraday_http_cache
+          end
+
+          faraday.headers.merge!(@headers || {})
+          faraday.response :encoding
+          faraday.adapter :net_http
         end
 
-        if @faraday_http_cache.is_a?(Hash)
-          @faraday_http_cache[:serializer] ||= Marshal
-          faraday.use Faraday::HttpCache, @faraday_http_cache
+        response = session.get do |req|
+          req.options.timeout      = @connection_timeout
+          req.options.open_timeout = @read_timeout
         end
 
-        faraday.headers.merge!(@headers || {})
-        faraday.response :encoding
-        faraday.adapter :net_http
+        @url.url = response.env.url.to_s
+
+        response
       end
+    rescue Timeout::Error => e
+      raise MetaInspector::TimeoutError.new(e)
+    end
 
-      response = session.get do |req|
-        req.options.timeout      = @connection_timeout
-        req.options.open_timeout = @read_timeout
-      end
-
-      @url.url = response.env.url.to_s
-
-      response
+    # Timeouts when connecting / reading a request are handled by Faraday, but in the
+    # case of URLs that respond with streaming, Faraday will never return. In that case,
+    # we'll resort to our own timeout
+    #
+    # https://github.com/jaimeiniesta/metainspector/issues/188
+    # https://github.com/lostisland/faraday/issues/602
+    #
+    def fatal_timeout
+      (@connection_timeout || 0) + (@read_timeout || 0) + 1
     end
   end
 end
