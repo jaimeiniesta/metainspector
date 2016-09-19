@@ -54,6 +54,8 @@ module MetaInspector
         session = Faraday.new(@faraday_options) do |faraday|
           faraday.request :retry, max: @retries
 
+          faraday.use FaradayMiddleware::Gzip
+
           if @allow_redirections
             faraday.use FaradayMiddleware::FollowRedirects, limit: 10
             faraday.use :cookie_jar
