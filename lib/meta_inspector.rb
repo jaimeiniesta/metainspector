@@ -9,6 +9,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parse
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/head_links'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/meta_tags'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/texts'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/sanitizer'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/document'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/version'))
 
@@ -18,5 +19,9 @@ module MetaInspector
   # Sugar method to be able to scrape a document in a shorter way
   def new(url, options = {})
     Document.new(url, options)
+  end
+
+  def sanitizer
+    @sanitizer ||= MetaInspector::Sanitizer.new
   end
 end

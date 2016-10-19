@@ -23,6 +23,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'addressable', '~> 2.4'
   gem.add_dependency 'fastimage', '~> 2.0'
   gem.add_dependency 'nesty', '~> 1.0'
+  gem.add_dependency 'loofah', '~> 2.0'
+  gem.add_dependency 'htmlentities', '~>4.3'
 
   gem.add_development_dependency 'rspec', '~> 3.0'
   gem.add_development_dependency 'fakeweb', '1.3.0'

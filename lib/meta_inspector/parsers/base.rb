@@ -25,6 +25,18 @@ module MetaInspector
       def cleanup(results)
         results.map { |r| r.value.strip }.reject(&:empty?).uniq
       end
+
+      def sanitize(raw_html)
+        MetaInspector.sanitizer.sanitize(raw_html)
+      end
+
+      def self.sanitized_attributes(*att_names)
+        att_names.each do | attribute |
+          define_method attribute do
+            sanitize(send("#{attribute}_raw".to_sym))
+          end
+        end
+      end
     end
   end
 end
