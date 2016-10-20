@@ -44,10 +44,7 @@ module MetaInspector
             meta['og:title'],
             parsed.css('h1').first
         ]
-        candidates.flatten.compact.map do |candidate|
-          #candidate = candidate.inner_html if candidate.respond_to? :inner_html
-          candidate
-        end.sort_by do |candidate|
+        candidates.flatten.compact.sort_by do |candidate|
           # We return raw html, but order should only depend on sanitized text length
           -sanitize(candidate).length
         end.first
@@ -56,7 +53,6 @@ module MetaInspector
       # Look for the first <p> block with 120 characters or more
       def secondary_description
         first_long_paragraph = parsed.search('//p[string-length() >= 120]').first
-        #first_long_paragraph ? first_long_paragraph.inner_html : ''
       end
     end
   end
