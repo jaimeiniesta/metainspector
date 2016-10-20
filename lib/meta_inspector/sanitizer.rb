@@ -12,13 +12,32 @@ module MetaInspector
     end
 
     def scrub_html_tags(raw_html)
-      fragment = Loofah.fragment(raw_html)
+      fragment = if raw_html.is_a? Nokogiri::XML::Node
+        reparent_node_content_to_loofah_document(raw_html)
+      else
+        Loofah.fragment(raw_html)
+      end
 
       # remove unsafe tags and their content
       fragment.scrub!(:prune)
 
       # replace safe tags with ther content
       fragment.text
+    end
+
+    def reparent_node_content_to_loofah_document(node)
+      return node if node.is_a?(Loofah::HTML::Document) || node.is_a?(Loofah::HTML::DocumentFragment)
+
+      node = node.root if node.respond_to? :root
+
+      doc = Loofah::HTML::Document.new
+      doc.encoding = node.document.encoding
+
+      fragment = doc.fragment
+
+      fragment.add_child node.dup.children
+
+      fragment
     end
 
     def enforce_utf8_encoding(str)
@@ -30,8 +49,8 @@ module MetaInspector
       return nil unless raw_html
 
       sanitizer_methods = [
-          :enforce_utf8_encoding,
           :scrub_html_tags,
+          :enforce_utf8_encoding,
           :unescape_html_entities,
           :trim_whitespace,
         ]

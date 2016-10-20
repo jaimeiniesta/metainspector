@@ -34,8 +34,12 @@ describe MetaInspector::Sanitizer do
     let(:raw_html) { %Q{<meta name="test" content="value" />\n<p>This <strong>is</strong>\n allowed &amp; valid.</p> <amp-img src=sample.jpg width=300 height=300>Gets removed</amp-img>\n\t} }
     let(:sanitized_string) { %Q{This is allowed & valid.} }
 
-    it 'applies all the above sanitizing steps' do
+    it 'applies all the above sanitizing steps to a string' do
       expect(sanitizer.sanitize(raw_html)).to eq sanitized_string
+    end
+
+    it 'applies all the above sanitizing steps to a nokogiri node' do
+      expect(sanitizer.sanitize(Nokogiri.HTML(raw_html))).to eq sanitized_string
     end
   end
 end

@@ -9,14 +9,14 @@ module MetaInspector
       # within the <head> section.
       # Beware: Nokogiri's `inner_html` returns string in original encoding
       # http://www.nokogiri.org/tutorials/parsing_an_html_xml_document.html#encoding
-      def title_raw
-        @title_raw ||= begin
+      def title_node
+        @title_node ||= begin
           title_tags = parsed.css('head title')
-          title_tags.first.inner_html if title_tags.any?
+          title_tags.first if title_tags.any?
         end
       end
 
-      def best_title_raw
+      def best_title_node
         @best_title_raw ||= if @main_parser.host =~ /\.youtube\.com$/
             meta['og:title']
           else
@@ -27,7 +27,7 @@ module MetaInspector
       # A description getter that first checks for a meta description
       # and if not present will guess by looking at the first paragraph
       # with more than 120 characters
-      def description_raw
+      def description_node
         @description_raw ||= begin
           return meta['description'] unless meta['description'].nil? || meta['description'].empty?
           secondary_description
@@ -45,7 +45,7 @@ module MetaInspector
             parsed.css('h1').first
         ]
         candidates.flatten.compact.map do |candidate|
-          candidate = candidate.inner_html if candidate.respond_to? :inner_html
+          #candidate = candidate.inner_html if candidate.respond_to? :inner_html
           candidate
         end.sort_by do |candidate|
           # We return raw html, but order should only depend on sanitized text length
@@ -56,7 +56,7 @@ module MetaInspector
       # Look for the first <p> block with 120 characters or more
       def secondary_description
         first_long_paragraph = parsed.search('//p[string-length() >= 120]').first
-        first_long_paragraph ? first_long_paragraph.inner_html : ''
+        #first_long_paragraph ? first_long_paragraph.inner_html : ''
       end
     end
   end

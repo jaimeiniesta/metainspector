@@ -32,9 +32,20 @@ module MetaInspector
 
       def self.sanitized_attributes(*att_names)
         att_names.each do | attribute |
+
           define_method attribute do
-            sanitize(send("#{attribute}_raw".to_sym))
+            node = send("#{attribute}_node".to_sym)
+
+            sanitize(node)
           end
+
+          define_method "#{attribute}_raw" do
+            node = send("#{attribute}_node".to_sym)
+            node = node.inner_html if node.respond_to?(:inner_html)
+
+            node
+          end
+
         end
       end
     end
