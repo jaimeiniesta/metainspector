@@ -56,6 +56,11 @@ FakeWeb.register_uri(:get, "http://example.com/title_not_present", :response => 
 # best_title now has specific logic for youtube
 FakeWeb.register_uri(:get, "http://www.youtube.com/watch?v=short_title", :response => fixture_file("youtube_short_title.response"))
 
+# Used to test best_description logic
+FakeWeb.register_uri(:get, "http://example.com/desc_in_meta", :response => fixture_file("desc_in_meta.response"))
+FakeWeb.register_uri(:get, "http://example.com/desc_in_og", :response => fixture_file("desc_in_og.response"))
+FakeWeb.register_uri(:get, "http://example.com/desc_in_twitter", :response => fixture_file("desc_in_twitter.response"))
+
 # These are older fixtures
 FakeWeb.register_uri(:get, "http://pagerankalert.com", :response => fixture_file("pagerankalert.com.response"))
 FakeWeb.register_uri(:get, "http://pagerankalert-shortcut.com", :response => fixture_file("pagerankalert-shortcut.com.response"))

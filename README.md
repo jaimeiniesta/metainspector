@@ -84,6 +84,7 @@ page.feed                # Get rss or atom links in meta data fields as array
 page.title               # title of the page from the head section, as string
 page.best_title          # best title of the page, from a selection of candidates
 page.description         # returns the meta description, or the first long paragraph if no meta description is found
+page.best_description    # returns the first non-empty description between the following candidates: standard meta description, og:description, twitter:description, the first long paragraph, empty string if all are empty
 ```
 
 ### Links

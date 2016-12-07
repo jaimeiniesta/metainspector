@@ -67,4 +67,36 @@ describe MetaInspector do
         .to eq("Vivimos en una época en la que el término 'Innovación' esta siendo usado a placer por organizaciones de todo tipo. Hace algunos meses en una reunión de trabajo alguien mencionó:\"La innovación esta siendo usada como todo aquello que las empresas no saben dónde poner\". Mejor no lo pudo haber dicho. Llevamos más de dos años de estar colaborando cercanamente con directores de innovación de decenas de empresas, participando en comisiones industriales enfocadas a la innovación y haciendo conexiones laborales internacionales con expertos en materias de innovación (particularmente innovación abierta), y después de todo, la gran mayoría de las empresas no tienen claro lo que (por lo menos dentro de su organización) es innovación. ")
     end
   end
+
+  describe "#best_description" do
+    it "should return the standard description meta tag content if present" do
+      page = MetaInspector.new('http://example.com/desc_in_meta')
+
+      expect(page.best_description).to eq("the standard description")
+    end
+
+    it "should return the og description if standard meta tag is not present" do
+      page = MetaInspector.new('http://example.com/desc_in_og')
+
+      expect(page.best_description).to eq("the og description")
+    end
+
+    it "should return the twitter description if standard and og tag not present" do
+      page = MetaInspector.new('http://example.com/desc_in_twitter')
+
+      expect(page.best_description).to eq("the twitter description")
+    end
+
+    it "should return the secondary description if no meta tag is present" do
+      page = MetaInspector.new('http://theonion-no-description.com')
+
+      expect(page.best_description).to eq("SAN FRANCISCO—In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday, an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description.")
+    end
+
+    it "should return an empty string by default" do
+      page = MetaInspector.new('http://example.com/empty')
+
+      expect(page.best_description).to eq("")
+    end
+  end
 end

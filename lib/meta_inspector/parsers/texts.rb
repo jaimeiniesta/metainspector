@@ -22,6 +22,22 @@ module MetaInspector
         secondary_description
       end
 
+      # A description getter that returns the first non-nill description
+      # from the following candidates:
+      # - the standard meta description
+      # - the og:description meta tag
+      # - the twitter:description meta tag
+      # - the first paragraph with more than 120 characters
+      def best_description
+        candidates = [
+          meta['description'],
+          meta['og:description'],
+          meta['twitter:description'],
+          secondary_description
+        ]
+        candidates.find { |x| !x.to_s.empty? } || ''
+      end
+
       private
 
       # Look for candidates and pick the longest one
