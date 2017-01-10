@@ -14,12 +14,9 @@ module MetaInspector
         @best_title ||= find_best_title
       end
 
-      # A description getter that first checks for a meta description
-      # and if not present will guess by looking at the first paragraph
-      # with more than 120 characters
+      # Returns the meta description, if present
       def description
-        return meta['description'] unless meta['description'].nil? || meta['description'].empty?
-        secondary_description
+        @description ||= meta['description']
       end
 
       # A description getter that returns the first non-nill description
@@ -29,13 +26,7 @@ module MetaInspector
       # - the twitter:description meta tag
       # - the first paragraph with more than 120 characters
       def best_description
-        candidates = [
-          meta['description'],
-          meta['og:description'],
-          meta['twitter:description'],
-          secondary_description
-        ]
-        candidates.find { |x| !x.to_s.empty? } || ''
+        @best_description ||= find_best_description
       end
 
       private
@@ -57,6 +48,16 @@ module MetaInspector
         candidates.uniq!
         candidates.sort_by! { |t| -t.length }
         candidates.first
+      end
+
+      def find_best_description
+        candidates = [
+          meta['description'],
+          meta['og:description'],
+          meta['twitter:description'],
+          secondary_description
+        ]
+        candidates.find { |x| !x.to_s.empty? }
       end
 
       # Look for the first <p> block with 120 characters or more
