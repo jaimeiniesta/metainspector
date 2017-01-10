@@ -15,7 +15,8 @@ module MetaInspector
       @links_parser    = MetaInspector::Parsers::LinksParser.new(self)
       @download_images = options[:download_images]
       @images_parser   = MetaInspector::Parsers::ImagesParser.new(self, download_images: @download_images)
-      @texts_parser    = MetaInspector::Parsers::TextsParser.new(self)
+      @sanitize_html   = options[:sanitize_html]
+      @texts_parser    = MetaInspector::Parsers::TextsParser.new(self, sanitize_html: @sanitize_html)
 
       parsed           # parse early so we can fail early
     end

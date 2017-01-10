@@ -21,6 +21,7 @@ module MetaInspector
 
       @allow_redirections     = options[:allow_redirections]
       @allow_non_html_content = options[:allow_non_html_content]
+      @sanitize_html          = options[:sanitize_html]
 
       @document           = options[:document]
       @download_images    = options[:download_images]
@@ -36,7 +37,8 @@ module MetaInspector
                                                                 headers:            @headers,
                                                                 faraday_options:    @faraday_options,
                                                                 faraday_http_cache: @faraday_http_cache) unless @document
-      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images)
+      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images,
+                                                                sanitize_html:      @sanitize_html)
     end
 
     extend Forwardable
@@ -91,6 +93,7 @@ module MetaInspector
                                   },
         :allow_redirections     => true,
         :allow_non_html_content => false,
+        :sanitize_html          => true,
         :normalize_url          => true,
         :download_images        => true }
     end

@@ -48,6 +48,15 @@ describe MetaInspector do
       expect(page.best_title).to eq('Angular 2 Forms')
     end
 
+    it "should sanitize unrelevant tags like <script> by default" do 
+      page = MetaInspector.new('http://example.com/h1_with_various_tags')
+      expect(page.best_title).to eq('This is the inner text of title')
+    end
+
+    it "should not sanitize unrelevant tags like <script> if sanitize_html is false" do 
+      page = MetaInspector.new('http://example.com/h1_with_various_tags', sanitize_html: false)
+      expect(page.best_title).to eq("This is the inner text of title alert('And this text is irrelevant'); this should'nt be showed too custom tags also get stripped")
+    end
   end
 
   describe '#description' do

@@ -50,7 +50,7 @@ describe MetaInspector::Document do
                                                                "csrf-param"  => ["authenticity_token"],
                                                                "csrf-token"  => ["iW1/w+R8zrtDkhOlivkLZ793BN04Kr3X/pS+ixObHsE="]
                                                              },
-                                                   "http-equiv" => {},
+                                                   "http-equiv" => {"content-type"=>["text/html; charset=UTF-8"]},
                                                    "property"   => {},
                                                    "charset"    => ["utf-8"]
                                                  },
@@ -94,7 +94,7 @@ describe MetaInspector::Document do
       expect do
         image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', allow_non_html_content: true)
         image_url.title
-      end.to_not raise_error(MetaInspector::ParserError)
+      end.to_not raise_error
     end
   end
 
