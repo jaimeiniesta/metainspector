@@ -1,5 +1,17 @@
 # MetaInpector Changelog
 
+## [Changes in 5.4](https://github.com/jaimeiniesta/metainspector/compare/v5.3.0...v5.4.0)
+
+Supports Gzipped responses.
+Adds method `best_description` and makes `description` return just the meta description.
+Removes support for Ruby 2.0.0 and adds support for 2.4.0.
+
+## [Changes in 5.3](https://github.com/jaimeiniesta/metainspector/compare/v5.2.0...v5.3.0)
+
+Returns secondary description if meta description is empty.
+Adds a custom timeout on top of the ones for Faraday, and sets defaults for timeouts.
+Eliminates possible NULL char in HTML which breaks nokogiri.
+
 ## [Changes in 5.2](https://github.com/jaimeiniesta/metainspector/compare/v5.1.0...v5.2.0)
 
 Removes the deprecated `html_content_only` option, and replaces it by `allow_non_html_content`, by default `false`.
