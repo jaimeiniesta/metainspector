@@ -94,7 +94,7 @@ describe MetaInspector::Document do
       expect do
         image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', allow_non_html_content: true)
         image_url.title
-      end.to_not raise_error(MetaInspector::ParserError)
+      end.to_not raise_error
     end
   end
 
