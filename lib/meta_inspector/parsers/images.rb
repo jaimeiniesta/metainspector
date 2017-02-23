@@ -40,7 +40,7 @@ module MetaInspector
           imgs_with_size.uniq! { |url, width, height| url }
           if @download_images
             imgs_with_size.map! do |url, width, height|
-              width, height = FastImage.size(url) if width.nil? || height.nil?
+              width, height = FastImage.size(url) if (width.nil? || height.nil?) && url =~ /^http(s)?:\/\//i
               [url, width.to_i, height.to_i]
             end
           else
