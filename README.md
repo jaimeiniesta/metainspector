@@ -438,7 +438,7 @@ You can also come to chat with us on our [Gitter room](https://gitter.im/jaimein
 * [go-metainspector](https://github.com/fern4lvarez/go-metainspector), a port of MetaInspector for Go.
 * [Node-MetaInspector](https://github.com/gabceb/node-metainspector), a port of MetaInspector for Node.
 * [MetaInvestigator](https://github.com/nekova/metainvestigator), a port of MetaInspector for Elixir.
-* [Funkspector] (https://github.com/jaimeiniesta/funkspector), another port of MetaInspector for Elixir.
+* [Funkspector](https://github.com/jaimeiniesta/funkspector), another port of MetaInspector for Elixir.
 
 ## License
 MetaInspector is released under the [MIT license](MIT-LICENSE).
