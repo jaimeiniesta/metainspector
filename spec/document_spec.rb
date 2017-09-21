@@ -24,6 +24,8 @@ describe MetaInspector::Document do
                             "scheme"          => "http",
                             "host"            => "pagerankalert.com",
                             "root_url"        => "http://pagerankalert.com/",
+							              "author"		      => nil,
+							              "best_author"	    => nil,
                             "title"           => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "best_title"      => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "description"     => "Track your PageRank(TM) changes and receive alerts by email",
