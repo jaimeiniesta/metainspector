@@ -45,7 +45,7 @@ module MetaInspector
 
     delegate [:content_type, :response]               => :@request
 
-    delegate [:parsed, :title, :best_title,
+    delegate [:parsed, :title, :best_title, :author, :best_author,
               :description, :best_description, :links,
               :images, :feed, :charset, :meta_tags,
               :meta_tag, :meta, :favicon,
@@ -58,6 +58,8 @@ module MetaInspector
         'scheme'           => scheme,
         'host'             => host,
         'root_url'         => root_url,
+        'author'            => author,
+        'best_author'      => best_author,
         'title'            => title,
         'best_title'       => best_title,
         'description'      => description,

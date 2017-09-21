@@ -29,6 +29,15 @@ module MetaInspector
         @best_description ||= find_best_description
       end
 
+
+      def author
+        @author ||= meta['author']
+      end
+
+      def best_author
+        @best_author ||= find_best_author
+      end
+
       private
 
       # Look for candidates and pick the longest one
@@ -37,7 +46,7 @@ module MetaInspector
             parsed.css('head title'),
             parsed.css('body title'),
             meta['og:title'],
-            parsed.css('h1').first
+            parsed.css('h1').first,
         ]
         candidates.flatten!
         candidates.compact!
@@ -57,6 +66,16 @@ module MetaInspector
           meta['twitter:description'],
           secondary_description
         ]
+        candidates.find { |x| !x.to_s.empty? }
+      end
+
+	    def find_best_author
+        candidates = [
+          meta['author'],
+          meta['article:author'],
+          meta['og:author'],
+        ]
+
         candidates.find { |x| !x.to_s.empty? }
       end
 

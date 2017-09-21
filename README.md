@@ -85,6 +85,9 @@ page.title               # title of the page from the head section, as string
 page.best_title          # best title of the page, from a selection of candidates
 page.description         # returns the meta description
 page.best_description    # returns the first non-empty description between the following candidates: standard meta description, og:description, twitter:description, the first long paragraph
+page.author               # author of the page from the head section, as string
+page.best_author          # best author of the page, from a selection of candidates
+
 ```
 
 ### Links
