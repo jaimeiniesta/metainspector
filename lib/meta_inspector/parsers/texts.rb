@@ -66,7 +66,6 @@ module MetaInspector
           meta['description'],
           meta['og:description'],
           meta['twitter:description'],
-          meta['parsely-description'],
           meta['sailthru.description'],
           secondary_description
         ]
