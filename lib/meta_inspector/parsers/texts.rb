@@ -47,8 +47,8 @@ module MetaInspector
             parsed.css('body title'),
             meta['og:title'],
             parsed.css('h1').first,
-            meta['sailthru:title'],
             meta['parsely-title'],
+            meta['sailthru.title']
         ]
         candidates.flatten!
         candidates.compact!
@@ -66,8 +66,8 @@ module MetaInspector
           meta['description'],
           meta['og:description'],
           meta['twitter:description'],
-          meta['sailthru:description'],
           meta['parsely-description'],
+          meta['sailthru.description'],
           secondary_description
         ]
         candidates.find { |x| !x.to_s.empty? }
@@ -78,8 +78,8 @@ module MetaInspector
           meta['author'],
           meta['article:author'],
           meta['og:author'],
-          meta['sailthru:author'],
           meta['parsely-author'],
+          meta['sailthru.author']
         ]
 
         candidates.find { |x| !x.to_s.empty? }
