@@ -382,6 +382,25 @@ cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
 page = MetaInspector.new('http://example.com', faraday_http_cache: { store: cache })
 ```
 
+### Lazy fetch and inspecting before downloading (HEAD requests)
+
+By default MetaInspector will issue an HTTP `GET` request immediately.
+However, if you would like to issue an HTTP `HEAD` request first to inspect the response headers, you can use the `lazy_fetch: true` option like this:
+
+```ruby
+# set lazy_fetch: true to check the response if needed before downloading the entire body (or file)
+page = MetaInspector.new('http://example.com', lazy_fetch: true)
+response = page.inspect  # issues an HTTP HEAD request instead of a GET
+
+# check the response headers (e.g. if you only care about HTML files)
+#   response.headers["content-type"] == "text/html"
+puts "status: #{response.status}\nheaders: #{response.headers}"
+
+# calling any of the normal methods to access scraped data (e.g. page.links, page.images, etc)
+# will actually fetch the full response body
+puts "Internal URLs: #{page.links.internal.length}"  # issues an HTTP GET
+```
+
 ## Exception Handling
 
 Web page scraping is tricky, you can expect to find different exceptions during the request of the page or the parsing of its contents. MetaInspector will encapsulate these exceptions on these main errors:

@@ -21,8 +21,9 @@ module MetaInspector
       @headers            = options[:headers]
       @faraday_options    = options[:faraday_options] || {}
       @faraday_http_cache = options[:faraday_http_cache]
+      @lazy               = options[:lazy] || false
 
-      response            # request early so we can fail early
+      response unless @lazy
     end
 
     extend Forwardable
@@ -45,9 +46,17 @@ module MetaInspector
       raise MetaInspector::RequestError.new(e)
     end
 
+    def inspect
+      fetch(verb: :head)
+    rescue Faraday::TimeoutError => e
+      raise MetaInspector::TimeoutError.new(e)
+    rescue Faraday::Error::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError, FaradayMiddleware::RedirectLimitReached => e
+      raise MetaInspector::RequestError.new(e)
+    end
+
     private
 
-    def fetch
+    def fetch(verb: :get)
       Timeout::timeout(fatal_timeout) do
         @faraday_options.merge!(:url => url)
 
@@ -71,7 +80,8 @@ module MetaInspector
           faraday.adapter :net_http
         end
 
-        response = session.get do |req|
+        # response = session.get do |req|
+        response = session.send(verb) do |req|
           req.options.timeout      = @connection_timeout
           req.options.open_timeout = @read_timeout
         end

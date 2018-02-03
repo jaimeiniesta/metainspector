@@ -13,6 +13,7 @@ module MetaInspector
     # * headers: object containing custom headers for the request
     # * normalize_url: true by default
     # * faraday_options: an optional hash of options to pass to Faraday on the request
+    # * lazy_fetch: delay requesting the initial_url until necessary (default: false)
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
       @connection_timeout = options[:connection_timeout]
@@ -28,6 +29,7 @@ module MetaInspector
       @normalize_url      = options[:normalize_url]
       @faraday_options    = options[:faraday_options]
       @faraday_http_cache = options[:faraday_http_cache]
+      @lazy_fetch         = options[:lazy_fetch]
       @url                = MetaInspector::URL.new(initial_url, normalize:          @normalize_url)
       @request            = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
                                                                 connection_timeout: @connection_timeout,
@@ -35,15 +37,17 @@ module MetaInspector
                                                                 retries:            @retries,
                                                                 headers:            @headers,
                                                                 faraday_options:    @faraday_options,
-                                                                faraday_http_cache: @faraday_http_cache) unless @document
-      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images)
+                                                                faraday_http_cache: @faraday_http_cache,
+                                                                lazy:               @lazy_fetch) unless @document
+      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images,
+                                                                lazy:               @lazy_fetch)
     end
 
     extend Forwardable
     delegate [:url, :scheme, :host, :root_url,
               :tracked?, :untracked_url, :untrack!]   => :@url
 
-    delegate [:content_type, :response]               => :@request
+    delegate [:content_type, :response, :inspect]               => :@request
 
     delegate [:parsed, :title, :best_title,
               :description, :best_description, :links,
@@ -92,7 +96,8 @@ module MetaInspector
         :allow_redirections     => true,
         :allow_non_html_content => false,
         :normalize_url          => true,
-        :download_images        => true }
+        :download_images        => true,
+        :lazy_fetch             => false }
     end
 
     def default_user_agent

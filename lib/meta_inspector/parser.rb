@@ -16,8 +16,9 @@ module MetaInspector
       @download_images = options[:download_images]
       @images_parser   = MetaInspector::Parsers::ImagesParser.new(self, download_images: @download_images)
       @texts_parser    = MetaInspector::Parsers::TextsParser.new(self)
+      @lazy            = options[:lazy] || false
 
-      parsed           # parse early so we can fail early
+      parsed unless @lazy
     end
 
     extend Forwardable
