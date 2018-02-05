@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe MetaInspector do
-
   describe "head_links" do
     let(:page) { MetaInspector.new('http://example.com/head_links') }
     let(:page_https) { MetaInspector.new('https://example.com/head_links') }

@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe MetaInspector do
-
   describe "#images" do
     describe "returns an Enumerable" do
       let(:page) { MetaInspector.new('https://twitter.com/markupvalidator') }

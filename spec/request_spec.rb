@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe MetaInspector::Request do
-
   it "raises an error if the URL is non-HTTP" do
     expect do
       MetaInspector::Request.new(url('ftp://ftp.example.com'))
@@ -55,11 +54,11 @@ describe MetaInspector::Request do
 
   describe 'exception handling' do
     before(:each) do
-      FakeWeb.allow_net_connect = true
+      WebMock.allow_net_connect!
     end
 
     after(:each) do
-      FakeWeb.allow_net_connect = false
+      WebMock.disable_net_connect!
     end
 
     it "should handle socket errors" do

@@ -25,7 +25,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'nesty', '~> 1.0'
 
   gem.add_development_dependency 'rspec', '~> 3.0'
-  gem.add_development_dependency 'fakeweb', '1.3.0'
   gem.add_development_dependency 'webmock'
   gem.add_development_dependency 'awesome_print'
   gem.add_development_dependency 'rake', '~> 10.1.0'
