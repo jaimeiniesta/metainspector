@@ -46,7 +46,7 @@ module MetaInspector
       raise MetaInspector::RequestError.new(e)
     end
 
-    def inspect
+    def head_response
       fetch(verb: :head)
     rescue Faraday::TimeoutError => e
       raise MetaInspector::TimeoutError.new(e)

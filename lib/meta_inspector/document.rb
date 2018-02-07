@@ -47,7 +47,7 @@ module MetaInspector
     delegate [:url, :scheme, :host, :root_url,
               :tracked?, :untracked_url, :untrack!]   => :@url
 
-    delegate [:content_type, :response, :inspect]               => :@request
+    delegate [:content_type, :response, :head_response]  => :@request
 
     delegate [:parsed, :title, :best_title,
               :description, :best_description, :links,
