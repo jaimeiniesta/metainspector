@@ -22,6 +22,7 @@ module MetaInspector
       @faraday_options    = options[:faraday_options] || {}
       @faraday_http_cache = options[:faraday_http_cache]
       @lazy               = options[:lazy] || false
+      @head_response      = nil
 
       response unless @lazy
     end
@@ -47,7 +48,7 @@ module MetaInspector
     end
 
     def head_response
-      fetch(verb: :head)
+      @head_response ||= fetch(verb: :head)
     rescue Faraday::TimeoutError => e
       raise MetaInspector::TimeoutError.new(e)
     rescue Faraday::Error::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError, FaradayMiddleware::RedirectLimitReached => e
