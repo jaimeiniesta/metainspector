@@ -1,3 +1,4 @@
+script: "bundle exec rspec -b"
 rvm:
 - 2.2.9
 - 2.3.6
