@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe MetaInspector do
-
   describe "meta tags" do
     let(:page) { MetaInspector.new('http://example.com/meta-tags') }
 
