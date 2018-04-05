@@ -28,7 +28,7 @@ module MetaInspector
       # See doc at http://developers.facebook.com/docs/opengraph/
       # If none found, tries with Twitter image
       def owner_suggested
-        suggested_img = meta['og:image'] || meta['twitter:image']
+        suggested_img = content_of(meta['og:image']) || content_of(meta['twitter:image'])
         URL.absolutify(suggested_img, base_url) if suggested_img
       end
 
@@ -88,6 +88,11 @@ module MetaInspector
 
       def parsed_images
         cleanup(parsed.search('//img/@src'))
+      end
+
+      def content_of(content)
+        return nil if content.nil? || content.empty?
+        content
       end
     end
   end

@@ -72,5 +72,6 @@ RSpec.configure do |config|
     stub_request(:get, "https://protocol-relative.com").to_return(fixture_file("protocol_relative.response"))
     stub_request(:get, "https://twitter.com/markupvalidator").to_return(fixture_file("twitter_markupvalidator.response"))
     stub_request(:get, "https://www.facebook.com/").to_return(fixture_file("https.facebook.com.response"))
+    stub_request(:get, "http://example.com/meta_tags_empty").to_return(fixture_file("meta_tags_empty.response"))
   end
 end
