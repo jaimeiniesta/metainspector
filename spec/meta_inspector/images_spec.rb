@@ -88,6 +88,12 @@ describe MetaInspector do
       expect(page.images.best).to eq("http://example.com/100x100")
     end
 
+    it "should find image when og:image and twitter:image metatags are present but empty" do
+      page = MetaInspector.new('http://example.com/meta_tags_empty')
+
+      expect(page.images.best).to eq("http://example.com/100x100")
+    end
+
     it "should find image when some img tag has no src attribute" do
       page = MetaInspector.new('http://example.com/malformed_image_in_html')
 
