@@ -67,7 +67,7 @@ describe MetaInspector do
     it "should return the author meta tag content if present" do
       page = MetaInspector.new('http://example.com/author_in_meta')
 
-      expect(page.best_author).to eq("This author came from the author meta tag")
+      expect(page.best_author).to eq("the author")
     end
 
     it "should find a link with the relational attribute author if standard meta tag is not present" do
