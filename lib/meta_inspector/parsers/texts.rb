@@ -14,11 +14,9 @@ module MetaInspector
         @best_title ||= find_best_title
       end
 
-      # Returns the meta author, if present, then returns the parsed link relational attribute and address tag
+      # Returns the meta author, if present
       def author
         @author ||= meta['author']
-        @author ||= parsed.css('a[rel="author"]').inner_text rescue nil
-        @author ||= parsed.css('address').inner_text rescue nil
       end
 
       # An author getter that returns the first non-nil description
@@ -29,6 +27,8 @@ module MetaInspector
       # - the twitter:creator meta tag for the username
       def best_author
         @best_author ||= find_best_author
+        @best_author ||= parsed.css('a[rel="author"]').inner_text rescue nil
+        @best_author ||= parsed.css('address').inner_text rescue nil
       end
 
       # Returns the meta description, if present
