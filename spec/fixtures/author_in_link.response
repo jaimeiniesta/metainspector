@@ -16,6 +16,6 @@ Connection: keep-alive
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml">
   <head></head>
   <body>
-    <address>This author came from the address tag</address>
+    <a rel="author">This author came from a link with the author relational attribute</a>
   </body>
 </html>

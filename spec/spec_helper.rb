@@ -46,6 +46,7 @@ RSpec.configure do |config|
     stub_request(:get, "http://example.com/title_not_present").to_return(fixture_file("title_not_present.response"))
     stub_request(:get, "http://example.com/author_in_meta").to_return(fixture_file("author_in_meta.response"))
     stub_request(:get, "http://example.com/author_in_body").to_return(fixture_file("author_in_body.response"))
+    stub_request(:get, "http://example.com/author_in_link").to_return(fixture_file("author_in_link.response"))
     stub_request(:get, "http://example.com/author_in_twitter").to_return(fixture_file("author_in_twitter.response"))
     stub_request(:get, "http://example.com/~").to_return(fixture_file("example.response"))
     stub_request(:get, "http://facebook.com/").to_return(fixture_file("facebook.com.response"))
