@@ -27,7 +27,7 @@ describe MetaInspector::Document do
                             "title"           => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "best_title"      => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "author"          => nil,
-                            "best_author"     => "",
+                            "best_author"     => nil,
                             "description"     => "Track your PageRank(TM) changes and receive alerts by email",
                             "best_description"=> "Track your PageRank(TM) changes and receive alerts by email",
                             "favicon"         => "http://pagerankalert.com/src/favicon.ico",
