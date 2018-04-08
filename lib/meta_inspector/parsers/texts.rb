@@ -27,8 +27,6 @@ module MetaInspector
       # - the twitter:creator meta tag for the username
       def best_author
         @best_author ||= find_best_author
-        @best_author ||= parsed.css('a[rel="author"]').inner_text rescue nil
-        @best_author ||= parsed.css('address').inner_text rescue nil
       end
 
       # Returns the meta description, if present
