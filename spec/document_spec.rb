@@ -26,7 +26,7 @@ describe MetaInspector::Document do
                             "root_url"        => "http://pagerankalert.com/",
                             "title"           => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "best_title"      => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
-                            "author"          => "",
+                            "author"          => nil,
                             "best_author"     => "",
                             "description"     => "Track your PageRank(TM) changes and receive alerts by email",
                             "best_description"=> "Track your PageRank(TM) changes and receive alerts by email",
