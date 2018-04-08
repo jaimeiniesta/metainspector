@@ -74,9 +74,15 @@ module MetaInspector
           parsed.css('address').first,
           meta['twitter:creator']
         ]
+        candidates.flatten!
         candidates.compact!
         candidates.map! { |c| (c.respond_to? :inner_text) ? c.inner_text : c }
+        candidates.map! { |c| c.strip }
         return nil if candidates.empty?
+        candidates.map! { |c| c.gsub(/\s+/, ' ') }
+        candidates.uniq!
+        candidates.sort_by! { |t| -t.length }
+        candidates.first
       end
 
       def find_best_description
