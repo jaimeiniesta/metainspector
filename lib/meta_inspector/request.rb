@@ -29,7 +29,7 @@ module MetaInspector
     delegate :url => :@url
 
     def read
-      response.body.tr("\000", '') if response
+      response.body.force_encoding("UTF-8").tr("\000", '') if response
     end
 
     def content_type
