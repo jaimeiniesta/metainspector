@@ -32,14 +32,9 @@ module MetaInspector
     def read
       return unless response
       body = response.body
-      p body.class
-      p 'deeeeeee'
-      if @encoding
-        body = body.encode!(@encoding, @encoding, :invalid => :replace)
-      end
+      body = body.encode!(@encoding, @encoding, :invalid => :replace) if @encoding
       body.tr("\000", '')
     end
-
 
     def content_type
       return nil if response.headers['content-type'].nil?
