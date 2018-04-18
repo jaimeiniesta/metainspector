@@ -21,6 +21,7 @@ module MetaInspector
       @headers            = options[:headers]
       @faraday_options    = options[:faraday_options] || {}
       @faraday_http_cache = options[:faraday_http_cache]
+      @encoding           = options[:encoding]
 
       response            # request early so we can fail early
     end
@@ -29,6 +30,8 @@ module MetaInspector
     delegate :url => :@url
 
     def read
+      p @encoding 
+      p 'here....'
       response.body.force_encoding("UTF-8").tr("\000", '') if response
     end
 
