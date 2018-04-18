@@ -18,10 +18,10 @@ module MetaInspector
       @connection_timeout = options[:connection_timeout]
       @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
+      @encoding           = options[:encoding]
       @headers            = options[:headers]
       @faraday_options    = options[:faraday_options] || {}
       @faraday_http_cache = options[:faraday_http_cache]
-      @encoding           = options[:encoding]
 
       response            # request early so we can fail early
     end
