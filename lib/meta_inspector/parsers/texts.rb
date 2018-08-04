@@ -57,10 +57,7 @@ module MetaInspector
         candidates.flatten!
         candidates.compact!
         candidates.map! { |c| (c.respond_to? :inner_text) ? c.inner_text : c }
-        candidates.map! { |c| c.strip }
-        return nil if candidates.empty?
-        candidates.map! { |c| c.gsub(/\s+/, ' ') }
-        candidates.uniq!
+        candidates.map! { |c| c.strip.gsub(/\s+/, ' ') }
         candidates.first
       end
 
@@ -74,10 +71,7 @@ module MetaInspector
         candidates.flatten!
         candidates.compact!
         candidates.map! { |c| (c.respond_to? :inner_text) ? c.inner_text : c }
-        candidates.map! { |c| c.strip }
-        return nil if candidates.empty?
-        candidates.map! { |c| c.gsub(/\s+/, ' ') }
-        candidates.uniq!
+        candidates.map! { |c| c.strip.gsub(/\s+/, ' ') }
         candidates.first
       end
 
