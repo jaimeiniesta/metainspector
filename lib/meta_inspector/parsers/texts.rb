@@ -10,7 +10,6 @@ module MetaInspector
       end
 
       def best_title
-        @best_title = meta['og:title'] if @main_parser.host =~ /\.youtube\.com$/
         @best_title ||= find_best_title
       end
 
@@ -46,12 +45,13 @@ module MetaInspector
 
       private
 
-      # Look for candidates and pick the longest one
+      # Look for candidates per list of priority
       def find_best_title
         candidates = [
+            meta['title'],
+            meta['og:title'],
             parsed.css('head title'),
             parsed.css('body title'),
-            meta['og:title'],
             parsed.css('h1').first
         ]
         candidates.flatten!
@@ -61,7 +61,6 @@ module MetaInspector
         return nil if candidates.empty?
         candidates.map! { |c| c.gsub(/\s+/, ' ') }
         candidates.uniq!
-        candidates.sort_by! { |t| -t.length }
         candidates.first
       end
 
