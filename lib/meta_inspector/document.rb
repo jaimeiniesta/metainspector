@@ -18,6 +18,7 @@ module MetaInspector
       @connection_timeout = options[:connection_timeout]
       @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
+      @encoding           = options[:encoding]
 
       @allow_redirections     = options[:allow_redirections]
       @allow_non_html_content = options[:allow_non_html_content]
@@ -28,14 +29,18 @@ module MetaInspector
       @normalize_url      = options[:normalize_url]
       @faraday_options    = options[:faraday_options]
       @faraday_http_cache = options[:faraday_http_cache]
-      @url                = MetaInspector::URL.new(initial_url, normalize:          @normalize_url)
-      @request            = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
-                                                                connection_timeout: @connection_timeout,
-                                                                read_timeout:       @read_timeout,
-                                                                retries:            @retries,
-                                                                headers:            @headers,
-                                                                faraday_options:    @faraday_options,
-                                                                faraday_http_cache: @faraday_http_cache) unless @document
+      @url                = MetaInspector::URL.new(initial_url, normalize: @normalize_url)
+      @request            = MetaInspector::Request.new(
+                              @url,
+                              allow_redirections: @allow_redirections,
+                              connection_timeout: @connection_timeout,
+                              encoding:           @encoding,
+                              read_timeout:       @read_timeout,
+                              retries:            @retries,
+                              headers:            @headers,
+                              faraday_options:    @faraday_options,
+                              faraday_http_cache: @faraday_http_cache
+                            ) unless @document
       @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images)
     end
 

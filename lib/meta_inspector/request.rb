@@ -17,6 +17,7 @@ module MetaInspector
 
       @allow_redirections = options[:allow_redirections]
       @connection_timeout = options[:connection_timeout]
+      @encoding           = options[:encoding]
       @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
       @headers            = options[:headers]
@@ -30,7 +31,10 @@ module MetaInspector
     delegate :url => :@url
 
     def read
-      response.body.tr("\000", '') if response
+      return unless response
+      body = response.body
+      body = body.encode!(@encoding, @encoding, :invalid => :replace) if @encoding
+      body.tr("\000", '')
     end
 
     def content_type
