@@ -14,12 +14,20 @@ describe MetaInspector::Request do
       expect(page_request.read[0..14]).to eq("<!DOCTYPE html>")
     end
 
-    it "should handle invalid byte sequences gracefully" do
-      page_request = MetaInspector::Request.new(url('http://example.com/invalid_utf8_byte_seq'), encoding: "UTF-8")
+    it "can have a forced encoding" do
+      page_request =
+        MetaInspector::Request.new(url('http://example.com/invalid_utf8_byte_seq'))
 
       expect do
         page_request.read
-      end.to_not raise_error
+      end.to raise_error(MetaInspector::RequestError, "invalid byte sequence in UTF-8")
+
+      page_request_with_forced_encoding =
+        MetaInspector::Request.new(url('http://example.com/invalid_utf8_byte_seq'), encoding: "UTF-8")
+
+      expect do
+        page_request_with_forced_encoding.read
+      end.not_to raise_error
     end
   end
 

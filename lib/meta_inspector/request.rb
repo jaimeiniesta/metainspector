@@ -35,6 +35,8 @@ module MetaInspector
       body = response.body
       body = body.encode!(@encoding, @encoding, :invalid => :replace) if @encoding
       body.tr("\000", '')
+    rescue ArgumentError => e
+      raise MetaInspector::RequestError.new(e)
     end
 
     def content_type
