@@ -49,6 +49,50 @@ describe MetaInspector do
     end
   end
 
+  describe '#author' do
+    it "should find author from meta author" do
+      page = MetaInspector.new('http://example.com/author_in_meta')
+
+      expect(page.author).to eq("the author")
+    end
+
+    it "should be nil if no meta author" do
+      page = MetaInspector.new('http://example.com/empty')
+
+      expect(page.author).to be(nil)
+    end
+  end
+
+  describe "#best_author" do
+    it "should return the author meta tag content if present" do
+      page = MetaInspector.new('http://example.com/author_in_meta')
+
+      expect(page.best_author).to eq("the author")
+    end
+
+    it "should find a link with the relational attribute author if standard meta tag is not present" do
+      page = MetaInspector.new('http://example.com/author_in_link')
+      expect(page.best_author).to eq("This author came from a link with the author relational attribute")
+    end
+
+    it "should find the address tag if standard meta tag and relational attribute author are not present" do
+      page = MetaInspector.new('http://example.com/author_in_body')
+      expect(page.best_author).to eq("This author came from the address tag")
+    end
+
+    it "should return the twitter creator if address tag not present" do
+      page = MetaInspector.new('http://example.com/author_in_twitter')
+
+      expect(page.best_author).to eq("This author came from the twitter creator tag")
+    end
+
+    it "should return nil if no author information present" do
+      page = MetaInspector.new('http://example.com/empty')
+
+      expect(page.best_author).to be(nil)
+    end
+  end
+
   describe '#description' do
     it "should find description from meta description" do
       page = MetaInspector.new('http://example.com/desc_in_meta')

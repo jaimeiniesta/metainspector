@@ -1,5 +1,6 @@
 require 'faraday'
 require 'faraday_middleware'
+require 'faraday_middleware/response/follow_redirects'
 require 'faraday-cookie_jar'
 require 'faraday-http-cache'
 require 'faraday/encoding'
