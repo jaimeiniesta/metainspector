@@ -18,6 +18,7 @@ module MetaInspector
       @connection_timeout = options[:connection_timeout]
       @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
+      @encoding           = options[:encoding]
 
       @allow_redirections     = options[:allow_redirections]
       @allow_non_html_content = options[:allow_non_html_content]
@@ -33,6 +34,7 @@ module MetaInspector
                                                                 connection_timeout: @connection_timeout,
                                                                 read_timeout:       @read_timeout,
                                                                 retries:            @retries,
+                                                                encoding:           @encoding,
                                                                 headers:            @headers,
                                                                 faraday_options:    @faraday_options,
                                                                 faraday_http_cache: @faraday_http_cache) unless @document

@@ -30,6 +30,7 @@ RSpec.configure do |config|
     stub_request(:get, "http://example.com/empty").to_return(fixture_file("empty_page.response"))
     stub_request(:get, "http://example.com/head_links").to_return(fixture_file("head_links.response"))
     stub_request(:get, "http://example.com/invalid_byte_seq").to_return(fixture_file("invalid_byte_seq.response"))
+    stub_request(:get, "http://example.com/invalid_utf8_byte_seq").to_return(fixture_file("invalid_utf8_byte_seq.response"))
     stub_request(:get, "http://example.com/invalid_href").to_return(fixture_file("invalid_href.response"))
     stub_request(:get, "http://example.com/largest_image_in_html").to_return(fixture_file("largest_image_in_html.response"))
     stub_request(:get, "http://example.com/largest_image_using_image_size").to_return(fixture_file("largest_image_using_image_size.response"))

@@ -148,5 +148,11 @@ describe MetaInspector::Document do
 
       expect(image_src).to eq('/path/to/image.jpg')
     end
+
+    it "can have a forced encoding" do
+      page = MetaInspector.new('http://example.com/invalid_utf8_byte_seq', encoding: "UTF-8")
+
+      expect(page.title).to eq("¡¡Quiero Reciclar!! // ¿Dónde reciclar?, Plataforma Urbana")
+    end
   end
 end

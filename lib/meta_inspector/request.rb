@@ -19,6 +19,7 @@ module MetaInspector
       @connection_timeout = options[:connection_timeout]
       @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
+      @encoding           = options[:encoding]
       @headers            = options[:headers]
       @faraday_options    = options[:faraday_options] || {}
       @faraday_http_cache = options[:faraday_http_cache]
@@ -30,7 +31,12 @@ module MetaInspector
     delegate :url => :@url
 
     def read
-      response.body.tr("\000", '') if response
+      return unless response
+      body = response.body
+      body = body.encode!(@encoding, @encoding, :invalid => :replace) if @encoding
+      body.tr("\000", '')
+    rescue ArgumentError => e
+      raise MetaInspector::RequestError.new(e)
     end
 
     def content_type

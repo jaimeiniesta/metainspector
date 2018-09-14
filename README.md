@@ -249,6 +249,14 @@ page.parsed  # Nokogiri doc that you can use it to get any element from the page
 
 ## Options
 
+### Forced encoding
+
+If you get a `MetaInspector::RequestError, "invalid byte sequence in UTF-8"` or similar error, you can try forcing the encoding like this:
+
+```ruby
+page = MetaInspector.new(url, :encoding => 'UTF-8')
+```
+
 ### Timeout & Retries
 
 You can specify 2 different timeouts when requesting a page:
