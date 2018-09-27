@@ -29,7 +29,7 @@ describe MetaInspector do
 
     it "should choose the longest candidate from the available options" do
       page = MetaInspector.new('http://example.com/title_best_choice')
-      expect(page.best_title).to eq('This title came from the first h1 and should be the longest of them all, so should be chosen')
+      expect(page.best_title).to eq('This OG title is the best choice, as per web standards.')
     end
 
     it "should strip leading and trailing whitespace and all line breaks" do
@@ -40,12 +40,6 @@ describe MetaInspector do
     it "should return nil if none of the candidates are present" do
       page = MetaInspector.new('http://example.com/title_not_present')
       expect(page.best_title).to be(nil)
-    end
-
-    it "should use the og:title for youtube in preference to h1" do
-      #youtube has a h1 value of 'This video is unavailable.' which is unhelpful
-      page = MetaInspector.new('http://www.youtube.com/watch?v=short_title')
-      expect(page.best_title).to eq('Angular 2 Forms')
     end
   end
 
