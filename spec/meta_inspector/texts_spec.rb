@@ -27,7 +27,7 @@ describe MetaInspector do
       expect(page.best_title).to eq('This title came from the first h1')
     end
 
-    it "should choose the longest candidate from the available options" do
+    it "should choose the best candidate from the available options" do
       page = MetaInspector.new('http://example.com/title_best_choice')
       expect(page.best_title).to eq('This OG title is the best choice, as per web standards.')
     end
