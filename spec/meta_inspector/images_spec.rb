@@ -126,6 +126,12 @@ describe MetaInspector do
 
       expect(page.images.owner_suggested).to be nil
     end
+
+    it "should not normalize image" do
+      page = MetaInspector.new("http://www.guardian.co.uk/media/pda/2011/sep/15/techcrunch-arrington-startups")
+
+      expect(page.images.owner_suggested).to eq("https://i.guim.co.uk/img/media/020bf03ae1d259626803b6c83ac57fd57382f285/0_102_5760_3456/master/5760.jpg?width=1200&height=630&quality=85&auto=format&fit=crop&overlay-align=bottom%2Cleft&overlay-width=100p&overlay-base64=L2ltZy9zdGF0aWMvb3ZlcmxheXMvdGctZGVmYXVsdC5wbmc&s=46e054247285bdf48a7621d371fc5070")
+    end
   end
 
   describe "images.with_size" do
