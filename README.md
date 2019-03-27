@@ -390,6 +390,12 @@ cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
 page = MetaInspector.new('http://example.com', faraday_http_cache: { store: cache })
 ```
 
+MetaInspector can also be used to cache network responses. For that you should pass the `cache_store` option. For example:
+
+ ```ruby
+page = MetaInspector.new('http://example.com', cache_store: { store: Rails.cache, expires_in: 1.hour })
+```
+
 ## Exception Handling
 
 Web page scraping is tricky, you can expect to find different exceptions during the request of the page or the parsing of its contents. MetaInspector will encapsulate these exceptions on these main errors:
