@@ -105,7 +105,7 @@ module MetaInspector
 
     def document
       @document ||= if !allow_non_html_content && !content_type.nil? && content_type != 'text/html'
-        fail MetaInspector::ParserError.new "The url provided contains #{content_type} content instead of text/html content"
+        fail MetaInspector::NonHtmlError.new "The url provided contains #{content_type} content instead of text/html content"
       else
         @request.read
       end

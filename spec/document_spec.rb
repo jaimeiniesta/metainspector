@@ -82,14 +82,14 @@ describe MetaInspector::Document do
       expect do
         image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png')
         image_url.title
-      end.to raise_error(MetaInspector::ParserError)
+      end.to raise_error(MetaInspector::NonHtmlError)
     end
 
     it "should not allow non-html content type when explicitly disallowed" do
       expect do
         image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', allow_non_html_content: false)
         image_url.title
-      end.to raise_error(MetaInspector::ParserError)
+      end.to raise_error(MetaInspector::NonHtmlError)
     end
 
     it "should allow non-html content type when explicitly allowed" do
