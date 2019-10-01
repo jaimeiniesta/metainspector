@@ -1,5 +1,10 @@
 # MetaInpector Changelog
 
+## [Changes in 5.7](https://github.com/jaimeiniesta/metainspector/compare/v5.6.0...v5.7.0)
+
+* Avoids normalizing image URLs. https://github.com/jaimeiniesta/metainspector/pull/241
+* Adds `NonHtmlErrorException` instead of `ParserError` https://github.com/jaimeiniesta/metainspector/pull/248
+
 ## [Changes in 5.6](https://github.com/jaimeiniesta/metainspector/compare/v5.5.0...v5.6.0)
 
 * New feature: `:encoding` option for force encoding of a parsed document.
