@@ -44,6 +44,12 @@ describe MetaInspector::Document do
                             "images"          => ["http://pagerankalert.com/images/pagerank_alert.png?1305794559"],
                             "charset"         => "utf-8",
                             "feed"            => "http://feeds.feedburner.com/PageRankAlert",
+                            "h1"              => [""],
+                            "h2"              => ["Track your PageRank changes"],
+                            "h3"              => ["WHAT'S YOUR PAGERANK?"],
+                            "h4"              => ["Build your own lists", "Get e-mail alerts", "Track your history"],
+                            "h5"              => [],
+                            "h6"              => [],
                             "content_type"    => "text/html",
                             "meta_tags"       => {
                                                    "name" => {

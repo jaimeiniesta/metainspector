@@ -13,6 +13,30 @@ module MetaInspector
         @best_title ||= find_best_title
       end
 
+      def h1
+        @h1 ||= find_heading('h1')
+      end
+
+      def h2
+        @h2 ||= find_heading('h2')
+      end
+
+      def h3
+        @h3 ||= find_heading('h3')
+      end
+      
+      def h4
+        @h4 ||= find_heading('h4')
+      end
+
+      def h5
+        @h5 ||= find_heading('h5')
+      end
+
+      def h6
+        @h6 ||= find_heading('h6')
+      end
+
       # Returns the meta author, if present
       def author
         @author ||= meta['author']
@@ -44,6 +68,10 @@ module MetaInspector
       end
 
       private
+
+      def find_heading(heading)
+        parsed.css(heading).map { |tag| tag.inner_text.strip.gsub(/\s+/, ' ') }
+      end
 
       # Look for candidates per list of priority
       def find_best_title
