@@ -70,7 +70,7 @@ module MetaInspector
       private
 
       def find_heading(heading)
-        parsed.css(heading).map { |tag| tag.inner_text.strip.gsub(/\s+/, ' ') }
+        parsed.css(heading).map { |tag| tag.inner_text.strip.gsub(/\s+/, ' ') }.reject(&:empty?)
       end
 
       # Look for candidates per list of priority
