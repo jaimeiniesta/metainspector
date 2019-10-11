@@ -48,7 +48,7 @@ module MetaInspector
     delegate [:content_type, :response]               => :@request
 
     delegate [:parsed, :title, :best_title, :author, :best_author,
-              :description, :best_description, :links,
+              :h1, :h2, :h3, :h4, :h5, :h6, :description, :best_description, :links,
               :images, :feed, :charset, :meta_tags,
               :meta_tag, :meta, :favicon,
               :head_links, :stylesheets, :canonicals] => :@parser
@@ -66,6 +66,12 @@ module MetaInspector
         'best_author'      => best_author,
         'description'      => description,
         'best_description' => best_description,
+        'h1'               => h1,
+        'h2'               => h2,
+        'h3'               => h3,
+        'h4'               => h4,
+        'h5'               => h5,
+        'h6'               => h6,
         'links'            => links.to_hash,
         'images'           => images.to_a,
         'charset'          => charset,

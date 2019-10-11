@@ -6,6 +6,48 @@ describe MetaInspector do
     expect(page.title).to eq('An example page')
   end
 
+  describe "#h1" do 
+    it "should find h1 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h1.first).to eq('H1')
+    end
+  end
+
+  describe "#h2" do 
+    it "should find h2 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h2.first).to eq('H2')
+    end
+  end
+
+  describe "#h3" do 
+    it "should find h3 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h3.first).to eq('H3')
+    end
+  end
+
+  describe "#h4" do 
+    it "should find h4 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h4.first).to eq('H4')
+    end
+  end
+
+  describe "#h5" do 
+    it "should find h5 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h5.first).to eq('H5')
+    end
+  end
+
+  describe "#h6" do 
+    it "should find h6 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h6.first).to eq('H6')
+    end
+  end
+
   describe '#best_title' do
     it "should find 'head title' when that's the only thing" do
       page = MetaInspector.new('http://example.com/title_in_head')

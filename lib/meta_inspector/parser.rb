@@ -26,7 +26,8 @@ module MetaInspector
     delegate [:head_links, :stylesheets, :canonicals, :feed]                               => :@head_links_parser
     delegate [:links, :base_url]                                                           => :@links_parser
     delegate :images                                                                       => :@images_parser
-    delegate [:title, :best_title, :author, :best_author, :description, :best_description] => :@texts_parser
+    delegate [:title, :best_title, :author, :best_author, :description, :best_description, 
+              :h1, :h2, :h3, :h4, :h5, :h6]                                                => :@texts_parser
 
     # Returns the whole parsed document
     def parsed
