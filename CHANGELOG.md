@@ -1,5 +1,9 @@
 # MetaInpector Changelog
 
+## [Changes in 5.8](https://github.com/jaimeiniesta/metainspector/compare/v5.7.0...v5.8.0)
+
+* Added h1..h6 support.
+
 ## [Changes in 5.7](https://github.com/jaimeiniesta/metainspector/compare/v5.6.0...v5.7.0)
 
 * Avoids normalizing image URLs. https://github.com/jaimeiniesta/metainspector/pull/241
