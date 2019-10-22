@@ -85,6 +85,12 @@ page.author              # author of the page from the meta author tag
 page.best_author         # best author of the page, from a selection of candidates
 page.description         # returns the meta description
 page.best_description    # returns the first non-empty description between the following candidates: standard meta description, og:description, twitter:description, the first long paragraph
+page.h1                  # returns h1 text array
+page.h2                  # returns h2 text array
+page.h3                  # returns h3 text array
+page.h4                  # returns h4 text array
+page.h5                  # returns h5 text array
+page.h6                  # returns h6 text array
 ```
 
 ### Links

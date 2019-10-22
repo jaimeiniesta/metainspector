@@ -29,6 +29,7 @@ RSpec.configure do |config|
     stub_request(:get, "http://example.com/desc_in_twitter").to_return(fixture_file("desc_in_twitter.response"))
     stub_request(:get, "http://example.com/empty").to_return(fixture_file("empty_page.response"))
     stub_request(:get, "http://example.com/head_links").to_return(fixture_file("head_links.response"))
+    stub_request(:get, "http://example.com/headings").to_return(fixture_file("headings.response"))
     stub_request(:get, "http://example.com/invalid_byte_seq").to_return(fixture_file("invalid_byte_seq.response"))
     stub_request(:get, "http://example.com/invalid_utf8_byte_seq").to_return(fixture_file("invalid_utf8_byte_seq.response"))
     stub_request(:get, "http://example.com/invalid_href").to_return(fixture_file("invalid_href.response"))
