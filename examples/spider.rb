@@ -27,10 +27,14 @@ while queue.any?
 
   puts "VISITED: #{url}"
 
-  page = MetaInspector.new(url)
+  begin
+    page = MetaInspector.new(url)
 
-  page.links.internal.each do |link|
-    queue.push(link) unless visited.include?(link) || queue.include?(link)
+    page.links.internal.each do |link|
+      queue.push(link) unless visited.include?(link) || queue.include?(link)
+    end
+  rescue MetaInspector::ParserError
+    puts "Couldn't get links from #{url}, skipping"
   end
 
   puts "#{visited.size} pages visited, #{queue.size} pages on queue\n\n"

@@ -6,6 +6,48 @@ describe MetaInspector do
     expect(page.title).to eq('An example page')
   end
 
+  describe "#h1" do 
+    it "should find h1 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h1.first).to eq('H1')
+    end
+  end
+
+  describe "#h2" do 
+    it "should find h2 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h2.first).to eq('H2')
+    end
+  end
+
+  describe "#h3" do 
+    it "should find h3 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h3.first).to eq('H3')
+    end
+  end
+
+  describe "#h4" do 
+    it "should find h4 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h4.first).to eq('H4')
+    end
+  end
+
+  describe "#h5" do 
+    it "should find h5 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h5.first).to eq('H5')
+    end
+  end
+
+  describe "#h6" do 
+    it "should find h6 content" do
+      page = MetaInspector.new('http://example.com/headings')
+      expect(page.h6.first).to eq('H6')
+    end
+  end
+
   describe '#best_title' do
     it "should find 'head title' when that's the only thing" do
       page = MetaInspector.new('http://example.com/title_in_head')
@@ -27,9 +69,9 @@ describe MetaInspector do
       expect(page.best_title).to eq('This title came from the first h1')
     end
 
-    it "should choose the longest candidate from the available options" do
+    it "should choose the best candidate from the available options" do
       page = MetaInspector.new('http://example.com/title_best_choice')
-      expect(page.best_title).to eq('This title came from the first h1 and should be the longest of them all, so should be chosen')
+      expect(page.best_title).to eq('This OG title is the best choice, as per web standards.')
     end
 
     it "should strip leading and trailing whitespace and all line breaks" do
@@ -41,13 +83,21 @@ describe MetaInspector do
       page = MetaInspector.new('http://example.com/title_not_present')
       expect(page.best_title).to be(nil)
     end
+  end
 
-    it "should use the og:title for youtube in preference to h1" do
-      #youtube has a h1 value of 'This video is unavailable.' which is unhelpful
-      page = MetaInspector.new('http://www.youtube.com/watch?v=short_title')
-      expect(page.best_title).to eq('Angular 2 Forms')
+  describe '#author' do
+    it "should find author from meta author" do
+      page = MetaInspector.new('http://example.com/author_in_meta')
+
+      expect(page.author).to eq("the author")
     end
 
+    it "should be nil if no meta author" do
+      page = MetaInspector.new('http://example.com/empty')
+
+      expect(page.author).to be(nil)
+    end
+    
     it "should sanitize unrelevant tags like <script> by default" do
       page = MetaInspector.new('http://example.com/h1_with_various_tags')
       expect(page.best_title).to eq('This is the inner text of title')
@@ -55,25 +105,86 @@ describe MetaInspector do
   end
 
   describe '#best_title_raw' do
-
     it "should not sanitize unrelevant tags like <script>" do
       page = MetaInspector.new('http://example.com/h1_with_various_tags')
 
       expect(page.best_title_raw).to eq %Q{This is the <span>inner</span> <a href="abc">text</a> of title\n        <script>alert('And this text is irrelevant');</script>\n        <iframe>this should'nt be showed too</iframe>\n        <nonesuch>custom tags also get stripped</nonesuch>\n    }
     end
+  end
 
+  describe "#best_author" do
+    it "should return the author meta tag content if present" do
+      page = MetaInspector.new('http://example.com/author_in_meta')
+
+      expect(page.best_author).to eq("the author")
+    end
+
+    it "should find a link with the relational attribute author if standard meta tag is not present" do
+      page = MetaInspector.new('http://example.com/author_in_link')
+      expect(page.best_author).to eq("This author came from a link with the author relational attribute")
+    end
+
+    it "should find the address tag if standard meta tag and relational attribute author are not present" do
+      page = MetaInspector.new('http://example.com/author_in_body')
+      expect(page.best_author).to eq("This author came from the address tag")
+    end
+
+    it "should return the twitter creator if address tag not present" do
+      page = MetaInspector.new('http://example.com/author_in_twitter')
+
+      expect(page.best_author).to eq("This author came from the twitter creator tag")
+    end
+
+    it "should return nil if no author information present" do
+      page = MetaInspector.new('http://example.com/empty')
+
+      expect(page.best_author).to be(nil)
+    end
   end
 
   describe '#description' do
     it "should find description from meta description" do
-      page = MetaInspector.new('http://www.youtube.com/watch?v=iaGSSrp49uc')
+      page = MetaInspector.new('http://example.com/desc_in_meta')
 
-      expect(page.description).to eq("This is Youtube")
+      expect(page.description).to eq("the standard description")
     end
 
-    it "should find a secondary description if no meta description" do
+    it "should be nil if no meta description" do
+      page = MetaInspector.new('http://example.com/empty')
+
+      expect(page.description).to be(nil)
+    end
+  end
+
+  describe "#best_description" do
+    it "should return the standard description meta tag content if present" do
+      page = MetaInspector.new('http://example.com/desc_in_meta')
+
+      expect(page.best_description).to eq("the standard description")
+    end
+
+    it "should return the og description if standard meta tag is not present" do
+      page = MetaInspector.new('http://example.com/desc_in_og')
+
+      expect(page.best_description).to eq("the og description")
+    end
+
+    it "should return the twitter description if standard and og tag not present" do
+      page = MetaInspector.new('http://example.com/desc_in_twitter')
+
+      expect(page.best_description).to eq("the twitter description")
+    end
+
+    it "should return the secondary description if no meta tag is present" do
       page = MetaInspector.new('http://theonion-no-description.com')
-      expect(page.description).to eq("SAN FRANCISCO—In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday, an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description.")
+
+      expect(page.best_description).to eq("SAN FRANCISCO—In a move expected to revolutionize the mobile device industry, Apple launched its fastest and most powerful iPhone to date Tuesday, an innovative new model that can only be seen by the company's hippest and most dedicated customers. This is secondary text picked up because of a missing meta description.")
+    end
+    
+    it "should return nil by default" do
+      page = MetaInspector.new('http://example.com/empty')
+
+      expect(page.best_description).to be(nil)
     end
 
     it 'should find first paragraph if meta description is empty and remove whitespace' do
@@ -85,7 +196,7 @@ describe MetaInspector do
   describe '#description_raw' do
     it 'should find first paragraph if meta description is empty with html tags' do
       expect(MetaInspector.new('http://example.com/empty-meta-description').description_raw)
-        .to eq("Vivimos en una época en la que el término <strong>'Innovación'</strong> esta siendo usado a placer por organizaciones de todo tipo. Hace algunos meses en una reunión de trabajo alguien mencionó:<em>\"La innovación esta siendo usada como todo aquello que las empresas no saben dónde poner\"</em>. Mejor no lo pudo haber dicho. Llevamos más de dos años de estar colaborando cercanamente con directores de innovación de decenas de empresas, participando en comisiones industriales enfocadas a la innovación y haciendo conexiones laborales internacionales con expertos en materias de innovación (particularmente innovación abierta), y después de todo, la gran mayoría de las empresas no tienen claro lo que (por lo menos dentro de su organización) es innovación. ")
+        .to eq("Vivimos en una época en la que el término <strong>'Innovación'</strong> esta siendo usado a placer por organizaciones de todo tipo. Hace algunos meses en una reunión de trabajo alguien mencionó:<em>\"La innovación esta siendo usada como todo aquello que las empresas no saben dónde poner\"</em>. Mejor no lo pudo haber dicho. Llevamos más de dos años de estar colaborando cercanamente con directores de innovación de decenas de empresas, participando en comisiones industriales enfocadas a la innovación y haciendo conexiones laborales internacionales con expertos en materias de innovación (particularmente innovación abierta), y después de todo, la gran mayoría de las empresas no tienen claro lo que (por lo menos dentro de su organización) es innovación. ")      
     end
   end
 end

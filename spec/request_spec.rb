@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe MetaInspector::Request do
-
   it "raises an error if the URL is non-HTTP" do
     expect do
       MetaInspector::Request.new(url('ftp://ftp.example.com'))
@@ -13,6 +12,22 @@ describe MetaInspector::Request do
       page_request = MetaInspector::Request.new(url('http://pagerankalert.com'))
 
       expect(page_request.read[0..14]).to eq("<!DOCTYPE html>")
+    end
+
+    it "can have a forced encoding" do
+      page_request =
+        MetaInspector::Request.new(url('http://example.com/invalid_utf8_byte_seq'))
+
+      expect do
+        page_request.read
+      end.to raise_error(MetaInspector::RequestError, "invalid byte sequence in UTF-8")
+
+      page_request_with_forced_encoding =
+        MetaInspector::Request.new(url('http://example.com/invalid_utf8_byte_seq'), encoding: "UTF-8")
+
+      expect do
+        page_request_with_forced_encoding.read
+      end.not_to raise_error
     end
   end
 
@@ -55,11 +70,11 @@ describe MetaInspector::Request do
 
   describe 'exception handling' do
     before(:each) do
-      FakeWeb.allow_net_connect = true
+      WebMock.allow_net_connect!
     end
 
     after(:each) do
-      FakeWeb.allow_net_connect = false
+      WebMock.disable_net_connect!
     end
 
     it "should handle socket errors" do

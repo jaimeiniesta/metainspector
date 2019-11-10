@@ -10,4 +10,6 @@ module MetaInspector
   class RequestError < Error; end
 
   class ParserError < Error; end
+
+  class NonHtmlError < ParserError; end
 end

@@ -42,7 +42,7 @@ class BrokenLinkChecker
   def process_next_on_queue
     page = MetaInspector.new(@queue.pop)
 
-    page.links.all.select {|l| l =~ /^http(s)?:\/\//i}.each do |link|
+    page.links.http.each do |link|
       check_status(link, page.url)
     end
 

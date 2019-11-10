@@ -19,9 +19,6 @@ describe MetaInspector do
     end
 
     context "when there are too many redirects" do
-      before(:all) { WebMock.enable! }
-      after(:all)  { WebMock.disable! }
-
       before do
         12.times { |i| register_redirect(i, i+1) }
       end
@@ -34,9 +31,6 @@ describe MetaInspector do
     end
 
     context "when there are cookies required for proper redirection" do
-      before(:all) { WebMock.enable! }
-      after(:all)  { WebMock.disable! }
-
       it "allows follows redirections while sending the cookies" do
         stub_request(:get, "http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/")
           .to_return(:status => 302,

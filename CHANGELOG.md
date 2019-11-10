@@ -1,36 +1,68 @@
 # MetaInpector Changelog
 
+## [Changes in 5.8](https://github.com/jaimeiniesta/metainspector/compare/v5.7.0...v5.8.0)
+
+* Added h1..h6 support.
+
+## [Changes in 5.7](https://github.com/jaimeiniesta/metainspector/compare/v5.6.0...v5.7.0)
+
+* Avoids normalizing image URLs. https://github.com/jaimeiniesta/metainspector/pull/241
+* Adds `NonHtmlErrorException` instead of `ParserError` https://github.com/jaimeiniesta/metainspector/pull/248
+
+## [Changes in 5.6](https://github.com/jaimeiniesta/metainspector/compare/v5.5.0...v5.6.0)
+
+* New feature: `:encoding` option for force encoding of a parsed document.
+* Improvement: make `best_title` and `best_author` work by order of preference, rather than length.
+
+## [Changes in 5.5](https://github.com/jaimeiniesta/metainspector/compare/v5.4.0...v5.5.0)
+
+* New feature: adds `author`, `best_author`.
+* Bugfix: adds presence validation for empty string on meta tag image values.
+* Improves spider and links checker examples.
+* Uses WebMock instead of FakeWeb in tests.
+
+## [Changes in 5.4](https://github.com/jaimeiniesta/metainspector/compare/v5.3.0...v5.4.0)
+
+* Supports Gzipped responses.
+* Adds method `best_description` and makes `description` return just the meta description.
+* Removes support for Ruby 2.0.0 and adds support for 2.4.0.
+
+## [Changes in 5.3](https://github.com/jaimeiniesta/metainspector/compare/v5.2.0...v5.3.0)
+
+* Returns secondary description if meta description is empty.
+* Adds a custom timeout on top of the ones for Faraday, and sets defaults for timeouts.
+* Eliminates possible NULL char in HTML which breaks nokogiri.
+
 ## [Changes in 5.2](https://github.com/jaimeiniesta/metainspector/compare/v5.1.0...v5.2.0)
 
-Removes the deprecated `html_content_only` option, and replaces it by `allow_non_html_content`, by default `false`.
+* Removes the deprecated `html_content_only` option, and replaces it by `allow_non_html_content`, by default `false`.
 
 ## [Changes in 5.1](https://github.com/jaimeiniesta/metainspector/compare/v5.0.0...v5.1.0)
 
-Deprecates the `html_content_only` option, and turns it on by default.
+* Deprecates the `html_content_only` option, and turns it on by default.
 
 ## [Changes in 5.0](https://github.com/jaimeiniesta/metainspector/compare/v4.7.1...v5.0.0)
 
-Removes the ExceptionLog, all exceptions are now encapsulated in our own exception classes and
+* Removes the ExceptionLog, all exceptions are now encapsulated in our own exception classes and
 always raised.
 
 ## [Changes in 4.7](https://github.com/jaimeiniesta/metainspector/compare/v4.6.0...v4.7.1)
 
-MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option with at least the `:store` key, for example:
+* MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option with at least the `:store` key, for example:
 
 ```ruby
 cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
 page = MetaInspector.new('http://example.com', faraday_http_cache: { store: cache })
 ```
 
-Bugfixes:
-
-* Parsing of the document is done as soon as it is initialized (just like we do with the request), so
+* Bugfixes:
+  * Parsing of the document is done as soon as it is initialized (just like we do with the request), so
 that parsing errors will be catched earlier.
-* Rescues from Faraday::SSLError.
+  * Rescues from Faraday::SSLError.
 
 ## [Changes in 4.6](https://github.com/jaimeiniesta/metainspector/compare/v4.5.0...v4.6.0)
 
-Faraday can be passed options via `:faraday_options`. This is useful in cases where we need to
+* Faraday can be passed options via `:faraday_options`. This is useful in cases where we need to
 customize the way we request the page, like for example disabling SSL verification, like this:
 
 ```ruby
@@ -58,7 +90,7 @@ MetaInpector.new('https://example.com', faraday_options: { ssl: { verify: false 
 
 ## [Changes in 4.4](https://github.com/jaimeiniesta/metainspector/compare/v4.3.0...v4.4.0)
 
-The default headers now include `'Accept-Encoding' => 'identity'` to minimize trouble with servers that respond with malformed compressed responses, [as explained here](https://github.com/lostisland/faraday/issues/337).
+* The default headers now include `'Accept-Encoding' => 'identity'` to minimize trouble with servers that respond with malformed compressed responses, [as explained here](https://github.com/lostisland/faraday/issues/337).
 
 ## [Changes in 4.3](https://github.com/jaimeiniesta/metainspector/compare/v4.3.0...v4.4.0)
 

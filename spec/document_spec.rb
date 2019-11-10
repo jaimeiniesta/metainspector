@@ -26,7 +26,10 @@ describe MetaInspector::Document do
                             "root_url"        => "http://pagerankalert.com/",
                             "title"           => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "best_title"      => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
+                            "author"          => nil,
+                            "best_author"     => nil,
                             "description"     => "Track your PageRank(TM) changes and receive alerts by email",
+                            "best_description"=> "Track your PageRank(TM) changes and receive alerts by email",
                             "favicon"         => "http://pagerankalert.com/src/favicon.ico",
                             "links"           => {
                                                     'internal' => ["http://pagerankalert.com/",
@@ -41,6 +44,12 @@ describe MetaInspector::Document do
                             "images"          => ["http://pagerankalert.com/images/pagerank_alert.png?1305794559"],
                             "charset"         => "utf-8",
                             "feed"            => "http://feeds.feedburner.com/PageRankAlert",
+                            "h1"              => [],
+                            "h2"              => ["Track your PageRank changes"],
+                            "h3"              => ["WHAT'S YOUR PAGERANK?"],
+                            "h4"              => ["Build your own lists", "Get e-mail alerts", "Track your history"],
+                            "h5"              => [],
+                            "h6"              => [],
                             "content_type"    => "text/html",
                             "meta_tags"       => {
                                                    "name" => {
@@ -80,14 +89,14 @@ describe MetaInspector::Document do
       expect do
         image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png')
         image_url.title
-      end.to raise_error(MetaInspector::ParserError)
+      end.to raise_error(MetaInspector::NonHtmlError)
     end
 
     it "should not allow non-html content type when explicitly disallowed" do
       expect do
         image_url = MetaInspector::Document.new('http://pagerankalert.com/image.png', allow_non_html_content: false)
         image_url.title
-      end.to raise_error(MetaInspector::ParserError)
+      end.to raise_error(MetaInspector::NonHtmlError)
     end
 
     it "should allow non-html content type when explicitly allowed" do
@@ -145,6 +154,12 @@ describe MetaInspector::Document do
       image_src = doc.css('.some_class').first.attribute('src').value
 
       expect(image_src).to eq('/path/to/image.jpg')
+    end
+
+    it "can have a forced encoding" do
+      page = MetaInspector.new('http://example.com/invalid_utf8_byte_seq', encoding: "UTF-8")
+
+      expect(page.title).to eq("¡¡Quiero Reciclar!! // ¿Dónde reciclar?, Plataforma Urbana")
     end
   end
 end

@@ -1,4 +1,4 @@
-# MetaInspector [![Build Status](https://secure.travis-ci.org/jaimeiniesta/metainspector.png)](http://travis-ci.org/jaimeiniesta/metainspector) [![Dependency Status](https://gemnasium.com/jaimeiniesta/metainspector.png)](https://gemnasium.com/jaimeiniesta/metainspector) [![Code Climate](https://codeclimate.com/github/jaimeiniesta/metainspector/badges/gpa.svg)](https://codeclimate.com/github/jaimeiniesta/metainspector)
+# MetaInspector [![Build Status](https://secure.travis-ci.org/jaimeiniesta/metainspector.png)](http://travis-ci.org/jaimeiniesta/metainspector) [![Code Climate](https://codeclimate.com/github/jaimeiniesta/metainspector/badges/gpa.svg)](https://codeclimate.com/github/jaimeiniesta/metainspector)
 
 MetaInspector is a gem for web scraping purposes.
 
@@ -21,8 +21,6 @@ If you're using it on a Rails application, just add it to your Gemfile and run `
 ```ruby
 gem 'metainspector'
 ```
-
-This gem is tested on Ruby versions 2.0.0, 2.1.8 and 2.2.4.
 
 ## Usage
 
@@ -83,7 +81,16 @@ page.feed                # Get rss or atom links in meta data fields as array
 ```ruby
 page.title               # title of the page from the head section, as string
 page.best_title          # best title of the page, from a selection of candidates
-page.description         # returns the meta description, or the first long paragraph if no meta description is found
+page.author              # author of the page from the meta author tag
+page.best_author         # best author of the page, from a selection of candidates
+page.description         # returns the meta description
+page.best_description    # returns the first non-empty description between the following candidates: standard meta description, og:description, twitter:description, the first long paragraph
+page.h1                  # returns h1 text array
+page.h2                  # returns h2 text array
+page.h3                  # returns h3 text array
+page.h4                  # returns h4 text array
+page.h5                  # returns h5 text array
+page.h6                  # returns h6 text array
 ```
 
 ### Links
@@ -248,6 +255,14 @@ page.parsed  # Nokogiri doc that you can use it to get any element from the page
 
 ## Options
 
+### Forced encoding
+
+If you get a `MetaInspector::RequestError, "invalid byte sequence in UTF-8"` or similar error, you can try forcing the encoding like this:
+
+```ruby
+page = MetaInspector.new(url, :encoding => 'UTF-8')
+```
+
 ### Timeout & Retries
 
 You can specify 2 different timeouts when requesting a page:
@@ -387,7 +402,8 @@ Web page scraping is tricky, you can expect to find different exceptions during 
 
 * `MetaInspector::TimeoutError`. When fetching a web page has taken too long.
 * `MetaInspector::RequestError`. When there has been an error on the request phase. Examples: page not found, SSL failure, invalid URI.
-* `MetaInspector::ParserError`. When there has been an error parsing the contents of the page. Example: trying to parse an image file.
+* `MetaInspector::ParserError`. When there has been an error parsing the contents of the page.
+* `MetaInspector::NonHtmlError`. When the contents of the page was not HTML. See also the `allow_non_html_content` option
 
 ## Examples
 
@@ -437,6 +453,7 @@ You can also come to chat with us on our [Gitter room](https://gitter.im/jaimein
 * [go-metainspector](https://github.com/fern4lvarez/go-metainspector), a port of MetaInspector for Go.
 * [Node-MetaInspector](https://github.com/gabceb/node-metainspector), a port of MetaInspector for Node.
 * [MetaInvestigator](https://github.com/nekova/metainvestigator), a port of MetaInspector for Elixir.
+* [Funkspector](https://github.com/jaimeiniesta/funkspector), another port of MetaInspector for Elixir.
 
 ## License
 MetaInspector is released under the [MIT license](MIT-LICENSE).
