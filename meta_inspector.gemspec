@@ -14,7 +14,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = MetaInspector::VERSION
 
-  gem.add_dependency 'nokogiri', '~> 1.10.4'
+  gem.add_dependency 'nokogiri', '~> 1.10.7'
   gem.add_dependency 'faraday', '~> 0.17.0'
   gem.add_dependency 'faraday_middleware', '~> 0.13.1'
   gem.add_dependency 'faraday-cookie_jar', '~> 0.0.6'
