@@ -27,7 +27,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec', '~> 3.9.0'
   gem.add_development_dependency 'webmock', '~> 3.7.6'
   gem.add_development_dependency 'awesome_print', '~> 1.8.0'
-  gem.add_development_dependency 'rake', '~> 13.0.0'
+  gem.add_development_dependency 'rake', '~> 13.0.1'
   gem.add_development_dependency 'pry', '~> 0.12.2'
-  gem.add_development_dependency 'rubocop', '~> 0.75.1'
+  gem.add_development_dependency 'rubocop', '~> 0.79.0'
 end
