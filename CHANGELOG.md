@@ -1,5 +1,10 @@
 # MetaInpector Changelog
 
+## [Changes in 5.9](https://github.com/jaimeiniesta/metainspector/compare/v5.8.0...v5.9.0)
+
+* Added #feeds method to retrieve all feeds of a page.
+* Adds deprecation warning on #feed method.
+
 ## [Changes in 5.8](https://github.com/jaimeiniesta/metainspector/compare/v5.7.0...v5.8.0)
 
 * Added h1..h6 support.
