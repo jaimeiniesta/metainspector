@@ -49,7 +49,7 @@ module MetaInspector
 
     delegate [:parsed, :title, :best_title, :author, :best_author,
               :h1, :h2, :h3, :h4, :h5, :h6, :description, :best_description, :links,
-              :images, :feed, :charset, :meta_tags,
+              :images, :feeds, :feed, :charset, :meta_tags,
               :meta_tag, :meta, :favicon,
               :head_links, :stylesheets, :canonicals] => :@parser
 
@@ -76,6 +76,7 @@ module MetaInspector
         'images'           => images.to_a,
         'charset'          => charset,
         'feed'             => feed,
+        'feeds'            => feeds,
         'content_type'     => content_type,
         'meta_tags'        => meta_tags,
         'favicon'          => images.favicon,

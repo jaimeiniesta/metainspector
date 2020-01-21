@@ -69,8 +69,6 @@ RSpec.configure do |config|
     stub_request(:get, "http://www.24-horas.mx/mexico-firma-acuerdo-bilateral-automotriz-con-argentina/").to_return(fixture_file("relative_og_image.response"))
     stub_request(:get, "http://www.alazan.com").to_return(fixture_file("alazan.com.response"))
     stub_request(:get, "http://www.guardian.co.uk/media/pda/2011/sep/15/techcrunch-arrington-startups").to_return(fixture_file("guardian.co.uk.response"))
-    stub_request(:get, "http://www.iteh.at").to_return(fixture_file("iteh.at.response"))
-    stub_request(:get, "http://www.tea-tron.com/jbravo/blog/").to_return(fixture_file("tea-tron.com.response"))
     stub_request(:get, "http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/").to_return(fixture_file("theonion.com.response"))
     stub_request(:get, "http://www.youtube.com/watch?v=iaGSSrp49uc").to_return(fixture_file("youtube.response"))
     stub_request(:get, "http://www.youtube.com/watch?v=short_title").to_return(fixture_file("youtube_short_title.response"))
@@ -79,5 +77,6 @@ RSpec.configure do |config|
     stub_request(:get, "https://twitter.com/markupvalidator").to_return(fixture_file("twitter_markupvalidator.response"))
     stub_request(:get, "https://www.facebook.com/").to_return(fixture_file("https.facebook.com.response"))
     stub_request(:get, "http://example.com/meta_tags_empty").to_return(fixture_file("meta_tags_empty.response"))
+    stub_request(:get, "http://feeds.example.com").to_return(fixture_file("feeds.response"))
   end
 end
