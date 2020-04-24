@@ -48,7 +48,7 @@ module MetaInspector
       @response ||= fetch
     rescue Faraday::TimeoutError => e
       raise MetaInspector::TimeoutError.new(e)
-    rescue Faraday::Error::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError, FaradayMiddleware::RedirectLimitReached => e
+    rescue Faraday::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError, FaradayMiddleware::RedirectLimitReached => e
       raise MetaInspector::RequestError.new(e)
     end
 
