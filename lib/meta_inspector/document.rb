@@ -78,6 +78,7 @@ module MetaInspector
         'images'           => images.to_a,
         'charset'          => charset,
         'feed'             => feed,
+        'feeds'            => feeds,
         'content_type'     => content_type,
         'meta_tags'        => meta_tags,
         'favicon'          => images.favicon,

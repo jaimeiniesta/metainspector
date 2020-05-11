@@ -24,7 +24,7 @@ module MetaInspector
     
     delegate [:url, :scheme, :host]                                                        => :@document
     delegate [:meta_tags, :meta_tag, :meta, :charset]                                      => :@meta_tag_parser
-    delegate [:head_links, :stylesheets, :canonicals, :feed]                               => :@head_links_parser
+    delegate [:head_links, :stylesheets, :canonicals, :feeds, :feed]                       => :@head_links_parser
     delegate [:links, :base_url]                                                           => :@links_parser
     delegate :images                                                                       => :@images_parser
     delegate [:title, :title_raw, :best_title, :best_title_raw,

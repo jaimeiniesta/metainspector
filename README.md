@@ -73,7 +73,7 @@ page.root_url            # Root url (scheme + host, like http://sitevalidator.co
 page.head_links          # an array of hashes of all head/links
 page.stylesheets         # an array of hashes of all head/links where rel='stylesheet'
 page.canonicals          # an array of hashes of all head/links where rel='canonical'
-page.feed                # Get rss or atom links in meta data fields as array
+page.feeds               # Get rss or atom links in meta data fields as array of hash in the form { href: "...", title: "...", type: "..." }
 ```
 
 ### Texts
