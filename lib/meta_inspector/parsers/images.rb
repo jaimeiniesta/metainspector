@@ -126,7 +126,7 @@ module MetaInspector
         imgs = []
         # Find any css bg images
         imgs += parsed_document.to_html.scan(/\burl\s*\(\s*["']?([^"'\r\n\)\(]+)["']?\s*\)/).map do |background_image_url|
-          [URL.absolutify(background_image_url&.strip, base_url, normalize: false), 0, 0]
+          [URL.absolutify(background_image_url.first&.strip, base_url, normalize: false), 0, 0]
         end
 
         # Find any elements that have bg or background data attributes
