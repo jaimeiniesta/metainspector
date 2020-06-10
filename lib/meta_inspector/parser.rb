@@ -15,7 +15,8 @@ module MetaInspector
       @links_parser    = MetaInspector::Parsers::LinksParser.new(self)
       @download_images = options[:download_images]
       @fetch_all_image_meta = options[:fetch_all_image_meta]
-      @images_parser   = MetaInspector::Parsers::ImagesParser.new(self, download_images: @download_images, fetch_all_image_meta: @fetch_all_image_meta)
+      @image_blacklist_words =  options[:image_blacklist_words]
+      @images_parser   = MetaInspector::Parsers::ImagesParser.new(self, download_images: @download_images, fetch_all_image_meta: @fetch_all_image_meta, image_blacklist_words: @image_blacklist_words )
       @texts_parser    = MetaInspector::Parsers::TextsParser.new(self)
 
       parsed           # parse early so we can fail early

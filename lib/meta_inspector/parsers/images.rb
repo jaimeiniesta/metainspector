@@ -3,6 +3,8 @@ require 'fastimage'
 module MetaInspector
   module Parsers
     class ImagesParser < Base
+      DEFAULT_IMG_BLACKLIST =  ['.woff', '.font', '.tiff', '.tif', 'data:'].freeze
+
       delegate [:parsed, :meta, :base_url]         => :@main_parser
       delegate [:each, :length, :size, :[], :last] => :images_collection
 
@@ -11,6 +13,7 @@ module MetaInspector
       def initialize(main_parser, options = {})
         @download_images = options[:download_images]
         @fetch_all_image_meta = options[:fetch_all_image_meta]
+        @image_blacklist_words =  options[:image_blacklist_words] || DEFAULT_IMG_BLACKLIST
         super(main_parser)
       end
 
@@ -53,6 +56,9 @@ module MetaInspector
 
            imgs_with_size.compact!
            imgs_with_size.uniq! { |url, width, height| url }
+
+           # Remove any urls that have been blacklisted
+           imgs_with_size.reject! { |url| @image_blacklist_words.any? { |blacklist_word| url.first.include?(blacklist_word) } }
 
            if @download_images
              imgs_with_size.map! do |img_with_size|
