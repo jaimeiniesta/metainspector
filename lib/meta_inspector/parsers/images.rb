@@ -68,14 +68,14 @@ module MetaInspector
       # filtered for images that are more square than 10:1 or 1:10
       def largest
         @largest_image ||= begin
-                             imgs_with_size = with_size.dup
-                             imgs_with_size.keep_if do |url, width, height|
-                               ratio = width.to_f / height.to_f
-                               ratio > 0.1 && ratio < 10
-                             end
-                             url, width, height = imgs_with_size.first
-                             url
-                           end
+          imgs_with_size = with_size.dup
+          imgs_with_size.keep_if do |url, width, height|
+            ratio = width.to_f / height.to_f
+            ratio > 0.1 && ratio < 10
+          end
+          url, width, height = imgs_with_size.first
+          url
+        end
       end
 
       # Return favicon url if exist
