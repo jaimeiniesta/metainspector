@@ -47,7 +47,7 @@ module MetaInspector
       # This can be the one set on a <base> tag,
       # or the url of the document if no <base> tag was found.
       def base_url
-        base_href&strip.presence || url
+        base_href&.strip.presence || url
       end
 
       # Returns the value of the href attribute on the <base /> tag, if exists
