@@ -47,9 +47,13 @@ module MetaInspector
                  [URL.absolutify(src_value, base_url, normalize: false), img_node['width'], img_node['height']]
                end
              end
-           end.compact
+           end
 
+           imgs_with_size += bg_and_other_imgs(parsed)
+
+           imgs_with_size.compact!
            imgs_with_size.uniq! { |url, width, height| url }
+
            if @download_images
              imgs_with_size.map! do |img_with_size|
                image_with_meta(img_with_size)
@@ -116,6 +120,20 @@ module MetaInspector
         end.sort_by { |v| -v[:size] }.first.dig(:url)
         return unless largest_src.present?
         [URL.absolutify(largest_src.strip, base_url, normalize: false), 0, 0]
+      end
+
+      def bg_and_other_imgs(parsed_document)
+        imgs = []
+        # Find any css bg images
+        imgs += parsed_document.to_html.scan(/\burl\s*\(\s*["']?([^"'\r\n\)\(]+)["']?\s*\)/).map do |background_image_url|
+          [URL.absolutify(background_image_url&.strip, base_url, normalize: false), 0, 0]
+        end
+
+        # Find any elements that have bg or background data attributes
+        imgs += parsed_document.xpath("//@data-bg|//@data-background").map do |data_bg|
+          [URL.absolutify(data_bg.value&.strip, base_url, normalize: false), 0, 0] if data_bg.try(:value).present?
+        end
+        imgs
       end
 
       def images_collection
