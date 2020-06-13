@@ -139,6 +139,10 @@ module MetaInspector
         imgs += parsed_document.xpath("//@data-bg|//@data-background").map do |data_bg|
           [URL.absolutify(data_bg.value&.strip, base_url, normalize: false), 0, 0] if data_bg.try(:value).present?
         end
+
+        # As a fallback look for anything that looks like an image url.  This will help detect images that are stored in json on the page and then redered with js later.
+        imgs += parsed_document.to_html.scan(/(http?s?:?\/\/[^"']*\.(?:png|jpg|jpeg|png))/i)
+
         imgs
       end
 
