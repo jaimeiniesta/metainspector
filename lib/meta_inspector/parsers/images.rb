@@ -12,8 +12,12 @@ module MetaInspector
 
       def initialize(main_parser, options = {})
         @download_images = options[:download_images]
-        @fetch_all_image_meta = options[:fetch_all_image_meta]
-        @image_blacklist_words =  options[:image_blacklist_words] || DEFAULT_IMG_BLACKLIST
+
+        download_image_options = options[:download_image_options] || { fetch_all_image_meta: false, image_blacklist_words: DEFAULT_IMG_BLACKLIST }
+        @fetch_all_image_meta = download_image_options[:fetch_all_image_meta]
+        @image_blacklist_words =  download_image_options[:image_blacklist_words]
+        @max_image_downloads =  download_image_options[:max_image_downloads] # Default's to nil and if nil will not remove any photos
+
         super(main_parser)
       end
 
@@ -59,6 +63,8 @@ module MetaInspector
 
            # Remove any urls that have been blacklisted
            imgs_with_size.reject! { |url| @image_blacklist_words.any? { |blacklist_word| url.first.include?(blacklist_word) } }
+
+           imgs_with_size = imgs_with_size.first(@max_image_downloads) if @max_image_downloads
 
            if @download_images
              imgs_with_size.map! do |img_with_size|
@@ -141,7 +147,9 @@ module MetaInspector
         end
 
         # As a fallback look for anything that looks like an image url.  This will help detect images that are stored in json on the page and then redered with js later.
-        imgs += parsed_document.to_html.scan(/(http?s?:?\/\/[^"']*\.(?:png|jpg|jpeg|png))/i)
+        imgs += parsed_document.to_html.scan(/http?s?:?\/\/[^"']*\.(?:png|jpg|jpeg|png)/i).map do |url|
+          [url.strip, 0, 0] if url.present?
+        end
 
         imgs
       end
