@@ -89,7 +89,6 @@ module MetaInspector
                  valid
                end
              end
-             imgs_with_size
            else
              imgs_with_size.map! do |url, width, height|
                width, height = [0, 0] if width.nil? || height.nil?
