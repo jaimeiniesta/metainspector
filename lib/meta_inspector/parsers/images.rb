@@ -17,6 +17,7 @@ module MetaInspector
         @fetch_all_image_meta = download_image_options[:fetch_all_image_meta]
         @image_blacklist_words =  download_image_options[:image_blacklist_words]
         @max_image_downloads =  download_image_options[:max_image_downloads] # Default's to nil and if nil will not remove any photos
+        @reject_invalid_images = download_image_options[:reject_invalid_images]
 
         super(main_parser)
       end
@@ -37,6 +38,17 @@ module MetaInspector
       # If none found, tries with Twitter image
       def owner_suggested
         suggested_img = content_of(meta['og:image']) || content_of(meta['twitter:image'])
+
+        # Verify suggest_img can be found
+        if @download_images && @reject_invalid_images
+          begin
+            # Test the image and if it raises an exception don't use it
+            FastImage.new(suggested_img, raise_on_failure: true)
+          rescue
+            return nil
+          end
+        end
+
         URL.absolutify(suggested_img, base_url, normalize: false) if suggested_img
       end
 
@@ -70,6 +82,14 @@ module MetaInspector
              imgs_with_size.map! do |img_with_size|
                image_with_meta(img_with_size)
              end
+
+             if @reject_invalid_images && @fetch_all_image_meta
+               imgs_with_size.select! do |img_with_size|
+                 _url, _width, _height, _file_type, _file_size, valid  = img_with_size
+                 valid
+               end
+             end
+             imgs_with_size
            else
              imgs_with_size.map! do |url, width, height|
                width, height = [0, 0] if width.nil? || height.nil?
@@ -107,20 +127,26 @@ module MetaInspector
 
       def image_with_meta(img_with_size)
         url, width, height  = img_with_size
-        file_type = nil
-        file_size = nil
 
         if @fetch_all_image_meta
+          file_type = nil
+          file_size = nil
+          valid = true
           # Fetch everything, dimensions, size, type
-          fast_img = FastImage.new(url)
-          width, height = fast_img.size
-          file_type = fast_img.type
-          file_size = fast_img.content_length
+          begin
+            fast_img = FastImage.new(url)
+            width, height = fast_img.size
+            file_type = fast_img.type
+            file_size = fast_img.content_length
+          rescue
+            valid = false
+          end
+          [url, width.to_i, height.to_i, file_type, file_size, valid]
         else
-          # Only fetch size if you haven't detected it yet
+          # Only fetch size if you haven't detected it
           width, height = FastImage.size(url) if width.nil? || height.nil?
+          [url, width.to_i, height.to_i]
         end
-        [url, width.to_i, height.to_i, file_type, file_size]
       end
 
       # Analyze the srcset and attempt to choose the largest image from it.
