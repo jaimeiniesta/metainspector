@@ -174,8 +174,9 @@ module MetaInspector
         end
 
         # As a fallback look for anything that looks like an image url.  This will help detect images that are stored in json on the page and then redered with js later.
-        imgs += parsed_document.to_html.scan(/http?s?:?\/\/[^"']*\.(?:png|jpg|jpeg|png)/i).map do |url|
-          [url.strip, 0, 0] if url.present?
+        imgs += parsed_document.to_html.scan(/\/[^"']*\.(?:png|jpg|jpeg|png)/i).map do |url|
+          absolutified_url = URL.absolutify(url.strip, base_url, normalize: false)
+          [absolutified_url, 0, 0] if absolutified_url.present?
         end
 
         imgs
