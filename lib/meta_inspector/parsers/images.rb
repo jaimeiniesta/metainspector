@@ -63,7 +63,7 @@ module MetaInspector
              else
                src_value = img_node.attr('data-src') || img_node.attr('data-image') || img_node.attr('data-img') || img_node.attr('src')
                if src_value.present?
-                 [URL.absolutify(src_value, base_url, normalize: false), img_node['width'], img_node['height']]
+                 [URL.absolutify(src_value.strip, base_url, normalize: false), img_node['width'], img_node['height']]
                end
              end
            end
@@ -71,6 +71,7 @@ module MetaInspector
            imgs_with_size += bg_and_other_imgs(parsed)
 
            imgs_with_size.compact!
+
            imgs_with_size.uniq! { |url, width, height| url }
 
            # Remove any urls that have been blacklisted
