@@ -65,6 +65,7 @@ RSpec.configure do |config|
     stub_request(:get, "http://relativewithbase.com/").to_return(fixture_file("relative_links_with_base.response"))
     stub_request(:get, "http://relativewithbase.com/company/page2").to_return(fixture_file("relative_links_with_base.response"))
     stub_request(:get, "http://relativewithbase.com/company/page2/").to_return(fixture_file("relative_links_with_base.response"))
+    stub_request(:get, "http://relativewithemptybase.com/company").to_return(fixture_file("relative_links_with_empty_base.response"))
     stub_request(:get, "http://theonion-no-description.com").to_return(fixture_file("theonion-no-description.com.response"))
     stub_request(:get, "http://www.24-horas.mx/mexico-firma-acuerdo-bilateral-automotriz-con-argentina/").to_return(fixture_file("relative_og_image.response"))
     stub_request(:get, "http://www.alazan.com").to_return(fixture_file("alazan.com.response"))
