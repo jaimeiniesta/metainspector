@@ -157,7 +157,7 @@ module MetaInspector
         largest_src = Array.wrap(srcset_values).map do |srcset_value|
           srcset_value_img_props = srcset_value.split
           { url: srcset_value_img_props.first, size: srcset_value_img_props.last.to_i }
-        end.sort_by { |v| -v[:size] }.first.dig(:url)
+        end.sort_by { |v| -v[:size] }.first&.dig(:url)
         return unless largest_src.present?
         [URL.absolutify(largest_src.strip, base_url, normalize: false), 0, 0]
       end
