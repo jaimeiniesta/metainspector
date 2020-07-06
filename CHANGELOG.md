@@ -1,5 +1,9 @@
 # MetaInpector Changelog
 
+## [Changes in 5.10](https://github.com/jaimeiniesta/metainspector/compare/v5.9.0...v5.10.0)
+
+* Upgrade to Faraday 1.0.
+
 ## [Changes in 5.9](https://github.com/jaimeiniesta/metainspector/compare/v5.8.0...v5.9.0)
 
 * Added #feeds method to retrieve all feeds of a page.
