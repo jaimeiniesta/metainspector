@@ -22,6 +22,8 @@ If you're using it on a Rails application, just add it to your Gemfile and run `
 gem 'metainspector'
 ```
 
+Supported Ruby versions are defined in [`.travis.yml`](.travis.yml).
+
 ## Usage
 
 Initialize a MetaInspector instance for an URL, like this:
