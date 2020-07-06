@@ -145,6 +145,13 @@ describe MetaInspector do
     end
   end
 
+  describe 'Relative links with empty or blank base' do
+    it 'should get the relative links from a document' do
+      m = MetaInspector.new('http://relativewithemptybase.com/company')
+      expect(m.links.internal).to eq(['http://relativewithemptybase.com/about', 'http://relativewithemptybase.com/sitemap'])
+    end
+  end
+
   describe 'Relative links with base' do
     it 'should get the relative links from a document' do
       m = MetaInspector.new('http://relativewithbase.com/company/page2')
