@@ -1,5 +1,9 @@
 # MetaInpector Changelog
 
+## Unreleased
+
+* Upgrade to Faraday 1.1.
+
 ## [Changes in 5.10.1](https://github.com/jaimeiniesta/metainspector/compare/v5.10.0...v5.10.1)
 
 * Fix for empty base_href. Makes relative links work when base_href is nil but empty ("").
