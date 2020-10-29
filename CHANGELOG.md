@@ -1,6 +1,6 @@
 # MetaInpector Changelog
 
-## Unreleased
+## [Changes in 5.11.0](https://github.com/jaimeiniesta/metainspector/compare/v5.10.1...v5.11.0)
 
 * Upgrade to Faraday 1.1.
 
