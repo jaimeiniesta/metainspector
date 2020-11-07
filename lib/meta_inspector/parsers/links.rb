@@ -47,7 +47,7 @@ module MetaInspector
       # This can be the one set on a <base> tag,
       # or the url of the document if no <base> tag was found.
       def base_url
-        current_base_href = base_href.to_s.strip.empty? ? nil : base_href
+        current_base_href = base_href.to_s.strip.empty? ? nil : URL.absolutify(base_href, URL.new(url).root_url)
         current_base_href || url
       end
 

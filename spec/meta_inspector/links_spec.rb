@@ -164,6 +164,26 @@ describe MetaInspector do
     end
   end
 
+  describe 'Relative links with relative base' do
+    it 'should get the relative links with relative directory base' do
+      m = MetaInspector.new('http://relativewithrelativebase.com/relativedir')
+      expect(m.links.all).to eq(['http://relativewithrelativebase.com/other/about',
+                                 'http://relativewithrelativebase.com/sitemap'])
+    end
+
+    it 'should get the relative links with relative document base' do
+      m = MetaInspector.new('http://relativewithrelativebase.com/relativedoc')
+      expect(m.links.all).to eq(['http://relativewithrelativebase.com/about',
+                                 'http://relativewithrelativebase.com/sitemap'])
+    end
+
+    it 'should get the relative links with relative root base' do
+      m = MetaInspector.new('http://relativewithrelativebase.com/')
+      expect(m.links.all).to eq(['http://relativewithrelativebase.com/about',
+                                 'http://relativewithrelativebase.com/sitemap'])
+    end
+  end
+
   describe 'Non-HTTP links' do
     before(:each) do
       @m = MetaInspector.new('http://example.com/nonhttp')
