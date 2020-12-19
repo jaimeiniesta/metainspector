@@ -75,7 +75,7 @@ module MetaInspector
            imgs_with_size.uniq! { |url, width, height| url }
 
            # Remove any urls that have been blacklisted
-           imgs_with_size.reject! { |url| @image_blacklist_words.any? { |blacklist_word| url.first.include?(blacklist_word) } }
+           imgs_with_size.reject! { |url| @image_blacklist_words.any? { |blacklist_word| url&.first.nil? || url.first.include?(blacklist_word) } }
 
            # After rejecting blacklisted and duplicated images, only take the first @max_image_downloads if this option is specified.
            # This can help avoid really long run times in the event there are a huge number of images on the page.
