@@ -10,7 +10,7 @@ puts "Using MetaInspector #{MetaInspector::VERSION}"
 # Get the starting URL
 url = ARGV[0] || (puts "Enter an url"; gets.strip)
 
-page = MetaInspector.new(url)
+page = MetaInspector.call(url)
 
 puts "\nScraping #{page.url} returned these results:"
 puts "\nTITLE: #{page.title}"

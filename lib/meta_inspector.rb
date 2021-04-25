@@ -16,7 +16,7 @@ module MetaInspector
   extend self
 
   # Sugar method to be able to scrape a document in a shorter way
-  def new(url, options = {})
+  def call(url, options = {})
     Document.new(url, options)
   end
 end

@@ -15,7 +15,7 @@ visited = []
 url = ARGV[0] || (puts "Enter a starting url"; gets.strip)
 
 # Resolve initial redirections
-page = MetaInspector.new(url)
+page = MetaInspector.call(url)
 
 # Push this initial URL to the queue
 queue.push(page.url)
@@ -28,7 +28,7 @@ while queue.any?
   puts "VISITED: #{url}"
 
   begin
-    page = MetaInspector.new(url)
+    page = MetaInspector.call(url)
 
     page.links.internal.each do |link|
       queue.push(link) unless visited.include?(link) || queue.include?(link)

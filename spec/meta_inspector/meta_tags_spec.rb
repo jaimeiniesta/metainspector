@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe MetaInspector do
   describe "meta tags" do
-    let(:page) { MetaInspector.new('http://example.com/meta-tags') }
+    let(:page) { MetaInspector.call('http://example.com/meta-tags') }
 
     it "#meta_tags" do
       expect(page.meta_tags).to eq({
@@ -87,19 +87,19 @@ describe MetaInspector do
 
   describe 'Charset detection' do
     it "should get the charset from <meta charset />" do
-      page = MetaInspector.new('http://charset001.com')
+      page = MetaInspector.call('http://charset001.com')
 
       expect(page.charset).to eq("utf-8")
     end
 
     it "should get the charset from meta content type" do
-      page = MetaInspector.new('http://charset002.com')
+      page = MetaInspector.call('http://charset002.com')
 
       expect(page.charset).to eq("windows-1252")
     end
 
     it "should get nil if no declared charset is found" do
-      page = MetaInspector.new('http://charset000.com')
+      page = MetaInspector.call('http://charset000.com')
 
       expect(page.charset).to eq(nil)
     end

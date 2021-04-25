@@ -131,25 +131,25 @@ describe MetaInspector::Document do
 
   describe 'url normalization' do
     it 'should normalize by default' do
-      expect(MetaInspector.new('http://example.com/%EF%BD%9E').url).to eq('http://example.com/~')
+      expect(MetaInspector.call('http://example.com/%EF%BD%9E').url).to eq('http://example.com/~')
     end
 
     it 'should not normalize if the normalize_url option is false' do
-      expect(MetaInspector.new('http://example.com/%EF%BD%9E', normalize_url: false).url).to eq('http://example.com/%EF%BD%9E')
+      expect(MetaInspector.call('http://example.com/%EF%BD%9E', normalize_url: false).url).to eq('http://example.com/%EF%BD%9E')
     end
   end
 
   describe 'page encoding' do
     it 'should encode title according to the charset' do
-      expect(MetaInspector.new('http://example-rtl.com/').title).to eq('بالفيديو.. "مصطفى بكري" : انتخابات الائتلاف غير نزيهة وموجهة لفوز أشخاص بعينها')
+      expect(MetaInspector.call('http://example-rtl.com/').title).to eq('بالفيديو.. "مصطفى بكري" : انتخابات الائتلاف غير نزيهة وموجهة لفوز أشخاص بعينها')
     end
 
     it 'should encode description according to the charset' do
-      expect(MetaInspector.new('http://example-rtl.com/').description).to eq('أعلن النائب مصطفى بكري انسحابه من ائتلاف  دعم مصر  بعد اعتراضه على نتيجة الانتخابات الداخلية للائتلاف، وخسارته فيها، وقال إنه سيترشح غدا على منصب الوكيل بالمجلس')
+      expect(MetaInspector.call('http://example-rtl.com/').description).to eq('أعلن النائب مصطفى بكري انسحابه من ائتلاف  دعم مصر  بعد اعتراضه على نتيجة الانتخابات الداخلية للائتلاف، وخسارته فيها، وقال إنه سيترشح غدا على منصب الوكيل بالمجلس')
     end
 
     it 'should replace NULL characters' do
-      doc = MetaInspector.new('http://example-rtl.com/').parsed
+      doc = MetaInspector.call('http://example-rtl.com/').parsed
 
       image_src = doc.css('.some_class').first.attribute('src').value
 
@@ -157,7 +157,7 @@ describe MetaInspector::Document do
     end
 
     it "can have a forced encoding" do
-      page = MetaInspector.new('http://example.com/invalid_utf8_byte_seq', encoding: "UTF-8")
+      page = MetaInspector.call('http://example.com/invalid_utf8_byte_seq', encoding: "UTF-8")
 
       expect(page.title).to eq("¡¡Quiero Reciclar!! // ¿Dónde reciclar?, Plataforma Urbana")
     end

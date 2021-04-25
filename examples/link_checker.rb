@@ -34,13 +34,13 @@ class BrokenLinkChecker
 
   def check
     # Resolves redirections of initial URL before placing it on the queue
-    @queue.push(MetaInspector.new(@url).url)
+    @queue.push(MetaInspector.call(@url).url)
 
     process_next_on_queue while @queue.any?
   end
 
   def process_next_on_queue
-    page = MetaInspector.new(@queue.pop)
+    page = MetaInspector.call(@queue.pop)
 
     page.links.http.each do |link|
       check_status(link, page.url)
@@ -84,7 +84,7 @@ class BrokenLinkChecker
   # In the case of exceptions, like timeouts or server connection errors,
   # we consider it unreachable
   def reachable?(url)
-    page = MetaInspector.new(url)
+    page = MetaInspector.call(url)
 
     if page.response.status < 400
       true

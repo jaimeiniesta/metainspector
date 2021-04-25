@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe MetaInspector do
-  let(:page)   { MetaInspector.new('http://example.com') }
+  let(:page)   { MetaInspector.call('http://example.com') }
 
   describe '#links' do
     it 'returns the internal links' do
@@ -25,7 +25,7 @@ describe MetaInspector do
 
   describe 'Links' do
     before(:each) do
-      @m = MetaInspector.new('http://pagerankalert.com')
+      @m = MetaInspector.call('http://pagerankalert.com')
     end
 
     it "should get correct absolute links for internal pages" do
@@ -42,7 +42,7 @@ describe MetaInspector do
     end
 
     it "should get correct absolute links, correcting relative links from URL not ending with slash" do
-      m = MetaInspector.new('http://alazan.com/websolution.asp')
+      m = MetaInspector.call('http://alazan.com/websolution.asp')
 
       expect(m.links.internal).to eq([ "http://alazan.com/index.asp",
                                      "http://alazan.com/faqs.asp" ])
@@ -50,7 +50,7 @@ describe MetaInspector do
 
     describe "links with international characters" do
       it "should get correct absolute links, encoding the URLs as needed" do
-        m = MetaInspector.new('http://international.com')
+        m = MetaInspector.call('http://international.com')
 
         expect(m.links.internal).to eq([ "http://international.com/espa%C3%B1a.asp",
                                        "http://international.com/roman%C3%A9e",
@@ -68,7 +68,7 @@ describe MetaInspector do
 
       describe "internal links" do
         it "should get correct internal links, encoding the URLs as needed but respecting # and ?" do
-          m = MetaInspector.new('http://international.com')
+          m = MetaInspector.call('http://international.com')
           expect(m.links.internal).to eq([ "http://international.com/espa%C3%B1a.asp",
                                        "http://international.com/roman%C3%A9e",
                                        "http://international.com/faqs#cami%C3%B3n",
@@ -78,14 +78,14 @@ describe MetaInspector do
         end
 
         it "should not crash when processing malformed hrefs" do
-          m = MetaInspector.new('http://example.com/malformed_href')
+          m = MetaInspector.call('http://example.com/malformed_href')
           expect(m.links.internal).to eq([ "http://example.com/faqs" ])
         end
       end
 
       describe "external links" do
         it "should get correct external links, encoding the URLs as needed but respecting # and ?" do
-          m = MetaInspector.new('http://international.com')
+          m = MetaInspector.call('http://international.com')
           expect(m.links.external).to eq([ "http://example.com/espa%C3%B1a.asp",
                                        "http://example.com/roman%C3%A9e",
                                        "http://example.com/faqs#cami%C3%B3n",
@@ -94,7 +94,7 @@ describe MetaInspector do
         end
 
         it "should not crash when processing malformed hrefs" do
-          m = MetaInspector.new('http://example.com/malformed_href')
+          m = MetaInspector.call('http://example.com/malformed_href')
           expect(m.links.non_http).to eq(["skype:joeuser?call", "telnet://telnet.cdrom.com", "javascript:alert('ok');",
                                           "tel:08%208267%203255", "javascript://", "mailto:email(at)example.com"])
         end
@@ -102,12 +102,12 @@ describe MetaInspector do
     end
 
     it "should not crash with links that have weird href values, filtering them out" do
-      m = MetaInspector.new('http://example.com/invalid_href')
+      m = MetaInspector.call('http://example.com/invalid_href')
       expect(m.links.non_http).to eq(["skype:joeuser?call", "telnet://telnet.cdrom.com"])
     end
 
     it "should not crash with links that have invalid byte sequence, filtering them out" do
-      m = MetaInspector.new('http://example.com/invalid_byte_seq')
+      m = MetaInspector.call('http://example.com/invalid_byte_seq')
       expect(m.links.all).to eq(["http://pagerankalert.posterous.com/", "http://twitter.com/pagerankalert"])
     end
 
@@ -116,7 +116,7 @@ describe MetaInspector do
   describe 'Relative links' do
     describe 'From a root URL' do
       before(:each) do
-        @m = MetaInspector.new('http://relative.com/')
+        @m = MetaInspector.call('http://relative.com/')
       end
 
       it 'should get the relative links' do
@@ -126,7 +126,7 @@ describe MetaInspector do
 
     describe 'From a document' do
       before(:each) do
-        @m = MetaInspector.new('http://relative.com/company')
+        @m = MetaInspector.call('http://relative.com/company')
       end
 
       it 'should get the relative links' do
@@ -136,7 +136,7 @@ describe MetaInspector do
 
     describe 'From a directory' do
       before(:each) do
-        @m = MetaInspector.new('http://relative.com/company/')
+        @m = MetaInspector.call('http://relative.com/company/')
       end
 
       it 'should get the relative links' do
@@ -147,38 +147,38 @@ describe MetaInspector do
 
   describe 'Relative links with empty or blank base' do
     it 'should get the relative links from a document' do
-      m = MetaInspector.new('http://relativewithemptybase.com/company')
+      m = MetaInspector.call('http://relativewithemptybase.com/company')
       expect(m.links.internal).to eq(['http://relativewithemptybase.com/about', 'http://relativewithemptybase.com/sitemap'])
     end
   end
 
   describe 'Relative links with base' do
     it 'should get the relative links from a document' do
-      m = MetaInspector.new('http://relativewithbase.com/company/page2')
+      m = MetaInspector.call('http://relativewithbase.com/company/page2')
       expect(m.links.internal).to eq(['http://relativewithbase.com/about', 'http://relativewithbase.com/sitemap'])
     end
 
     it 'should get the relative links from a directory' do
-      m = MetaInspector.new('http://relativewithbase.com/company/page2/')
+      m = MetaInspector.call('http://relativewithbase.com/company/page2/')
       expect(m.links.internal).to eq(['http://relativewithbase.com/about', 'http://relativewithbase.com/sitemap'])
     end
   end
 
   describe 'Relative links with relative base' do
     it 'should get the relative links with relative directory base' do
-      m = MetaInspector.new('http://relativewithrelativebase.com/relativedir')
+      m = MetaInspector.call('http://relativewithrelativebase.com/relativedir')
       expect(m.links.all).to eq(['http://relativewithrelativebase.com/other/about',
                                  'http://relativewithrelativebase.com/sitemap'])
     end
 
     it 'should get the relative links with relative document base' do
-      m = MetaInspector.new('http://relativewithrelativebase.com/relativedoc')
+      m = MetaInspector.call('http://relativewithrelativebase.com/relativedoc')
       expect(m.links.all).to eq(['http://relativewithrelativebase.com/about',
                                  'http://relativewithrelativebase.com/sitemap'])
     end
 
     it 'should get the relative links with relative root base' do
-      m = MetaInspector.new('http://relativewithrelativebase.com/')
+      m = MetaInspector.call('http://relativewithrelativebase.com/')
       expect(m.links.all).to eq(['http://relativewithrelativebase.com/about',
                                  'http://relativewithrelativebase.com/sitemap'])
     end
@@ -186,7 +186,7 @@ describe MetaInspector do
 
   describe 'Non-HTTP links' do
     before(:each) do
-      @m = MetaInspector.new('http://example.com/nonhttp')
+      @m = MetaInspector.call('http://example.com/nonhttp')
     end
 
     it "should get the links" do
@@ -202,8 +202,8 @@ describe MetaInspector do
 
   describe 'Protocol-relative URLs' do
     before(:each) do
-      @m_http   = MetaInspector.new('http://protocol-relative.com')
-      @m_https  = MetaInspector.new('https://protocol-relative.com')
+      @m_http   = MetaInspector.call('http://protocol-relative.com')
+      @m_https  = MetaInspector.call('https://protocol-relative.com')
     end
 
     it "should convert protocol-relative links to http" do
@@ -218,7 +218,7 @@ describe MetaInspector do
   end
 
   context "Feeds" do
-    let(:meta) { MetaInspector.new('http://feeds.example.com') }
+    let(:meta) { MetaInspector.call('http://feeds.example.com') }
 
     describe "#feeds" do
       it "should return all the document's feeds" do
@@ -234,7 +234,7 @@ describe MetaInspector do
       end
 
       it "should return nothing if no feeds found" do
-        @m = MetaInspector.new('http://www.alazan.com')
+        @m = MetaInspector.call('http://www.alazan.com')
         expect(@m.feeds).to eq([])
       end
     end
