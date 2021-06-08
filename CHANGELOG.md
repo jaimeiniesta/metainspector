@@ -1,5 +1,13 @@
 # MetaInpector Changelog
 
+## [Changes in 5.11.2](https://github.com/jaimeiniesta/metainspector/compare/v5.11.1...v5.11.2)
+
+* Relax dependencies to allow minor releases.
+
+## [Changes in 5.11.0](https://github.com/jaimeiniesta/metainspector/compare/v5.11.0...v5.11.1)
+
+* Upgrade to Nokogiri 1.11.0.
+
 ## [Changes in 5.11.0](https://github.com/jaimeiniesta/metainspector/compare/v5.10.1...v5.11.0)
 
 * Upgrade to Faraday 1.1.
