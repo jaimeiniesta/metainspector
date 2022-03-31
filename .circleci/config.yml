@@ -1,26 +1,48 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+orbs:
+  ruby: circleci/ruby@1.0.4
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  test_2_6:
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+      - image: cimg/ruby:2.6.9
     steps:
       - checkout
+      - ruby/install-deps
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+          name: Run tests
+          command: bundle exec rake
+  test_2_7:
+    docker:
+      - image: cimg/ruby:2.7.5
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Run tests
+          command: bundle exec rake
+  test_3_0:
+    docker:
+      - image: cimg/ruby:3.0.3
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Run tests
+          command: bundle exec rake
+  test_3_1:
+    docker:
+      - image: cimg/ruby:3.1.1
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Run tests
+          command: bundle exec rake
 workflows:
-  say-hello-workflow:
+  version: 2
+  deploy:
     jobs:
-      - say-hello
+      - test_2_6
+      - test_2_7
+      - test_3_0
+      - test_3_1

@@ -4,7 +4,6 @@
 .ruby-version
 .ruby-gemset
 .rspec
-Gemfile.lock
 pkg/*
 .idea/
 .rubocop_todo.yml
