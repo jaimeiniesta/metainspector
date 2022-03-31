@@ -70,7 +70,7 @@ module MetaInspector
 
           if @faraday_http_cache.is_a?(Hash)
             @faraday_http_cache[:serializer] ||= Marshal
-            faraday.use Faraday::HttpCache, @faraday_http_cache
+            faraday.use Faraday::HttpCache, **@faraday_http_cache
           end
 
           faraday.headers.merge!(@headers || {})
