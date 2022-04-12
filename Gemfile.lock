@@ -65,7 +65,7 @@ GEM
     mini_portile2 (2.8.0)
     multipart-post (2.1.1)
     nesty (1.0.2)
-    nokogiri (1.13.3)
+    nokogiri (1.13.4)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     parallel (1.22.1)
