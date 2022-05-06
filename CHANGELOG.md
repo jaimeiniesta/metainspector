@@ -1,5 +1,9 @@
 # MetaInpector Changelog
 
+## [Changes in 5.12.1](https://github.com/metainspector/metainspector/compare/v5.12.0...v5.12.1)
+
+* Update dependencies: rubocop, nokogiri
+
 ## [Changes in 5.12.0](https://github.com/metainspector/metainspector/compare/v5.11.2...v5.12.0)
 
 * Support Ruby 3.0
