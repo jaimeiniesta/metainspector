@@ -45,7 +45,7 @@ GEM
     faraday-encoding (0.0.5)
       faraday
     faraday-excon (1.1.0)
-    faraday-http-cache (2.2.0)
+    faraday-http-cache (2.3.0)
       faraday (>= 0.8)
     faraday-httpclient (1.0.1)
     faraday-multipart (1.0.3)
