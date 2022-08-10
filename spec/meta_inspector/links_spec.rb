@@ -238,16 +238,5 @@ describe MetaInspector do
         expect(@m.feeds).to eq([])
       end
     end
-
-    describe "#feed" do
-      it "should return the first feed's href" do
-        expect(meta.feed).to eq("https://example.org/feed.rss")
-      end
-
-      it "should give a deprecation warning" do
-        warning = "DEPRECATION: Use MetaInspector#feeds instead of #feed. The former gives you all feeds and their metadata, the latter will be removed.\n"
-        expect { meta.feed }.to output(warning).to_stderr
-      end
-    end
   end
 end

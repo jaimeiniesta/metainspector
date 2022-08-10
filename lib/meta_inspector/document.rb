@@ -75,7 +75,6 @@ module MetaInspector
         'links'            => links.to_hash,
         'images'           => images.to_a,
         'charset'          => charset,
-        'feed'             => feed,
         'feeds'            => feeds,
         'content_type'     => content_type,
         'meta_tags'        => meta_tags,
