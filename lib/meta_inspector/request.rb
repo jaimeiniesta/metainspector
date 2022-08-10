@@ -4,6 +4,7 @@ require 'faraday-http-cache'
 require 'faraday/encoding'
 require 'faraday/follow_redirects'
 require 'faraday/gzip'
+require 'faraday/retry'
 require 'timeout'
 
 module MetaInspector
