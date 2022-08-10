@@ -1,9 +1,10 @@
 require 'faraday'
-require 'faraday_middleware'
-require 'faraday_middleware/response/follow_redirects'
 require 'faraday-cookie_jar'
 require 'faraday-http-cache'
 require 'faraday/encoding'
+require 'faraday/follow_redirects'
+require 'faraday/gzip'
+require 'faraday/retry'
 require 'timeout'
 
 module MetaInspector
@@ -48,7 +49,7 @@ module MetaInspector
       @response ||= fetch
     rescue Faraday::TimeoutError => e
       raise MetaInspector::TimeoutError.new(e)
-    rescue Faraday::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError, FaradayMiddleware::RedirectLimitReached => e
+    rescue Faraday::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError, Faraday::FollowRedirects::RedirectLimitReached => e
       raise MetaInspector::RequestError.new(e)
     end
 
@@ -61,10 +62,10 @@ module MetaInspector
         session = Faraday.new(@faraday_options) do |faraday|
           faraday.request :retry, max: @retries
 
-          faraday.use FaradayMiddleware::Gzip
+          faraday.request :gzip
 
           if @allow_redirections
-            faraday.use FaradayMiddleware::FollowRedirects, limit: 10
+            faraday.use Faraday::FollowRedirects::Middleware, limit: 10
             faraday.use :cookie_jar
           end
 

@@ -1,5 +1,17 @@
 # MetaInpector Changelog
 
+## [Changes in 5.13.0](https://github.com/metainspector/metainspector/compare/v5.12.1...v5.13.0)
+
+* Remove support for #feed that was deprecated in 5.9
+
+## [Changes in 5.12.1](https://github.com/metainspector/metainspector/compare/v5.12.0...v5.12.1)
+
+* Update dependencies: rubocop, nokogiri
+
+## [Changes in 5.12.0](https://github.com/metainspector/metainspector/compare/v5.11.2...v5.12.0)
+
+* Support Ruby 3.0
+
 ## [Changes in 5.11.2](https://github.com/jaimeiniesta/metainspector/compare/v5.11.1...v5.11.2)
 
 * Relax dependencies to allow minor releases.
