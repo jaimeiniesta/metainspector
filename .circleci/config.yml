@@ -29,6 +29,15 @@ jobs:
       - run:
           name: Run tests
           command: bundle exec rake
+  test_3_1:
+    docker:
+      - image: cimg/ruby:3.1.1
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Run tests
+          command: bundle exec rake
 workflows:
   version: 2
   deploy:
@@ -36,3 +45,4 @@ workflows:
       - test_2_6
       - test_2_7
       - test_3_0
+      - test_3_1
