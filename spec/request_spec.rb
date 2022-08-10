@@ -78,7 +78,7 @@ describe MetaInspector::Request do
     end
 
     it "should handle socket errors" do
-      allow(TCPSocket).to receive(:open).and_raise(SocketError)
+      expect(TCPSocket).to receive(:open).and_raise(SocketError)
 
       expect do
         MetaInspector::Request.new(url('http://example.com/fail'))
@@ -86,7 +86,7 @@ describe MetaInspector::Request do
     end
 
     it "should handle ssl errors" do
-      allow(TCPSocket).to receive(:open).and_raise(OpenSSL::SSL::SSLError)
+      expect(TCPSocket).to receive(:open).and_raise(OpenSSL::SSL::SSLError)
 
       expect do
         MetaInspector::Request.new(url('https://example.com'))
