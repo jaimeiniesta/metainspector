@@ -77,19 +77,11 @@ describe MetaInspector::Request do
       WebMock.disable_net_connect!
     end
 
-    it "should handle socket errors" do
-      expect(TCPSocket).to receive(:open).and_raise(SocketError)
+    it "should handle connection errors" do
+      expect(Net::HTTP).to receive(:new).and_raise(Faraday::ConnectionFailed)
 
       expect do
         MetaInspector::Request.new(url('http://example.com/fail'))
-      end.to raise_error(MetaInspector::RequestError)
-    end
-
-    it "should handle ssl errors" do
-      expect(TCPSocket).to receive(:open).and_raise(OpenSSL::SSL::SSLError)
-
-      expect do
-        MetaInspector::Request.new(url('https://example.com'))
       end.to raise_error(MetaInspector::RequestError)
     end
   end
