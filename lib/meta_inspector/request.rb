@@ -4,6 +4,7 @@ require 'faraday-cookie_jar'
 require 'faraday-http-cache'
 require 'faraday/encoding'
 require 'faraday/follow_redirects'
+require 'faraday/gzip'
 require 'timeout'
 
 module MetaInspector
@@ -61,7 +62,7 @@ module MetaInspector
         session = Faraday.new(@faraday_options) do |faraday|
           faraday.request :retry, max: @retries
 
-          faraday.use FaradayMiddleware::Gzip
+          faraday.request :gzip
 
           if @allow_redirections
             faraday.use Faraday::FollowRedirects::Middleware, limit: 10
