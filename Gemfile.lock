@@ -2,17 +2,17 @@ PATH
   remote: .
   specs:
     metainspector (5.13.0)
-      addressable (~> 2.7)
-      faraday (~> 2.0)
+      addressable (~> 2.8)
+      faraday (~> 2.5)
       faraday-cookie_jar (~> 0.0)
       faraday-encoding (~> 0.0)
       faraday-follow_redirects (~> 0.3)
       faraday-gzip (~> 0.1)
-      faraday-http-cache (~> 2.2)
+      faraday-http-cache (~> 2.4)
       faraday-retry (~> 2.0)
       fastimage (~> 2.2)
       nesty (~> 1.0)
-      nokogiri (~> 1.11)
+      nokogiri (~> 1.13)
 
 GEM
   remote: http://rubygems.org/
@@ -113,9 +113,9 @@ DEPENDENCIES
   metainspector!
   pry (~> 0.14)
   rake (~> 13.0)
-  rspec (~> 3.10)
-  rubocop (~> 1.16)
-  webmock (~> 3.13)
+  rspec (~> 3.11)
+  rubocop (~> 1.34)
+  webmock (~> 3.17)
 
 BUNDLED WITH
-   2.2.32
+   2.3.20
