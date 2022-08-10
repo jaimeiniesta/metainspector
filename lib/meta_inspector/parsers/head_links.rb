@@ -40,14 +40,6 @@ module MetaInspector
             }
           end.compact
       end
-
-      def feed
-        warn "DEPRECATION: Use MetaInspector#feeds instead of #feed. The former gives you all feeds and their metadata, the latter will be removed."
-        @feed ||= begin
-          first_feed = feeds.find { |l| /\/(rss|atom)\+xml$/i =~ l[:type] } || {}
-          first_feed[:href]
-        end
-      end
     end
   end
 end

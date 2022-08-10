@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metainspector (5.12.1)
+    metainspector (5.13.0)
       addressable (~> 2.7)
       faraday (>= 1.4, < 3.0)
       faraday-cookie_jar (~> 0.0)
@@ -59,15 +59,13 @@ GEM
       faraday (~> 1.0)
     fastimage (2.2.6)
     hashdiff (1.0.1)
-    http-cookie (1.0.4)
+    http-cookie (1.0.5)
       domain_name (~> 0.5)
     json (2.6.2)
     method_source (1.0.0)
-    mini_portile2 (2.8.0)
     multipart-post (2.2.3)
     nesty (1.0.2)
-    nokogiri (1.13.8)
-      mini_portile2 (~> 2.8.0)
+    nokogiri (1.13.8-arm64-darwin)
       racc (~> 1.4)
     parallel (1.22.1)
     parser (3.1.2.1)
@@ -110,7 +108,7 @@ GEM
     ruby2_keywords (0.0.5)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.8.1)
+    unf_ext (0.0.8.2)
     unicode-display_width (2.2.0)
     webmock (3.17.1)
       addressable (>= 2.8.0)
