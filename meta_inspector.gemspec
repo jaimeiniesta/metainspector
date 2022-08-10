@@ -15,8 +15,7 @@ Gem::Specification.new do |gem|
   gem.version       = MetaInspector::VERSION
 
   gem.add_dependency 'nokogiri', '~> 1.11'
-  gem.add_dependency 'faraday', '>= 1.4', '< 3.0'
-  gem.add_dependency 'faraday_middleware', '~> 1.0'
+  gem.add_dependency 'faraday', '~> 2.0'
   gem.add_dependency 'faraday-cookie_jar', '~> 0.0'
   gem.add_dependency 'faraday-follow_redirects', '~> 0.3'
   gem.add_dependency 'faraday-gzip', '~> 0.1'

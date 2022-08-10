@@ -1,5 +1,4 @@
 require 'faraday'
-require 'faraday_middleware'
 require 'faraday-cookie_jar'
 require 'faraday-http-cache'
 require 'faraday/encoding'
