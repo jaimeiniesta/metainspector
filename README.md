@@ -7,7 +7,7 @@ You give it an URL, and it lets you easily get its title, links, images, charset
 
 ## See it in action!
 
-You can try MetaInspector live at this little demo: [https://metainspectordemo.herokuapp.com](https://metainspectordemo.herokuapp.com)
+You can try MetaInspector using this little demo: [https://github.com/metainspector/metainspectordemo](https://github.com/metainspector/metainspectordemo)
 
 ## Installation
 
