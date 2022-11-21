@@ -106,9 +106,9 @@ describe MetaInspector do
       expect(m.links.non_http).to eq(["skype:joeuser?call", "telnet://telnet.cdrom.com"])
     end
 
-    it "should not crash with links that have invalid byte sequence, filtering them out" do
+    it "should handle links that have an invalid byte sequence" do
       m = MetaInspector.new('http://example.com/invalid_byte_seq')
-      expect(m.links.all).to eq(["http://pagerankalert.posterous.com/", "http://twitter.com/pagerankalert"])
+      expect(m.links.all).to eq(["http://pagerankalert.posterous.com/", "http://element%B3wgarderoby.com/", "http://twitter.com/pagerankalert"])
     end
 
   end
