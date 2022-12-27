@@ -19,7 +19,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'faraday-cookie_jar', '~> 0.0'
   gem.add_dependency 'faraday-encoding', '~> 0.0'
   gem.add_dependency 'faraday-follow_redirects', '~> 0.3'
-  gem.add_dependency 'faraday-gzip', '~> 0.1'
+  gem.add_dependency 'faraday-gzip', '>= 0.1', '< 2.0'
   gem.add_dependency 'faraday-http-cache', '~> 2.4'
   gem.add_dependency 'faraday-retry', '~> 2.0'
   gem.add_dependency 'addressable', '~> 2.8'
