@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metainspector (5.13.0)
+    metainspector (5.13.1)
       addressable (~> 2.8)
       faraday (~> 2.5)
       faraday-cookie_jar (~> 0.0)

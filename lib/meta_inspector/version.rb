@@ -1,3 +1,3 @@
 module MetaInspector
-  VERSION = '5.13.1'
+  VERSION = '5.14.0'
 end
