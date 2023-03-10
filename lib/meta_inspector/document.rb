@@ -39,7 +39,7 @@ module MetaInspector
                                                      encoding:                 @encoding,
                                                      headers:                  @headers,
                                                      faraday_options:          @faraday_options,
-                                                     faraday_redirect_options: @faraday_redirect_options
+                                                     faraday_redirect_options: @faraday_redirect_options,
                                                      faraday_http_cache:       @faraday_http_cache) unless @document
       @parser  = MetaInspector::Parser.new(self,     download_images:          @download_images)
     end
