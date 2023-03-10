@@ -12,18 +12,19 @@ module MetaInspector
   # Makes the request to the server
   class Request
     def initialize(initial_url, options = {})
-      @url                = initial_url
+      @url                      = initial_url
 
       fail MetaInspector::RequestError.new('URL must be HTTP') unless @url.url =~ /http[s]?:\/\//i
 
-      @allow_redirections = options[:allow_redirections]
-      @connection_timeout = options[:connection_timeout]
-      @read_timeout       = options[:read_timeout]
-      @retries            = options[:retries]
-      @encoding           = options[:encoding]
-      @headers            = options[:headers]
-      @faraday_options    = options[:faraday_options] || {}
-      @faraday_http_cache = options[:faraday_http_cache]
+      @allow_redirections       = options[:allow_redirections]
+      @connection_timeout       = options[:connection_timeout]
+      @read_timeout             = options[:read_timeout]
+      @retries                  = options[:retries]
+      @encoding                 = options[:encoding]
+      @headers                  = options[:headers]
+      @faraday_options          = options[:faraday_options] || {}
+      @faraday_redirect_options = options[:faraday_redirect_options] || {}
+      @faraday_http_cache       = options[:faraday_http_cache]
 
       response            # request early so we can fail early
     end
@@ -65,7 +66,8 @@ module MetaInspector
           faraday.request :gzip
 
           if @allow_redirections
-            faraday.use Faraday::FollowRedirects::Middleware, limit: 10
+            @faraday_redirect_options[:limit] ||= 10
+            faraday.use Faraday::FollowRedirects::Middleware, **@faraday_redirect_options
             faraday.use :cookie_jar
           end
 
