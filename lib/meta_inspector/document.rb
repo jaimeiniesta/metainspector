@@ -29,16 +29,16 @@ module MetaInspector
       @normalize_url      = options[:normalize_url]
       @faraday_options    = options[:faraday_options]
       @faraday_http_cache = options[:faraday_http_cache]
-      @url     = MetaInspector::URL.new(initial_url, normalize:          @normalize_url)
-      @request = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
-                                                     connection_timeout: @connection_timeout,
-                                                     read_timeout:       @read_timeout,
-                                                     retries:            @retries,
-                                                     encoding:           @encoding,
-                                                     headers:            @headers,
-                                                     faraday_options:    @faraday_options,
-                                                     faraday_http_cache: @faraday_http_cache) unless @document
-      @parser  = MetaInspector::Parser.new(self,     download_images:    @download_images)
+      @url                = MetaInspector::URL.new(initial_url, normalize:          @normalize_url)
+      @request            = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
+                                                                connection_timeout: @connection_timeout,
+                                                                read_timeout:       @read_timeout,
+                                                                retries:            @retries,
+                                                                encoding:           @encoding,
+                                                                headers:            @headers,
+                                                                faraday_options:    @faraday_options,
+                                                                faraday_http_cache: @faraday_http_cache) unless @document
+      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images)
     end
 
     extend Forwardable
