@@ -315,6 +315,16 @@ You can also customize how many redirects you wish to allow like this:
 page = MetaInspector.new('facebook.com', :faraday_options => { redirect: { limit: 5 } })
 ```
 
+You can also customize what to do in between each redirect like this:
+
+```ruby
+callback = proc do |previous_response, next_request|
+  puts "redirecting to : #{next_request.url}"
+end
+
+page = MetaInspector.new(url, faraday_options: { redirect: { callback: callback } })
+```
+
 You can also make use of Faraday's other available options through the `faraday_options[:redirect]` Hash (see the available options [here](https://github.com/lostisland/faraday_middleware/blob/main/lib/faraday_middleware/response/follow_redirects.rb#L44)).
 
 ### Headers
