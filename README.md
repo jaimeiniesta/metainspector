@@ -319,7 +319,8 @@ And even customize what to do in between each redirect:
 
 ```ruby
 callback = proc do |previous_response, next_request|
-  puts "redirecting to : #{next_request.url}"
+  ip_address = Resolv.getaddress(next_request.url.host)
+  raise 'Invalid address' if IPAddr.new(ip_address).private?
 end
 
 page = MetaInspector.new(url, faraday_options: { redirect: { callback: callback } })
