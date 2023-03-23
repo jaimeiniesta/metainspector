@@ -14,14 +14,19 @@ url = ARGV[0] || (puts "Enter an url"; gets.strip)
 redirects_opts = { limit: 5 }
 
 # custom callback to handle the redirect links
-redirects_opts[:callback] = proc do |old_response, new_response|
-  puts "redirecting to : #{new_response.url}"
+redirects_opts[:callback] = proc do |_old_response, new_response|
+  ip_address = Resolv.getaddress(new_response.url.host)
+  raise 'Invalid address' if IPAddr.new(ip_address).private?
 end
 
-page = MetaInspector.new(url, faraday_options: { redirect: redirects_opts })
+begin
+  page = MetaInspector.new(url, faraday_options: { redirect: redirects_opts })
+rescue StandardError => e
+  puts e.message
+else
+  puts "\nScraping #{page.url} returned these results:"
+  puts "\nTITLE: #{page.title}"
 
-puts "\nScraping #{page.url} returned these results:"
-puts "\nTITLE: #{page.title}"
-
-puts "\nto_hash..."
-puts page.to_hash
+  puts "\nto_hash..."
+  puts page.to_hash
+end
