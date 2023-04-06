@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'resolv'
 
 describe MetaInspector do
   describe "redirections" do
