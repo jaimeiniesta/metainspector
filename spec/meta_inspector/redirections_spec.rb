@@ -1,6 +1,8 @@
 require 'spec_helper'
 require 'resolv'
 
+class PrivateIPAddressError < StandardError; end
+
 describe MetaInspector do
   describe "redirections" do
     context "when redirections are turned off" do
@@ -58,13 +60,13 @@ describe MetaInspector do
         redirect_options = {
           callback: proc do |_previous_response, next_request|
             ip_address = Resolv.getaddress(next_request.url.host)
-            raise StandardError if IPAddr.new(ip_address).private?
+            raise PrivateIPAddressError if IPAddr.new(ip_address).private?
           end
         }
 
         expect {
           MetaInspector.new("https://www.facebook.com/", faraday_options: { redirect: redirect_options })
-        }.to raise_error StandardError
+        }.to raise_error PrivateIPAddressError
       end
     end
   end
