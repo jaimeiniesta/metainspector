@@ -1,4 +1,4 @@
-# A basic MetaInspector example for scraping a page
+# A basic MetaInspector example for scraping a page and run a callback in between redirects
 #
 # Usage example:
 #

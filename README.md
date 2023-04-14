@@ -326,7 +326,9 @@ end
 page = MetaInspector.new(url, faraday_options: { redirect: { callback: callback } })
 ```
 
-You can make use of Faraday's other available options through the `faraday_options[:redirect]` Hash (see the available options [here](https://github.com/lostisland/faraday_middleware/blob/main/lib/faraday_middleware/response/follow_redirects.rb#L44)).
+
+The `faraday_options[:redirect]` Hash is passed to the `FollowRedirects` middleware used by `Faraday`, so that we can use all available options.
+Check them [here](https://github.com/lostisland/faraday_middleware/blob/main/lib/faraday_middleware/response/follow_redirects.rb#L44).
 
 ### Headers
 
