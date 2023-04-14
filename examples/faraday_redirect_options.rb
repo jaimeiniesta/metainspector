@@ -4,6 +4,7 @@
 #
 #   ruby faraday_redirect_options.rb http://facebook.com
 
+require 'resolv'
 require '../lib/metainspector'
 puts "Using MetaInspector #{MetaInspector::VERSION}"
 
