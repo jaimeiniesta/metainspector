@@ -1,8 +1,14 @@
-# A basic MetaInspector example for scraping a page and run a callback in between redirects
+# A MetaInspector example that runs a callback in between redirects.
+# The callback raises an exception if the redirection points to a URL that resolves into a private IP address.
+# This is one way of triggering a known security exploit called server-side request forgery (SSRF).
+#
+# To properly run this example you need a domain which redirects to a service like nip.io.
+# The easiest way to achieve that is adding this line below to your /etc/hosts file:
+# 10.0.0.0.nip.io domain_that_redirects_to_private_network.io
 #
 # Usage example:
 #
-#   ruby faraday_redirect_options.rb http://facebook.com
+#   ruby faraday_redirect_options.rb http://domain_that_redirects_to_private_network.io/
 
 require 'resolv'
 require '../lib/metainspector'
