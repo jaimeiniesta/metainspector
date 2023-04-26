@@ -5,10 +5,6 @@ MetaInspector is a gem for web scraping purposes.
 
 You give it an URL, and it lets you easily get its title, links, images, charset, description, keywords, meta tags...
 
-## See it in action!
-
-You can try MetaInspector using this little demo: [https://github.com/metainspector/metainspectordemo](https://github.com/metainspector/metainspectordemo)
-
 ## Installation
 
 Install the gem from RubyGems:
