@@ -84,7 +84,9 @@ module MetaInspector
           req.options.open_timeout = @read_timeout
         end
 
-        @url.url = response.env.url.to_s
+        if @allow_redirections
+          @url.url = response.env.url.to_s
+        end
 
         response
       end

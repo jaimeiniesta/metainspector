@@ -130,11 +130,11 @@ describe MetaInspector::Document do
 
   describe 'url normalization' do
     it 'should normalize by default' do
-      expect(MetaInspector.new('http://example.com/%EF%BD%9E').url).to eq('http://example.com/~')
+      expect(MetaInspector.new('http://example.com?name=joe martins', allow_redirections: false).url).to eq('http://example.com/?name=joe%20martins')
     end
 
     it 'should not normalize if the normalize_url option is false' do
-      expect(MetaInspector.new('http://example.com/%EF%BD%9E', normalize_url: false).url).to eq('http://example.com/%EF%BD%9E')
+      expect(MetaInspector.new('http://example.com?name=joe martins', normalize_url: false, allow_redirections: false).url).to eq('http://example.com?name=joe martins')
     end
   end
 
