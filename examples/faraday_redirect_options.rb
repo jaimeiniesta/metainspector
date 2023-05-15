@@ -2,16 +2,19 @@
 # The callback raises an exception if the redirection points to a URL that resolves into a private IP address.
 # This is one way of triggering a known security exploit called server-side request forgery (SSRF).
 #
-# To properly run this example you need a domain which redirects to a service like nip.io.
-# The easiest way to achieve that is adding this line below to your /etc/hosts file:
-# 10.0.0.0.nip.io domain_that_redirects_to_private_network.io
+# To properly run this example you need a server which redirects to a service like nip.io.
+# The easiest way to achieve that is running the examples/redirect_web_server.rb server in one terminal window,
+# and calling its address with this example in another terminal window.
 #
 # Usage example:
+#   In terminal #1:
+#   ruby examples/redirect_web_server.rb
 #
-#   ruby faraday_redirect_options.rb http://domain_that_redirects_to_private_network.io/
+#   In terminal #2:
+#   ruby examples/faraday_redirect_options.rb http://127.0.0.1:4567
 
 require 'resolv'
-require '../lib/metainspector'
+require './lib/metainspector'
 puts "Using MetaInspector #{MetaInspector::VERSION}"
 
 # Get the starting URL
