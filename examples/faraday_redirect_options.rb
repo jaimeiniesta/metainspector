@@ -8,13 +8,13 @@
 #
 # Usage example:
 #   In terminal #1:
-#   ruby examples/redirect_web_server.rb
+#   ruby redirect_web_server.rb
 #
 #   In terminal #2:
-#   ruby examples/faraday_redirect_options.rb http://127.0.0.1:4567
+#   ruby faraday_redirect_options.rb http://127.0.0.1:4567
 
 require 'resolv'
-require './lib/metainspector'
+require '../lib/metainspector'
 puts "Using MetaInspector #{MetaInspector::VERSION}"
 
 # Get the starting URL
