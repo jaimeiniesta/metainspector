@@ -20,9 +20,9 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'faraday-encoding', '~> 0.0'
   gem.add_dependency 'faraday-follow_redirects', '~> 0.3'
   gem.add_dependency 'faraday-gzip', '>= 0.1', '< 2.0'
-  gem.add_dependency 'faraday-http-cache', '~> 2.4'
+  gem.add_dependency 'faraday-http-cache', '~> 2.5'
   gem.add_dependency 'faraday-retry', '~> 2.0'
-  gem.add_dependency 'addressable', '~> 2.8'
+  gem.add_dependency 'addressable', '~> 2.8.4'
   gem.add_dependency 'fastimage', '~> 2.2'
   gem.add_dependency 'nesty', '~> 1.0'
 

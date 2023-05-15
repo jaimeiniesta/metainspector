@@ -2,13 +2,13 @@ PATH
   remote: .
   specs:
     metainspector (5.14.0)
-      addressable (~> 2.8)
+      addressable (~> 2.8.4)
       faraday (~> 2.5)
       faraday-cookie_jar (~> 0.0)
       faraday-encoding (~> 0.0)
       faraday-follow_redirects (~> 0.3)
       faraday-gzip (>= 0.1, < 2.0)
-      faraday-http-cache (~> 2.4)
+      faraday-http-cache (~> 2.5)
       faraday-retry (~> 2.0)
       fastimage (~> 2.2)
       nesty (~> 1.0)
@@ -17,7 +17,7 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    addressable (2.8.1)
+    addressable (2.8.4)
       public_suffix (>= 2.0.2, < 6.0)
     ast (2.4.2)
     awesome_print (1.9.2)
@@ -40,7 +40,7 @@ GEM
     faraday-gzip (1.0.0)
       faraday (>= 1.0)
       zlib (~> 2.1)
-    faraday-http-cache (2.4.1)
+    faraday-http-cache (2.5.0)
       faraday (>= 0.8)
     faraday-net_http (3.0.2)
     faraday-retry (2.1.0)
@@ -51,12 +51,12 @@ GEM
       domain_name (~> 0.5)
     json (2.6.3)
     method_source (1.0.0)
-    mini_portile2 (2.8.1)
+    mini_portile2 (2.8.2)
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
     nesty (1.0.2)
     nio4r (2.5.9)
-    nokogiri (1.14.3)
+    nokogiri (1.14.4)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     parallel (1.22.1)
