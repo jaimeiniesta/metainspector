@@ -305,6 +305,27 @@ If you want to disallow redirects, you can do it like this:
 page = MetaInspector.new('facebook.com', :allow_redirections => false)
 ```
 
+You can also customize how many redirects you wish to allow:
+
+```ruby
+page = MetaInspector.new('facebook.com', :faraday_options => { redirect: { limit: 5 } })
+```
+
+And even customize what to do in between each redirect:
+
+```ruby
+callback = proc do |previous_response, next_request|
+  ip_address = Resolv.getaddress(next_request.url.host)
+  raise 'Invalid address' if IPAddr.new(ip_address).private?
+end
+
+page = MetaInspector.new(url, faraday_options: { redirect: { callback: callback } })
+```
+
+
+The `faraday_options[:redirect]` Hash is passed to the `FollowRedirects` middleware used by `Faraday`, so that we can use all available options.
+Check them [here](https://github.com/lostisland/faraday_middleware/blob/main/lib/faraday_middleware/response/follow_redirects.rb#L44).
+
 ### Headers
 
 By default, the following headers are set:

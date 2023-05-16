@@ -1,4 +1,7 @@
 require 'spec_helper'
+require 'resolv'
+
+class PrivateIPAddressError < StandardError; end
 
 describe MetaInspector do
   describe "redirections" do
@@ -45,6 +48,25 @@ describe MetaInspector do
         page = MetaInspector.new("http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/")
 
         expect(page.url).to eq("http://blogs.clarionledger.com/dechols/2014/03/24/digital-medicine/?nclick_check=1")
+      end
+    end
+
+    context "when there is a callback to be ran between redirects that blocks redirections to private IP addresses" do
+      it "raises an exception" do
+        stub_request(:get, "https://www.facebook.com/")
+          .to_return(:status => 302,
+                     :headers => { "Location" => "http://10.0.0.0/" })
+
+        redirect_options = {
+          callback: proc do |_previous_response, next_request|
+            ip_address = Resolv.getaddress(next_request.url.host)
+            raise PrivateIPAddressError if IPAddr.new(ip_address).private?
+          end
+        }
+
+        expect {
+          MetaInspector.new("https://www.facebook.com/", faraday_options: { redirect: redirect_options })
+        }.to raise_error PrivateIPAddressError
       end
     end
   end

@@ -31,5 +31,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'awesome_print', '~> 1.9'
   gem.add_development_dependency 'rake', '~> 13.0'
   gem.add_development_dependency 'pry', '~> 0.14'
+  gem.add_development_dependency 'puma', '~> 6.2.2'
   gem.add_development_dependency 'rubocop', '~> 1.34'
+  gem.add_development_dependency 'resolv', '~> 0.2.2'
+  gem.add_development_dependency 'sinatra', '~> 3.0.6'
 end

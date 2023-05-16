@@ -58,6 +58,7 @@ module MetaInspector
     def fetch
       Timeout::timeout(fatal_timeout) do
         @faraday_options.merge!(:url => url)
+        follow_redirects_options = @faraday_options.delete(:redirect) || {}
 
         session = Faraday.new(@faraday_options) do |faraday|
           faraday.request :retry, max: @retries
@@ -65,7 +66,8 @@ module MetaInspector
           faraday.request :gzip
 
           if @allow_redirections
-            faraday.use Faraday::FollowRedirects::Middleware, limit: 10
+            follow_redirects_options[:limit] ||= 10
+            faraday.use Faraday::FollowRedirects::Middleware, **follow_redirects_options
             faraday.use :cookie_jar
           end
 
