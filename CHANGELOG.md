@@ -1,5 +1,14 @@
 # MetaInpector Changelog
 
+## [Changes in 5.15.0](https://github.com/jaimeiniesta/metainspector/compare/v5.14.0...v5.15.0)
+
+* Added mechanism to use all available options in the `FollowRedirects` Faraday middleware,
+https://github.com/jaimeiniesta/metainspector/pull/355 thanks to @bruno-b-martins and @miguelrod
+
+## [Changes in 5.14.0](https://github.com/jaimeiniesta/metainspector/compare/v5.13.0...v5.14.0)
+
+* Several dependency updates, including Addressable 2.8.1 which fixes invalid_byte_sequence exception.
+
 ## [Changes in 5.13.0](https://github.com/jaimeiniesta/metainspector/compare/v5.12.1...v5.13.0)
 
 * Remove support for #feed that was deprecated in 5.9
