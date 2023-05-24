@@ -45,7 +45,7 @@ GEM
     faraday-net_http (3.0.2)
     faraday-retry (2.1.0)
       faraday (~> 2.0)
-    fastimage (2.2.6)
+    fastimage (2.2.7)
     hashdiff (1.0.1)
     http-cookie (1.0.5)
       domain_name (~> 0.5)
