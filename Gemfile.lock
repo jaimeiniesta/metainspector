@@ -66,7 +66,7 @@ GEM
       coderay (~> 1.1)
       method_source (~> 1.0)
     public_suffix (5.0.1)
-    puma (6.2.2)
+    puma (6.3.0)
       nio4r (~> 2.0)
     racc (1.6.2)
     rack (2.2.7)
@@ -128,7 +128,7 @@ DEPENDENCIES
   awesome_print (~> 1.9)
   metainspector!
   pry (~> 0.14)
-  puma (~> 6.2.2)
+  puma (~> 6.3.0)
   rake (~> 13.0)
   resolv (~> 0.2.2)
   rspec (~> 3.11)
