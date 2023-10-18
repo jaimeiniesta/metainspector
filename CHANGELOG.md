@@ -1,4 +1,4 @@
-# MetaInpector Changelog
+# MetaInspector Changelog
 
 ## [Changes in 5.15.0](https://github.com/jaimeiniesta/metainspector/compare/v5.14.0...v5.15.0)
 
