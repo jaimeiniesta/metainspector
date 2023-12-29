@@ -25,6 +25,7 @@ module MetaInspector
 
       @document           = options[:document]
       @download_images    = options[:download_images]
+      @download_image_options    = options[:download_image_options]
       @headers            = options[:headers]
       @normalize_url      = options[:normalize_url]
       @faraday_options    = options[:faraday_options]
@@ -38,7 +39,7 @@ module MetaInspector
                                                                 headers:            @headers,
                                                                 faraday_options:    @faraday_options,
                                                                 faraday_http_cache: @faraday_http_cache) unless @document
-      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images)
+      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images, download_image_options: @download_image_options)
     end
 
     extend Forwardable
