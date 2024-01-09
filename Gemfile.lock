@@ -21,17 +21,14 @@ GEM
       public_suffix (>= 2.0.2, < 6.0)
     ast (2.4.2)
     awesome_print (1.9.2)
-    base64 (0.2.0)
     coderay (1.1.3)
     crack (0.4.5)
       rexml
     diff-lcs (1.5.0)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
-    faraday (2.7.12)
-      base64
-      faraday-net_http (>= 2.0, < 3.1)
-      ruby2_keywords (>= 0.0.4)
+    faraday (2.9.0)
+      faraday-net_http (>= 2.0, < 3.2)
     faraday-cookie_jar (0.0.7)
       faraday (>= 0.8.0)
       http-cookie (~> 1.0.0)
@@ -44,7 +41,8 @@ GEM
       zlib (~> 3.0)
     faraday-http-cache (2.5.0)
       faraday (>= 0.8)
-    faraday-net_http (3.0.2)
+    faraday-net_http (3.1.0)
+      net-http
     faraday-retry (2.2.0)
       faraday (~> 2.0)
     fastimage (2.2.7)
@@ -57,6 +55,8 @@ GEM
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
     nesty (1.0.2)
+    net-http (0.4.1)
+      uri
     nio4r (2.5.9)
     nokogiri (1.14.4-arm64-darwin)
       racc (~> 1.4)
@@ -119,6 +119,7 @@ GEM
       unf_ext
     unf_ext (0.0.8.2)
     unicode-display_width (2.5.0)
+    uri (0.13.0)
     webmock (3.18.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
