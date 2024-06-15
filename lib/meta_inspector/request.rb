@@ -59,6 +59,7 @@ module MetaInspector
       Timeout::timeout(fatal_timeout) do
         @faraday_options.merge!(:url => url)
         follow_redirects_options = @faraday_options.delete(:redirect) || {}
+        adapter_options = @faraday_options.delete(:adapter_options) || {}
 
         session = Faraday.new(@faraday_options) do |faraday|
           faraday.request :retry, max: @retries
@@ -78,7 +79,11 @@ module MetaInspector
 
           faraday.headers.merge!(@headers || {})
           faraday.response :encoding
-          faraday.adapter :net_http
+          faraday.adapter :net_http do |http|
+            adapter_options.each do |key, value|
+              http.public_send("#{key}=", value)
+            end
+          end
         end
 
         response = session.get do |req|
