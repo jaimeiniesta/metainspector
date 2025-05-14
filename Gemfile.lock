@@ -80,7 +80,7 @@ GEM
     rake (13.1.0)
     regexp_parser (2.9.0)
     resolv (0.2.2)
-    rexml (3.2.6)
+    rexml (3.3.9)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
       rspec-expectations (~> 3.12.0)
