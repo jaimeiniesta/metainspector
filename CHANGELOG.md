@@ -1,5 +1,9 @@
 # MetaInspector Changelog
 
+## [Changes in 5.16.0](https://github.com/jaimeiniesta/metainspector/compare/v5.15.0...v5.16.0)
+
+* Upgraded dependencies and supported Ruby versions.
+
 ## [Changes in 5.15.0](https://github.com/jaimeiniesta/metainspector/compare/v5.14.0...v5.15.0)
 
 * Added mechanism to use all available options in the `FollowRedirects` Faraday middleware,
