@@ -52,29 +52,35 @@ describe MetaInspector do
       it "should get correct absolute links, encoding the URLs as needed" do
         m = MetaInspector.new('http://international.com')
 
-        expect(m.links.internal).to eq([ "http://international.com/espa%C3%B1a.asp",
-                                       "http://international.com/roman%C3%A9e",
-                                       "http://international.com/faqs#cami%C3%B3n",
-                                       "http://international.com/search?q=cami%C3%B3n",
-                                       "http://international.com/search?q=espa%C3%B1a#top",
-                                       "http://international.com/index.php?q=espa%C3%B1a&url=aHR0zZQ==&cntnt01pageid=21"])
+        expect(m.links.internal).to eq([
+          "http://international.com/espa%C3%83%C2%B1a.asp",
+          "http://international.com/roman%C3%83%C2%A9e",
+          "http://international.com/faqs#cami%C3%83%C2%B3n",
+          "http://international.com/search?q=cami%C3%83%C2%B3n",
+          "http://international.com/search?q=espa%C3%83%C2%B1a#top",
+          "http://international.com/index.php?q=espa%C3%83%C2%B1a&url=aHR0zZQ==&cntnt01pageid=21"
+        ])
 
-        expect(m.links.external).to eq([ "http://example.com/espa%C3%B1a.asp",
-                                       "http://example.com/roman%C3%A9e",
-                                       "http://example.com/faqs#cami%C3%B3n",
-                                       "http://example.com/search?q=cami%C3%B3n",
-                                       "http://example.com/search?q=espa%C3%B1a#top"])
+        expect(m.links.external).to eq([
+          "http://example.com/espa%C3%83%C2%B1a.asp",
+          "http://example.com/roman%C3%83%C2%A9e",
+          "http://example.com/faqs#cami%C3%83%C2%B3n",
+          "http://example.com/search?q=cami%C3%83%C2%B3n",
+          "http://example.com/search?q=espa%C3%83%C2%B1a#top"])
       end
 
       describe "internal links" do
         it "should get correct internal links, encoding the URLs as needed but respecting # and ?" do
           m = MetaInspector.new('http://international.com')
-          expect(m.links.internal).to eq([ "http://international.com/espa%C3%B1a.asp",
-                                       "http://international.com/roman%C3%A9e",
-                                       "http://international.com/faqs#cami%C3%B3n",
-                                       "http://international.com/search?q=cami%C3%B3n",
-                                       "http://international.com/search?q=espa%C3%B1a#top",
-                                       "http://international.com/index.php?q=espa%C3%B1a&url=aHR0zZQ==&cntnt01pageid=21"])
+
+          expect(m.links.internal).to eq([
+            "http://international.com/espa%C3%83%C2%B1a.asp",
+            "http://international.com/roman%C3%83%C2%A9e",
+            "http://international.com/faqs#cami%C3%83%C2%B3n",
+            "http://international.com/search?q=cami%C3%83%C2%B3n",
+            "http://international.com/search?q=espa%C3%83%C2%B1a#top",
+            "http://international.com/index.php?q=espa%C3%83%C2%B1a&url=aHR0zZQ==&cntnt01pageid=21"
+          ])
         end
 
         it "should not crash when processing malformed hrefs" do
@@ -86,11 +92,14 @@ describe MetaInspector do
       describe "external links" do
         it "should get correct external links, encoding the URLs as needed but respecting # and ?" do
           m = MetaInspector.new('http://international.com')
-          expect(m.links.external).to eq([ "http://example.com/espa%C3%B1a.asp",
-                                       "http://example.com/roman%C3%A9e",
-                                       "http://example.com/faqs#cami%C3%B3n",
-                                       "http://example.com/search?q=cami%C3%B3n",
-                                       "http://example.com/search?q=espa%C3%B1a#top"])
+
+          expect(m.links.external).to eq([
+            "http://example.com/espa%C3%83%C2%B1a.asp",
+            "http://example.com/roman%C3%83%C2%A9e",
+            "http://example.com/faqs#cami%C3%83%C2%B3n",
+            "http://example.com/search?q=cami%C3%83%C2%B3n",
+            "http://example.com/search?q=espa%C3%83%C2%B1a#top"
+          ])
         end
 
         it "should not crash when processing malformed hrefs" do

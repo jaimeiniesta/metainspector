@@ -12,7 +12,7 @@ PATH
       faraday-retry (~> 2.0)
       fastimage (~> 2.2)
       nesty (~> 1.0)
-      nokogiri (~> 1.13)
+      nokogiri (~> 1.18.8)
 
 GEM
   remote: http://rubygems.org/
@@ -58,9 +58,9 @@ GEM
       ruby2_keywords (~> 0.0.1)
     nesty (1.0.2)
     nio4r (2.5.9)
-    nokogiri (1.14.4-arm64-darwin)
+    nokogiri (1.18.8-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.14.4-x86_64-linux)
+    nokogiri (1.18.8-x86_64-linux-gnu)
       racc (~> 1.4)
     parallel (1.24.0)
     parser (3.3.0.5)
@@ -72,7 +72,7 @@ GEM
     public_suffix (5.0.3)
     puma (6.4.0)
       nio4r (~> 2.0)
-    racc (1.7.3)
+    racc (1.8.1)
     rack (2.2.14)
     rack-protection (3.0.6)
       rack
