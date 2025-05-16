@@ -60,7 +60,7 @@ GEM
     nesty (1.0.2)
     net-http (0.6.0)
       uri
-    nio4r (2.5.9)
+    nio4r (2.7.4)
     nokogiri (1.18.8-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.8-x86_64-linux-gnu)
@@ -74,7 +74,7 @@ GEM
       coderay (~> 1.1)
       method_source (~> 1.0)
     public_suffix (6.0.2)
-    puma (6.4.0)
+    puma (6.6.0)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (2.2.14)
