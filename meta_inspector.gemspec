@@ -34,5 +34,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'puma', '~> 6.6.0'
   gem.add_development_dependency 'rubocop', '~> 1.34'
   gem.add_development_dependency 'resolv', '~> 0.6.2'
-  gem.add_development_dependency 'sinatra', '~> 3.0.6'
+  gem.add_development_dependency 'sinatra', '~> 4.1.1'
 end
