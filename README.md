@@ -30,19 +30,19 @@ If you're using MetaInspector, it would be much appreciated if you can give back
 ### Gold Sponsors
 
 <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=507665">
-  <img align="center" height="175" src="assets/sponsor_logo_placeholder.png" alt="Become a Gold Sponsor">
+  <img align="center" height="175" src="assets/sponsor_logo_placeholder.gif" alt="Become a Gold Sponsor">
 </a>
 
 ### Silver Sponsors
 
 <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63404">
-  <img align="center" height="150" src="assets/sponsor_logo_placeholder.png" alt="Become a Silver Sponsor">
+  <img align="center" height="150" src="assets/sponsor_logo_placeholder.gif" alt="Become a Silver Sponsor">
 </a>
 
 ### Bronze Sponsors
 
 <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63403">
-  <img align="center" height="125" src="assets/sponsor_logo_placeholder.png" alt="Become a Bronze Sponsor">
+  <img align="center" height="125" src="assets/sponsor_logo_placeholder.gif" alt="Become a Bronze Sponsor">
 </a>
 
 
