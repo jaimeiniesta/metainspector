@@ -5,10 +5,6 @@ MetaInspector is a gem for web scraping purposes.
 
 You give it an URL, and it lets you easily get its title, links, images, charset, description, keywords, meta tags...
 
-## Maintenance mode
-
-Due to a lack of time to dedicate to open source projects, this gem is in maintenance mode. I'm not actively working on new features, but I will apply security patches and dependency upgrades. Pull requests are still welcome but will only be considered if they come with tests and documentation.
-
 ## Installation
 
 Install the gem from RubyGems:
@@ -24,6 +20,31 @@ gem 'metainspector'
 ```
 
 Supported Ruby versions are defined in [`.circleci/config.yml`](.circleci/config.yml).
+
+## Supporting MetaInspector
+
+MetaInspector has been downloaded more than 3 million times via RubyGems.org and has more than 1K stars on Github.
+
+If you're using MetaInspector, it would be much appreciated if you can give back to the project in order to help ensure its continued development.
+
+### Gold Sponsors
+
+<a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=507665">
+  <img align="center" height="175" src="assets/sponsor_logo_placeholder.png" alt="Become a Gold Sponsor">
+</a>
+
+### Silver Sponsors
+
+<a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63404">
+  <img align="center" height="150" src="assets/sponsor_logo_placeholder.png" alt="Become a Silver Sponsor">
+</a>
+
+### Bronze Sponsors
+
+<a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63403">
+  <img align="center" height="125" src="assets/sponsor_logo_placeholder.png" alt="Become a Bronze Sponsor">
+</a>
+
 
 ## Usage
 
