@@ -41,11 +41,11 @@ If you're using MetaInspector, it would be much appreciated if you can give back
 
 <div style="display: flex; gap: 10px; text-decoration: none;">
 
-  <a href="https://rocketvalidator.com">
+  <a href="https://rocketvalidator.com" style="text-decoration:none;">
     <img height="150" src="assets/sponsor_logo_rocket_validator.png" alt="Rocket Validator - accessibility and HTML site-wide validator">
   </a>
 
-  <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63404">
+  <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63404" style="text-decoration:none;">
     <img height="150" src="assets/sponsor_logo_placeholder.gif" alt="Become a Silver Sponsor">
   </a>
 
