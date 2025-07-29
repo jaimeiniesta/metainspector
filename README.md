@@ -32,7 +32,7 @@ If you're using MetaInspector, it would be much appreciated if you can give back
 <div style="display: flex; gap: 10px;">
 
   <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=507665">
-    <img align="center" height="175" src="assets/sponsor_logo_placeholder.gif" alt="Become a Gold Sponsor">
+    <img height="175" src="assets/sponsor_logo_placeholder.gif" alt="Become a Gold Sponsor">
   </a>
 
 </div>
@@ -41,12 +41,12 @@ If you're using MetaInspector, it would be much appreciated if you can give back
 
 <div style="display: flex; gap: 10px;">
 
-  <a href="https://rocketvalidator.com" style="display:inline">
-    <img align="center" height="150" src="assets/sponsor_logo_rocket_validator.png" alt="Rocket Validator - accessibility and HTML site-wide validator">
+  <a href="https://rocketvalidator.com">
+    <img height="150" src="assets/sponsor_logo_rocket_validator.png" alt="Rocket Validator - accessibility and HTML site-wide validator">
   </a>
 
-  <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63404" style="display:inline">
-    <img align="center" height="150" src="assets/sponsor_logo_placeholder.gif" alt="Become a Silver Sponsor">
+  <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63404">
+    <img height="150" src="assets/sponsor_logo_placeholder.gif" alt="Become a Silver Sponsor">
   </a>
 
 </div>
@@ -56,7 +56,7 @@ If you're using MetaInspector, it would be much appreciated if you can give back
 <div style="display: flex; gap: 10px;">
 
   <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63403">
-    <img align="center" height="125" src="assets/sponsor_logo_placeholder.gif" alt="Become a Bronze Sponsor">
+    <img height="125" src="assets/sponsor_logo_placeholder.gif" alt="Become a Bronze Sponsor">
   </a>
 
 </div>
