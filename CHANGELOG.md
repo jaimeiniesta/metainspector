@@ -1,5 +1,11 @@
 # MetaInspector Changelog
 
+## [Changes in 5.17.0](https://github.com/jaimeiniesta/metainspector/compare/v5.16.0...v5.17.0)
+
+* Add support for Ruby 4.0
+* Remove support for Ruby 3.1
+* Several dependencies upgrade
+
 ## [Changes in 5.16.0](https://github.com/jaimeiniesta/metainspector/compare/v5.15.0...v5.16.0)
 
 * Upgraded dependencies and supported Ruby versions.
