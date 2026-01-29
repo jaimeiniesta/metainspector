@@ -1,47 +1,51 @@
 version: 2.1
-orbs:
-  ruby: circleci/ruby@1.0.4
+
 jobs:
   test_3_2:
     docker:
-      - image: cimg/ruby:3.2.9
+      - image: cimg/ruby:3.2
     steps:
       - checkout
-      - ruby/install-deps:
-          with-cache: false
+      - run:
+          name: Install dependencies
+          command: bundle install
       - run:
           name: Run tests
           command: bundle exec rake
   test_3_3:
     docker:
-      - image: cimg/ruby:3.3.10
+      - image: cimg/ruby:3.3
     steps:
       - checkout
-      - ruby/install-deps:
-          with-cache: false
+      - run:
+          name: Install dependencies
+          command: bundle install
       - run:
           name: Run tests
           command: bundle exec rake
   test_3_4:
     docker:
-      - image: cimg/ruby:3.4.8
+      - image: cimg/ruby:3.4
     steps:
       - checkout
-      - ruby/install-deps:
-          with-cache: false
+      - run:
+          name: Install dependencies
+          command: bundle install
       - run:
           name: Run tests
           command: bundle exec rake
   test_4_0:
     docker:
-      - image: cimg/ruby:4.0.0
+      - image: cimg/ruby:4.0
     steps:
       - checkout
-      - ruby/install-deps:
-          with-cache: false
+      - run:
+          name: Install dependencies
+          command: bundle install
       - run:
           name: Run tests
           command: bundle exec rake
+
 workflows:
   version: 2
   deploy:
