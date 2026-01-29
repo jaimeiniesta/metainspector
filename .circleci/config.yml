@@ -7,7 +7,8 @@ jobs:
       - image: cimg/ruby:3.2.9
     steps:
       - checkout
-      - ruby/install-deps
+      - ruby/install-deps:
+          with-cache: false
       - run:
           name: Run tests
           command: bundle exec rake
@@ -16,7 +17,8 @@ jobs:
       - image: cimg/ruby:3.3.10
     steps:
       - checkout
-      - ruby/install-deps
+      - ruby/install-deps:
+          with-cache: false
       - run:
           name: Run tests
           command: bundle exec rake
@@ -25,7 +27,8 @@ jobs:
       - image: cimg/ruby:3.4.8
     steps:
       - checkout
-      - ruby/install-deps
+      - ruby/install-deps:
+          with-cache: false
       - run:
           name: Run tests
           command: bundle exec rake
@@ -34,7 +37,8 @@ jobs:
       - image: cimg/ruby:4.0.0
     steps:
       - checkout
-      - ruby/install-deps
+      - ruby/install-deps:
+          with-cache: false
       - run:
           name: Run tests
           command: bundle exec rake
