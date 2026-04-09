@@ -1,3 +1,4 @@
+require 'http/cookie'
 require 'faraday'
 require 'faraday-cookie_jar'
 require 'faraday-http-cache'
