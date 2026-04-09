@@ -1,5 +1,9 @@
 # MetaInspector Changelog
 
+## [Changes in 5.17.1](https://github.com/jaimeiniesta/metainspector/compare/v5.17.0...v5.17.1)
+
+* Upgrade addressable and puma dependencies
+
 ## [Changes in 5.17.0](https://github.com/jaimeiniesta/metainspector/compare/v5.16.0...v5.17.0)
 
 * Add support for Ruby 4.0
