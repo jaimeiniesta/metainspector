@@ -1,5 +1,10 @@
 # MetaInspector Changelog
 
+## [Changes in 5.17.2](https://github.com/jaimeiniesta/metainspector/compare/v5.17.1...v5.17.2)
+
+* Fix best title and author so empty strings are skipped.
+* Update resolv.
+
 ## [Changes in 5.17.1](https://github.com/jaimeiniesta/metainspector/compare/v5.17.0...v5.17.1)
 
 * Upgrade addressable and puma dependencies
