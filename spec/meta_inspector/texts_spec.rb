@@ -79,6 +79,11 @@ describe MetaInspector do
       expect(page.best_title).to eq('This title came from the head and has leading and trailing whitespace')
     end
 
+    it "should skip empty candidates and fall back to the next one" do
+      page = MetaInspector.new('http://example.com/title_in_head_with_empty_og_title')
+      expect(page.best_title).to eq('This title came from the head when og:title was empty')
+    end
+
     it "should return nil if none of the candidates are present" do
       page = MetaInspector.new('http://example.com/title_not_present')
       expect(page.best_title).to be(nil)

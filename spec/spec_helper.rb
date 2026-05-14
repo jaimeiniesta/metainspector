@@ -45,6 +45,7 @@ RSpec.configure do |config|
     stub_request(:get, "http://example.com/title_in_h1").to_return(fixture_file("title_in_h1.response"))
     stub_request(:get, "http://example.com/title_in_head").to_return(fixture_file("title_in_head.response"))
     stub_request(:get, "http://example.com/title_in_head_with_whitespace").to_return(fixture_file("title_in_head_with_whitespace.response"))
+    stub_request(:get, "http://example.com/title_in_head_with_empty_og_title").to_return(fixture_file("title_in_head_with_empty_og_title.response"))
     stub_request(:get, "http://example.com/title_not_present").to_return(fixture_file("title_not_present.response"))
     stub_request(:get, "http://example.com/author_in_meta").to_return(fixture_file("author_in_meta.response"))
     stub_request(:get, "http://example.com/author_in_body").to_return(fixture_file("author_in_body.response"))
