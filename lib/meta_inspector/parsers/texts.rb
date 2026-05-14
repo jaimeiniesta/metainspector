@@ -86,7 +86,7 @@ module MetaInspector
         candidates.compact!
         candidates.map! { |c| (c.respond_to? :inner_text) ? c.inner_text : c }
         candidates.map! { |c| c.strip.gsub(/\s+/, ' ') }
-        candidates.first
+        candidates.find { |c| !c.to_s.empty? }
       end
 
       def find_best_author
@@ -100,7 +100,7 @@ module MetaInspector
         candidates.compact!
         candidates.map! { |c| (c.respond_to? :inner_text) ? c.inner_text : c }
         candidates.map! { |c| c.strip.gsub(/\s+/, ' ') }
-        candidates.first
+        candidates.find { |c| !c.to_s.empty? }
       end
 
       def find_best_description
