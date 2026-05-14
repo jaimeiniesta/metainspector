@@ -127,6 +127,11 @@ describe MetaInspector do
       expect(page.best_author).to eq("This author came from the twitter creator tag")
     end
 
+    it "should skip empty candidates and fall back to the next one" do
+      page = MetaInspector.new('http://example.com/author_in_link_with_empty_meta_author')
+      expect(page.best_author).to eq("This author came from the link when the meta author was empty")
+    end
+
     it "should return nil if no author information present" do
       page = MetaInspector.new('http://example.com/empty')
 
