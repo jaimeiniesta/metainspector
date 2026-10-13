@@ -1,5 +1,10 @@
 # MetaInspector Changelog
 
+## [Changes in 5.17.3](https://github.com/jaimeiniesta/metainspector/compare/v5.17.2...v5.17.3)
+
+* Update faraday-http-cache requirement to allow 3.x.
+* Update resolv to 0.8.
+
 ## [Changes in 5.17.2](https://github.com/jaimeiniesta/metainspector/compare/v5.17.1...v5.17.2)
 
 * Fix best title and author so empty strings are skipped.
