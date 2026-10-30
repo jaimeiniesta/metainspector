@@ -1,5 +1,9 @@
 # MetaInspector Changelog
 
+## [Changes in 5.17.4](https://github.com/jaimeiniesta/metainspector/compare/v5.17.3...v5.17.4)
+
+* Require patched versions of dependencies with security advisories: addressable 2.9.1, faraday 2.14.3, faraday-http-cache 2.8 and nokogiri 1.19.4.
+
 ## [Changes in 5.17.3](https://github.com/jaimeiniesta/metainspector/compare/v5.17.2...v5.17.3)
 
 * Update faraday-http-cache requirement to allow 3.x.
