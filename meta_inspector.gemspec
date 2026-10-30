@@ -13,6 +13,7 @@ Gem::Specification.new do |gem|
   gem.name          = "metainspector"
   gem.require_paths = ["lib"]
   gem.version       = MetaInspector::VERSION
+  gem.required_ruby_version = '>= 3.3'
 
   gem.add_dependency 'nokogiri', '~> 1.19.4'
   gem.add_dependency 'faraday', '~> 2.14', '>= 2.14.3'
