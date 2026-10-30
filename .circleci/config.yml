@@ -1,17 +1,6 @@
 version: 2.1
 
 jobs:
-  test_3_2:
-    docker:
-      - image: cimg/ruby:3.2
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: bundle install
-      - run:
-          name: Run tests
-          command: bundle exec rake
   test_3_3:
     docker:
       - image: cimg/ruby:3.3
@@ -50,7 +39,6 @@ workflows:
   version: 2
   deploy:
     jobs:
-      - test_3_2
       - test_3_3
       - test_3_4
       - test_4_0
