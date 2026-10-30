@@ -1,5 +1,10 @@
 # MetaInspector Changelog
 
+## [Changes in 5.18.0](https://github.com/jaimeiniesta/metainspector/compare/v5.17.4...v5.18.0)
+
+* Remove support for Ruby 3.2, which reached end of life on 2026-04-01.
+* Require Ruby >= 3.3 in the gemspec.
+
 ## [Changes in 5.17.4](https://github.com/jaimeiniesta/metainspector/compare/v5.17.3...v5.17.4)
 
 * Require patched versions of dependencies with security advisories: addressable 2.9.1, faraday 2.14.3, faraday-http-cache 2.8 and nokogiri 1.19.4.
