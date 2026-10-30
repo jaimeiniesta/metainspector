@@ -23,44 +23,9 @@ Supported Ruby versions are defined in [`.circleci/config.yml`](.circleci/config
 
 ## Supporting MetaInspector
 
-MetaInspector has been downloaded more than 3 million times via RubyGems.org and has more than 1K stars on Github.
+MetaInspector has been downloaded more than 4 million times via RubyGems.org and has more than 1K stars on GitHub.
 
-If you're using MetaInspector, it would be much appreciated if you can give back to the project in order to help ensure its continued development.
-
-### Gold Sponsors
-
-<div style="display: flex; gap: 10px;">
-
-  <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=507665">
-    <img height="175" src="assets/sponsor_logo_placeholder.gif" alt="Become a Gold Sponsor">
-  </a>
-
-</div>
-
-### Silver Sponsors
-
-<div style="display: flex; gap: 10px;">
-
-  <a href="https://rocketvalidator.com">
-    <img height="150" src="assets/sponsor_logo_rocket_validator.png" alt="Rocket Validator - accessibility and HTML site-wide validator">
-  </a>
-
-  <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63404">
-    <img height="150" src="assets/sponsor_logo_placeholder.gif" alt="Become a Silver Sponsor">
-  </a>
-
-</div>
-
-### Bronze Sponsors
-
-<div style="display: flex; gap: 10px;">
-
-  <a href="https://github.com/sponsors/jaimeiniesta/sponsorships?sponsor=jaimeiniesta&tier_id=63403">
-    <img height="125" src="assets/sponsor_logo_placeholder.gif" alt="Become a Bronze Sponsor">
-  </a>
-
-</div>
-
+If you're using MetaInspector, please consider giving back to help ensure its continued development. You can support the project by becoming a sponsor on [GitHub Sponsors](https://github.com/sponsors/jaimeiniesta): pick the tier that suits you, either as an individual or on behalf of your company.
 
 ## Usage
 
