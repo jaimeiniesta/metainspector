@@ -8,7 +8,7 @@ Gem::Specification.new do |gem|
   gem.homepage      = "https://github.com/jaimeiniesta/metainspector"
   gem.license       = "MIT"
 
-  gem.files         = `git ls-files`.split("\n")
+  gem.files         = `git ls-files`.split("\n") - ["Gemfile.lock"]
   gem.test_files    = `git ls-files -- {spec}/*`.split("\n")
   gem.name          = "metainspector"
   gem.require_paths = ["lib"]
