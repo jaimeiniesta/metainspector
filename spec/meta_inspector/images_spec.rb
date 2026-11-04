@@ -70,6 +70,15 @@ describe MetaInspector do
   end
 
   describe "images.best" do
+    it "should find a valid image when another image URL cannot be parsed" do
+      html = '<html><body><img src="http://exa mple.com/x.png"><img src="/100x100"></body></html>'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      allow(FastImage).to receive(:size).and_call_original
+      expect(FastImage).not_to receive(:size).with(nil)
+      expect(page.images.best).to eq("http://example.com/100x100")
+    end
+
     it "should find the og image" do
       page = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
 
@@ -135,6 +144,23 @@ describe MetaInspector do
   end
 
   describe "images.with_size" do
+    [true, false].each do |download_images|
+      it "should ignore unparseable image URLs with download_images: #{download_images}" do
+        html = '<html><body><img src="http://exa mple.com/x.png"><img src="/valid.png" width="100" height="100"></body></html>'
+        page = MetaInspector.new('https://example.com/', document: html, download_images: download_images)
+
+        expect(FastImage).not_to receive(:size).with(nil)
+        expect(page.images.with_size).to eq([["https://example.com/valid.png", 100, 100]])
+      end
+    end
+
+    it "should ignore unparseable image URLs even when HTML sizes are present" do
+      html = '<html><body><img src="http://exa mple.com/x.png" width="100" height="100"></body></html>'
+      page = MetaInspector.new('https://example.com/', document: html)
+
+      expect(page.images.with_size).to eq([])
+    end
+
     it "should return sorted by area array of [img_url, width, height] using html sizes" do
       page = MetaInspector.new('http://example.com/largest_image_in_html')
 
