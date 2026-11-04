@@ -385,6 +385,28 @@ page.content_type  # "image/png"
 page.description   # will return a garbled string
 ```
 
+### Check content type before downloading
+
+To avoid downloading large non-HTML files, enable `head_first`:
+
+```ruby
+page = MetaInspector.new('http://example.com/page', head_first: true)
+```
+
+This sends an HTTP HEAD request before GET. If a successful HEAD response declares
+a content type other than `text/html`, MetaInspector raises `MetaInspector::NonHtmlError`
+without downloading the body. Content-type parameters such as `charset` are ignored.
+With `allow_non_html_content: true`, the download proceeds regardless of content type.
+
+If HEAD omits the content type or returns an unsuccessful status (including 405 or
+501 for servers that do not support HEAD), MetaInspector continues with GET and its
+usual content-type check. HEAD timeouts and connection errors use the same exception
+handling as GET. The final page data, response headers and status come from GET.
+
+This option is off by default because it adds a request and not every server
+supports HEAD. Both requests use the configured headers, timeouts, retries and
+redirect settings. Passing a `document` directly makes no HTTP requests.
+
 ### URL Normalization
 
 By default, URLs are normalized using the Addressable gem. For example:

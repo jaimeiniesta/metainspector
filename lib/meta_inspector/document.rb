@@ -9,6 +9,7 @@ module MetaInspector
     # * read_timeout: defaults to 20 seconds
     # * retries: defaults to 3 times
     # * allow_redirections: when true, follow HTTP redirects. Defaults to true
+    # * head_first: check content type with HEAD before GET. Defaults to false
     # * document: the html of the url as a string
     # * headers: object containing custom headers for the request
     # * normalize_url: true by default
@@ -31,6 +32,8 @@ module MetaInspector
       @faraday_http_cache = options[:faraday_http_cache]
       @url                = MetaInspector::URL.new(initial_url, normalize:          @normalize_url)
       @request            = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
+                                                                head_first:         options[:head_first],
+                                                                allow_non_html_content: @allow_non_html_content,
                                                                 connection_timeout: @connection_timeout,
                                                                 read_timeout:       @read_timeout,
                                                                 retries:            @retries,
@@ -101,6 +104,7 @@ module MetaInspector
                                   },
         :allow_redirections     => true,
         :allow_non_html_content => false,
+        :head_first             => false,
         :normalize_url          => true,
         :download_images        => true }
     end
