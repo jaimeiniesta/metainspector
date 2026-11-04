@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.version       = MetaInspector::VERSION
   gem.required_ruby_version = '>= 3.3'
 
-  gem.add_dependency 'nokogiri', '~> 1.19.4'
+  gem.add_dependency 'nokogiri', '~> 1.19.5'
   gem.add_dependency 'faraday', '~> 2.14', '>= 2.14.3'
   gem.add_dependency 'faraday-cookie_jar', '~> 0.0'
   gem.add_dependency 'faraday-encoding', '~> 0.0'
