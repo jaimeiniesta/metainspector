@@ -39,6 +39,7 @@ module MetaInspector
           imgs_with_size = img_nodes.map do |img_node|
             [URL.absolutify(img_node['src'], base_url, normalize: false), img_node['width'], img_node['height']]
           end
+          imgs_with_size.reject! { |url, width, height| url.nil? || url.empty? }
           imgs_with_size.uniq! { |url, width, height| url }
           if @download_images
             imgs_with_size.map! do |url, width, height|

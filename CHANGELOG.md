@@ -1,5 +1,9 @@
 # MetaInspector Changelog
 
+## Unreleased
+
+* Skip invalid image URLs in `images.with_size`, preventing `images.best` from failing when FastImage receives a nil URL ([#521](https://github.com/jaimeiniesta/metainspector/issues/521), follow-up to [#359](https://github.com/jaimeiniesta/metainspector/issues/359)).
+
 ## [Changes in 5.18.1](https://github.com/jaimeiniesta/metainspector/compare/v5.18.0...v5.18.1)
 
 * Require nokogiri 1.19.5, which fixes three low-severity security advisories.
