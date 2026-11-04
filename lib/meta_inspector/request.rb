@@ -18,6 +18,8 @@ module MetaInspector
       fail MetaInspector::RequestError.new('URL must be HTTP') unless @url.url =~ /http[s]?:\/\//i
 
       @allow_redirections = options[:allow_redirections]
+      @head_first         = options[:head_first]
+      @allow_non_html_content = options[:allow_non_html_content]
       @connection_timeout = options[:connection_timeout]
       @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
@@ -42,8 +44,7 @@ module MetaInspector
     end
 
     def content_type
-      return nil if response.headers['content-type'].nil?
-      response.headers['content-type'].split(';')[0] if response
+      response_content_type(response)
     end
 
     def response
@@ -82,10 +83,8 @@ module MetaInspector
           faraday.adapter :net_http
         end
 
-        response = session.get do |req|
-          req.options.timeout      = @connection_timeout
-          req.options.open_timeout = @read_timeout
-        end
+        check_head_content_type(session) if @head_first
+        response = perform_request(session, :get)
 
         if @allow_redirections
           @url.url = response.env.url.to_s
@@ -95,6 +94,27 @@ module MetaInspector
       end
     rescue Timeout::Error => e
       raise MetaInspector::TimeoutError.new(e)
+    end
+
+    def check_head_content_type(session)
+      head_response = perform_request(session, :head)
+      return unless head_response.success?
+
+      type = response_content_type(head_response)
+      if !@allow_non_html_content && !type.nil? && type != 'text/html'
+        fail MetaInspector::NonHtmlError.new "The url provided contains #{type} content instead of text/html content"
+      end
+    end
+
+    def response_content_type(response)
+      response.headers['content-type']&.split(';')&.first
+    end
+
+    def perform_request(session, method)
+      session.public_send(method) do |req|
+        req.options.timeout      = @connection_timeout
+        req.options.open_timeout = @read_timeout
+      end
     end
 
     # Timeouts when connecting / reading a request are handled by Faraday, but in the

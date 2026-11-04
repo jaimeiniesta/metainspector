@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Skip invalid image URLs in `images.with_size`, preventing `images.best` from failing when FastImage receives a nil URL ([#521](https://github.com/jaimeiniesta/metainspector/issues/521), follow-up to [#359](https://github.com/jaimeiniesta/metainspector/issues/359)).
+* Add opt-in `head_first: true` to check content type with HEAD and reject non-HTML files before downloading them (#221).
 
 ## [Changes in 5.18.1](https://github.com/jaimeiniesta/metainspector/compare/v5.18.0...v5.18.1)
 
