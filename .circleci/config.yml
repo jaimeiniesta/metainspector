@@ -35,6 +35,20 @@ jobs:
           name: Run tests
           command: bundle exec rake
 
+  # Same as test_4_0, but ignores Gemfile.lock and uses the newest versions the
+  # gemspec allows, which is what people who install the gem get.
+  test_4_0_latest_deps:
+    docker:
+      - image: cimg/ruby:4.0
+    steps:
+      - checkout
+      - run:
+          name: Update dependencies to the newest allowed versions
+          command: bundle update
+      - run:
+          name: Run tests
+          command: bundle exec rake
+
 workflows:
   version: 2
   deploy:
@@ -42,3 +56,4 @@ workflows:
       - test_3_3
       - test_3_4
       - test_4_0
+      - test_4_0_latest_deps
