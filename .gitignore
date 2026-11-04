@@ -9,4 +9,3 @@ pkg/*
 .rubocop_todo.yml
 .rubocop.yml
 .tool-versions
-Gemfile.lock

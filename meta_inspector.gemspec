@@ -8,14 +8,14 @@ Gem::Specification.new do |gem|
   gem.homepage      = "https://github.com/jaimeiniesta/metainspector"
   gem.license       = "MIT"
 
-  gem.files         = `git ls-files`.split("\n")
+  gem.files         = `git ls-files`.split("\n") - ["Gemfile.lock"]
   gem.test_files    = `git ls-files -- {spec}/*`.split("\n")
   gem.name          = "metainspector"
   gem.require_paths = ["lib"]
   gem.version       = MetaInspector::VERSION
   gem.required_ruby_version = '>= 3.3'
 
-  gem.add_dependency 'nokogiri', '~> 1.19.4'
+  gem.add_dependency 'nokogiri', '~> 1.19.5'
   gem.add_dependency 'faraday', '~> 2.14', '>= 2.14.3'
   gem.add_dependency 'faraday-cookie_jar', '~> 0.0'
   gem.add_dependency 'faraday-encoding', '~> 0.0'

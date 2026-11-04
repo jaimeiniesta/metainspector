@@ -1,5 +1,10 @@
 # MetaInspector Changelog
 
+## [Changes in 5.18.1](https://github.com/jaimeiniesta/metainspector/compare/v5.18.0...v5.18.1)
+
+* Require nokogiri 1.19.5, which fixes three low-severity security advisories.
+* Commit Gemfile.lock to the repository, and run CI against the newest allowed dependencies as well.
+
 ## [Changes in 5.18.0](https://github.com/jaimeiniesta/metainspector/compare/v5.17.4...v5.18.0)
 
 * Remove support for Ruby 3.2, which reached end of life on 2026-04-01.
