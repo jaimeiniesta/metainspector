@@ -174,6 +174,28 @@ describe MetaInspector do
   end
 
   describe 'Relative links with relative base' do
+    [
+      ['assets/', 'https://example.com/posts/article', 'https://example.com/posts/assets/next.html'],
+      ['../assets/', 'https://example.com/posts/2026/article', 'https://example.com/posts/assets/next.html'],
+      ['assets/base.html', 'https://example.com/posts/article', 'https://example.com/posts/assets/next.html'],
+      ['assets/', 'https://example.com/posts/article/', 'https://example.com/posts/article/assets/next.html'],
+      ['/assets/', 'https://example.com:8443/posts/article', 'https://example.com:8443/assets/next.html']
+    ].each do |base_href, url, expected_link|
+      it "resolves base #{base_href.inspect} against #{url}" do
+        html = %(<html><head><base href="#{base_href}"></head><body><a href="next.html">Next</a></body></html>)
+        m = MetaInspector.new(url, document: html)
+
+        expect(m.links.all).to eq([expected_link])
+      end
+    end
+
+    it 'resolves image URLs against a document-relative base in a nested directory' do
+      html = '<html><head><base href="assets/"></head><body><img src="image.jpg"></body></html>'
+      m = MetaInspector.new('https://example.com/posts/article', document: html)
+
+      expect(m.images.to_a).to eq(['https://example.com/posts/assets/image.jpg'])
+    end
+
     it 'should get the relative links with relative directory base' do
       m = MetaInspector.new('http://relativewithrelativebase.com/relativedir')
       expect(m.links.all).to eq(['http://relativewithrelativebase.com/other/about',

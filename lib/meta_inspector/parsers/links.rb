@@ -46,8 +46,9 @@ module MetaInspector
       # Returns the base url to absolutify relative links.
       # This can be the one set on a <base> tag,
       # or the url of the document if no <base> tag was found.
+      # Relative base hrefs are resolved against the document URL.
       def base_url
-        current_base_href = base_href.to_s.strip.empty? ? nil : URL.absolutify(base_href, URL.new(url).root_url)
+        current_base_href = base_href.to_s.strip.empty? ? nil : URL.absolutify(base_href, url)
         current_base_href || url
       end
 

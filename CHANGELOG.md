@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Resolve relative base hrefs against the full document URL, preserving nested paths and non-default ports (#240).
 * Skip invalid image URLs in `images.with_size`, preventing `images.best` from failing when FastImage receives a nil URL ([#521](https://github.com/jaimeiniesta/metainspector/issues/521), follow-up to [#359](https://github.com/jaimeiniesta/metainspector/issues/359)).
 * Add opt-in `head_first: true` to check content type with HEAD and reject non-HTML files before downloading them (#221).
 
