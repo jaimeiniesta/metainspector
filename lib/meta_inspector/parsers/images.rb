@@ -17,7 +17,7 @@ module MetaInspector
         self
       end
 
-      # Returns either the Facebook Open Graph image, twitter suggested image or
+      # Returns the Facebook Open Graph image, Twitter image, Parsely image or
       # the largest image in the image collection
       def best
         owner_suggested || largest
@@ -26,9 +26,10 @@ module MetaInspector
       # Returns the parsed image from Facebook's open graph property tags
       # Most major websites now define this property and is usually relevant
       # See doc at http://developers.facebook.com/docs/opengraph/
-      # If none found, tries with Twitter image
+      # If none found, tries with Twitter image, then Parsely image
       def owner_suggested
-        suggested_img = content_of(meta['og:image']) || content_of(meta['twitter:image'])
+        suggested_img = content_of(meta['og:image']) || content_of(meta['twitter:image']) ||
+                        content_of(meta['parsely-image-url'])
         URL.absolutify(suggested_img, base_url, normalize: false) if suggested_img
       end
 
@@ -94,7 +95,7 @@ module MetaInspector
       end
 
       def content_of(content)
-        return nil if content.nil? || content.empty?
+        return nil if content.nil? || content.strip.empty?
         content
       end
     end

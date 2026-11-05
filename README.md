@@ -98,6 +98,14 @@ page.h5                  # returns h5 text array
 page.h6                  # returns h6 text array
 ```
 
+`best_title` selects the first non-empty value from the standard `title` meta tag,
+`og:title`, the head `<title>`, a body `<title>`, the first `<h1>`, and finally
+`parsely-title`.
+
+`best_author` selects the first non-empty value from the standard `author` meta tag,
+the first link with `rel="author"`, the first `<address>`, `twitter:creator`, and
+finally `parsely-author`. Both methods trim and collapse whitespace in their results.
+
 ### Links
 
 ```ruby
@@ -114,9 +122,14 @@ page.links.external      # every external link found on the page as an absolute 
 ```ruby
 page.images              # enumerable collection, with every img found on the page as an absolute URL
 page.images.with_size    # a sorted array (by descending area) of [image_url, width, height]
-page.images.best         # Most relevant image, if defined with the og:image or twitter:image metatags. Fallback to the first page.images array element
+page.images.best         # Most relevant image from og:image, twitter:image, or parsely-image-url; falls back to page.images.largest
 page.images.favicon      # absolute URL to the favicon
 ```
+
+`images.owner_suggested` tries `og:image`, `twitter:image`, and `parsely-image-url`
+in that order, skipping empty or whitespace-only values. Relative image URLs are
+resolved against the document's base URL. `images.best` uses this suggested image
+before falling back to the largest suitable image on the page.
 
 ### Meta tags
 

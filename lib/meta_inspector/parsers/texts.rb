@@ -42,12 +42,13 @@ module MetaInspector
         @author ||= meta['author']
       end
 
-      # An author getter that returns the first non-nil description
+      # An author getter that returns the first non-empty author
       # from the following candidates:
-      # - the standard meta description
+      # - the standard meta author
       # - a link with the relational attribute "author"
       # - address tag which may contain the author
       # - the twitter:creator meta tag for the username
+      # - the parsely-author meta tag
       def best_author
         @best_author ||= find_best_author
       end
@@ -80,7 +81,8 @@ module MetaInspector
             meta['og:title'],
             parsed.css('head title'),
             parsed.css('body title'),
-            parsed.css('h1').first
+            parsed.css('h1').first,
+            meta['parsely-title']
         ]
         candidates.flatten!
         candidates.compact!
@@ -94,7 +96,8 @@ module MetaInspector
           meta['author'],
           parsed.css('a[rel="author"]').first,
           parsed.css('address').first,
-          meta['twitter:creator']
+          meta['twitter:creator'],
+          meta['parsely-author']
         ]
         candidates.flatten!
         candidates.compact!
