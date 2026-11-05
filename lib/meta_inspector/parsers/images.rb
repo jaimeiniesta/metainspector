@@ -10,6 +10,7 @@ module MetaInspector
 
       def initialize(main_parser, options = {})
         @download_images = options[:download_images]
+        @max_image_downloads = options[:max_image_downloads]
         super(main_parser)
       end
 
@@ -42,16 +43,17 @@ module MetaInspector
           end
           imgs_with_size.reject! { |url, width, height| url.nil? || url.empty? }
           imgs_with_size.uniq! { |url, width, height| url }
-          if @download_images
-            imgs_with_size.map! do |url, width, height|
-              width, height = FastImage.size(url) if width.nil? || height.nil?
-              [url, width.to_i, height.to_i]
+          download_attempts = 0
+          imgs_with_size.map! do |url, width, height|
+            if width.nil? || height.nil?
+              if @download_images && (@max_image_downloads.nil? || download_attempts < @max_image_downloads)
+                download_attempts += 1
+                width, height = FastImage.size(url)
+              else
+                width, height = [0, 0]
+              end
             end
-          else
-            imgs_with_size.map! do |url, width, height|
-              width, height = [0, 0] if width.nil? || height.nil?
-              [url, width.to_i, height.to_i]
-            end
+            [url, width.to_i, height.to_i]
           end
           imgs_with_size.sort_by { |url, width, height| -(width.to_i * height.to_i) }
         end

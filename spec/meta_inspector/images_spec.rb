@@ -198,6 +198,159 @@ describe MetaInspector do
   end
 
   describe "images.with_size" do
+    describe "max_image_downloads" do
+      let(:html) do
+        '<img src="/10x10"><img src="/100x100"><img src="/remaining.jpg">'
+      end
+
+      before do
+        stub_request(:get, 'http://example.com/remaining.jpg').to_return(status: 404)
+      end
+
+      it "should download only the first images needing dimensions in document order" do
+        page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 2)
+
+        expect(page.images.with_size).to eq([
+          ['http://example.com/100x100', 100, 100],
+          ['http://example.com/10x10', 10, 10],
+          ['http://example.com/remaining.jpg', 0, 0]
+        ])
+        expect(WebMock).to have_requested(:get, 'http://example.com/10x10').once
+        expect(WebMock).to have_requested(:get, 'http://example.com/100x100').once
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/remaining.jpg')
+      end
+
+      it "should preserve HTML dimensions without consuming the download budget" do
+        html = '<img src="/known.jpg" width="200" height="200"><img src="/10x10"><img src="/100x100"><img src="/later.jpg" width="300" height="300">'
+        page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
+
+        expect(page.images.with_size).to eq([
+          ['http://example.com/later.jpg', 300, 300],
+          ['http://example.com/known.jpg', 200, 200],
+          ['http://example.com/10x10', 10, 10],
+          ['http://example.com/100x100', 0, 0]
+        ])
+        expect(WebMock).to have_requested(:get, 'http://example.com/10x10').once
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/100x100')
+      end
+
+      it "should exclude invalid and duplicate URLs before consuming the budget" do
+        html = '<img src="http://exa mple.com/broken.jpg"><img src="/10x10"><img src="http://example.com/10x10"><img src="/100x100"><img src="/remaining.jpg">'
+        page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 2)
+
+        expect(page.images.with_size).to eq([
+          ['http://example.com/100x100', 100, 100],
+          ['http://example.com/10x10', 10, 10],
+          ['http://example.com/remaining.jpg', 0, 0]
+        ])
+        expect(WebMock).to have_requested(:get, 'http://example.com/10x10').once
+        expect(WebMock).to have_requested(:get, 'http://example.com/100x100').once
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/remaining.jpg')
+      end
+
+      it "should treat an image missing one HTML dimension as needing a download" do
+        html = '<img src="/10x10" width="500"><img src="/100x100" height="500">'
+        page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
+
+        expect(page.images.with_size).to eq([
+          ['http://example.com/10x10', 10, 10],
+          ['http://example.com/100x100', 0, 0]
+        ])
+        expect(WebMock).to have_requested(:get, 'http://example.com/10x10').once
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/100x100')
+      end
+
+      it "should disable downloads with a zero limit while preserving HTML dimensions" do
+        html = '<img src="/10x10"><img src="/known.jpg" width="200" height="100">'
+        page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 0)
+
+        expect(page.images.with_size).to eq([
+          ['http://example.com/known.jpg', 200, 100],
+          ['http://example.com/10x10', 0, 0]
+        ])
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/10x10')
+      end
+
+      it "should respect download_images: false even with a positive limit" do
+        page = MetaInspector.new('http://example.com/', document: html, download_images: false, max_image_downloads: 2)
+
+        expect(page.images.with_size).to eq([
+          ['http://example.com/10x10', 0, 0],
+          ['http://example.com/100x100', 0, 0],
+          ['http://example.com/remaining.jpg', 0, 0]
+        ])
+        expect(WebMock).not_to have_requested(:get, %r{http://example.com/})
+      end
+
+      [nil, 10].each do |limit|
+        it "should download every candidate when the limit is #{limit.inspect}" do
+          page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: limit)
+
+          expect(page.images.with_size).to eq([
+            ['http://example.com/100x100', 100, 100],
+            ['http://example.com/10x10', 10, 10],
+            ['http://example.com/remaining.jpg', 0, 0]
+          ])
+          expect(WebMock).to have_requested(:get, 'http://example.com/10x10').once
+          expect(WebMock).to have_requested(:get, 'http://example.com/100x100').once
+          expect(WebMock).to have_requested(:get, 'http://example.com/remaining.jpg').once
+        end
+      end
+
+      [:not_found, :invalid_image, :timeout].each do |failure|
+        it "should count a #{failure} image attempt toward the limit" do
+          request = stub_request(:get, 'http://example.com/broken.jpg')
+          case failure
+          when :not_found then request.to_return(status: 404)
+          when :invalid_image then request.to_return(body: 'not an image')
+          when :timeout then request.to_timeout
+          end
+          html = '<img src="/broken.jpg"><img src="/100x100">'
+          page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
+
+          expect(page.images.with_size).to eq([
+            ['http://example.com/broken.jpg', 0, 0],
+            ['http://example.com/100x100', 0, 0]
+          ])
+          expect(request).to have_been_requested.once
+          expect(WebMock).not_to have_requested(:get, 'http://example.com/100x100')
+        end
+      end
+
+      it "should reuse the limited results for repeated size and best-image queries" do
+        page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
+
+        2.times do
+          expect(page.images.with_size.first).to eq(['http://example.com/10x10', 10, 10])
+          expect(page.images.largest).to eq('http://example.com/10x10')
+          expect(page.images.best).to eq('http://example.com/10x10')
+        end
+        expect(WebMock).to have_requested(:get, 'http://example.com/10x10').once
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/100x100')
+      end
+
+      it "should keep the budget local to each document" do
+        2.times do
+          page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
+
+          expect(page.images.with_size.first).to eq(['http://example.com/10x10', 10, 10])
+        end
+        expect(WebMock).to have_requested(:get, 'http://example.com/10x10').twice
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/100x100')
+      end
+
+      it "should keep all image URLs without downloading them when enumerating images" do
+        page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
+
+        expect(page.images.to_a).to eq([
+          'http://example.com/10x10',
+          'http://example.com/100x100',
+          'http://example.com/remaining.jpg'
+        ])
+        expect(WebMock).not_to have_requested(:get, %r{http://example.com/})
+      end
+    end
+
     [true, false].each do |download_images|
       it "should ignore unparseable image URLs with download_images: #{download_images}" do
         html = '<html><body><img src="http://exa mple.com/x.png"><img src="/valid.png" width="100" height="100"></body></html>'

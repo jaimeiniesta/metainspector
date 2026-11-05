@@ -13,9 +13,16 @@ module MetaInspector
     # * document: the html of the url as a string
     # * headers: object containing custom headers for the request
     # * normalize_url: true by default
+    # * download_images: fetch missing image dimensions. Defaults to true
+    # * max_image_downloads: maximum image size lookups, or nil for unlimited
     # * faraday_options: an optional hash of options to pass to Faraday on the request
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
+      @max_image_downloads = options[:max_image_downloads]
+      unless @max_image_downloads.nil? || (@max_image_downloads.is_a?(Integer) && @max_image_downloads >= 0)
+        raise ArgumentError, 'max_image_downloads must be a non-negative Integer or nil'
+      end
+
       @connection_timeout = options[:connection_timeout]
       @read_timeout       = options[:read_timeout]
       @retries            = options[:retries]
@@ -41,7 +48,8 @@ module MetaInspector
                                                                 headers:            @headers,
                                                                 faraday_options:    @faraday_options,
                                                                 faraday_http_cache: @faraday_http_cache) unless @document
-      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images)
+      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images,
+                                                                max_image_downloads: @max_image_downloads)
     end
 
     extend Forwardable
@@ -106,7 +114,8 @@ module MetaInspector
         :allow_non_html_content => false,
         :head_first             => false,
         :normalize_url          => true,
-        :download_images        => true }
+        :download_images        => true,
+        :max_image_downloads    => nil }
     end
 
     def default_user_agent

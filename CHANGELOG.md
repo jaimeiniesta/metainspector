@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Add opt-in `max_image_downloads` to limit image size lookup attempts while preserving dimensions already available in HTML (#242).
 * Add `parsely-title`, `parsely-author`, and `parsely-image-url` fallbacks to `best_title`, `best_author`, and `images.owner_suggested` / `images.best`, preserving existing preferred metadata sources (#214).
 * Resolve relative base hrefs against the full document URL, preserving nested paths and non-default ports (#240).
 * Skip invalid image URLs in `images.with_size`, preventing `images.best` from failing when FastImage receives a nil URL ([#521](https://github.com/jaimeiniesta/metainspector/issues/521), follow-up to [#359](https://github.com/jaimeiniesta/metainspector/issues/359)).
