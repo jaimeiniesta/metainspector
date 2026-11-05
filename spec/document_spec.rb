@@ -1,6 +1,18 @@
 require 'spec_helper'
 
 describe MetaInspector::Document do
+  describe 'max_image_downloads option' do
+    [-1, 1.5, '1', true, false].each do |limit|
+      it "should reject #{limit.inspect} before fetching the document" do
+        expect do
+          MetaInspector::Document.new('http://example.com/', max_image_downloads: limit)
+        end.to raise_error(ArgumentError, 'max_image_downloads must be a non-negative Integer or nil')
+
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/')
+      end
+    end
+  end
+
   describe 'passing the contents of the document as html' do
     let(:doc) { MetaInspector::Document.new('http://cnn.com/', :document => "<html><head><title>Hello From Passed Html</title><a href='/hello'>Hello link</a></head><body></body></html>") }
 
