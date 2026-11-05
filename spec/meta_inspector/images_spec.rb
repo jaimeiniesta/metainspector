@@ -70,6 +70,22 @@ describe MetaInspector do
   end
 
   describe "images.best" do
+    it 'should prefer the Parsely image over the largest image' do
+      html = '<meta name="parsely-image-url" content="/parsely.jpg"><img src="/largest.jpg" width="100" height="100">'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.best).to eq('http://example.com/parsely.jpg')
+    end
+
+    ['', '  &#10;  '].each do |value|
+      it "should fall back to the largest image when the Parsely image is empty (#{value.inspect})" do
+        html = %(<meta name="parsely-image-url" content="#{value}"><img src="/largest.jpg" width="100" height="100">)
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.images.best).to eq('http://example.com/largest.jpg')
+      end
+    end
+
     it "should find a valid image when another image URL cannot be parsed" do
       html = '<html><body><img src="http://exa mple.com/x.png"><img src="/100x100"></body></html>'
       page = MetaInspector.new('http://example.com/', document: html)
@@ -112,6 +128,44 @@ describe MetaInspector do
   end
 
   describe "images.owner_suggested" do
+    it 'should find the Parsely image when no existing metadata is present' do
+      html = '<meta name="parsely-image-url" content="https://images.example.com/parsely.jpg?b=2&amp;a=1">'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.owner_suggested).to eq('https://images.example.com/parsely.jpg?b=2&a=1')
+    end
+
+    it 'should resolve a relative Parsely image against the document base URL' do
+      html = '<base href="/assets/"><meta name="parsely-image-url" content="parsely.jpg">'
+      page = MetaInspector.new('http://example.com/articles/page', document: html)
+
+      expect(page.images.owner_suggested).to eq('http://example.com/assets/parsely.jpg')
+    end
+
+    it 'should use the Parsely image when existing metadata is empty' do
+      html = '<meta property="og:image" content=""><meta name="twitter:image" content=""><meta name="parsely-image-url" content="/parsely.jpg">'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.owner_suggested).to eq('http://example.com/parsely.jpg')
+    end
+
+    ['og:image', 'twitter:image'].each do |candidate|
+      it "should prefer #{candidate} over the Parsely image" do
+        html = %(<meta name="parsely-image-url" content="/parsely.jpg"><meta property="#{candidate}" content="/existing.jpg">)
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.images.owner_suggested).to eq('http://example.com/existing.jpg')
+      end
+    end
+
+    ['', '  &#10;  '].each do |value|
+      it "should ignore an empty Parsely image (#{value.inspect})" do
+        page = MetaInspector.new('http://example.com/', document: %(<meta name="parsely-image-url" content="#{value}">))
+
+        expect(page.images.owner_suggested).to be_nil
+      end
+    end
+
     it "should find the og image" do
       page = MetaInspector.new('http://www.theonion.com/articles/apple-claims-new-iphone-only-visible-to-most-loyal,2772/')
 

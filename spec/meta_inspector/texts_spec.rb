@@ -49,6 +49,42 @@ describe MetaInspector do
   end
 
   describe '#best_title' do
+    it 'should use the Parsely title when no existing candidate is present' do
+      page = MetaInspector.new('http://example.com/', document: '<meta name="parsely-title" content="  A Parsely&#10; title  ">')
+
+      expect(page.best_title).to eq('A Parsely title')
+    end
+
+    it 'should use the Parsely title when existing candidates are empty' do
+      html = '<html><head><meta name="title" content=" "><meta property="og:title" content=""><title> </title><meta name="parsely-title" content="Parsely title"></head><body><h1> </h1></body></html>'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.best_title).to eq('Parsely title')
+    end
+
+    [
+      ['<meta name="title" content="Existing title">', ''],
+      ['<meta property="og:title" content="Existing title">', ''],
+      ['<title>Existing title</title>', ''],
+      ['', '<title>Existing title</title>'],
+      ['', '<h1>Existing title</h1>']
+    ].each do |head, body|
+      it "should prefer #{head + body} over the Parsely title" do
+        html = %(<html><head><meta name="parsely-title" content="Parsely title">#{head}</head><body>#{body}</body></html>)
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.best_title).to eq('Existing title')
+      end
+    end
+
+    ['', '  &#10;  '].each do |value|
+      it "should ignore an empty Parsely title (#{value.inspect})" do
+        page = MetaInspector.new('http://example.com/', document: %(<meta name="parsely-title" content="#{value}">))
+
+        expect(page.best_title).to be_nil
+      end
+    end
+
     it "should find 'head title' when that's the only thing" do
       page = MetaInspector.new('http://example.com/title_in_head')
       expect(page.best_title).to eq('This title came from the head')
@@ -105,6 +141,41 @@ describe MetaInspector do
   end
 
   describe "#best_author" do
+    it 'should use the Parsely author when no existing candidate is present' do
+      page = MetaInspector.new('http://example.com/', document: '<meta name="parsely-author" content="  A Parsely&#10; author  ">')
+
+      expect(page.best_author).to eq('A Parsely author')
+    end
+
+    it 'should use the Parsely author when existing candidates are empty' do
+      html = '<meta name="author" content=" "><meta name="twitter:creator" content=""><meta name="parsely-author" content="Parsely author"><a rel="author"> </a><address> </address>'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.best_author).to eq('Parsely author')
+    end
+
+    [
+      '<meta name="author" content="Existing author">',
+      '<a rel="author">Existing author</a>',
+      '<address>Existing author</address>',
+      '<meta name="twitter:creator" content="Existing author">'
+    ].each do |candidate|
+      it "should prefer #{candidate} over the Parsely author" do
+        html = '<meta name="parsely-author" content="Parsely author">' + candidate
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.best_author).to eq('Existing author')
+      end
+    end
+
+    ['', '  &#10;  '].each do |value|
+      it "should ignore an empty Parsely author (#{value.inspect})" do
+        page = MetaInspector.new('http://example.com/', document: %(<meta name="parsely-author" content="#{value}">))
+
+        expect(page.best_author).to be_nil
+      end
+    end
+
     it "should return the author meta tag content if present" do
       page = MetaInspector.new('http://example.com/author_in_meta')
 
