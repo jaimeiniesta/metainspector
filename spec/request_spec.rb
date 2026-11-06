@@ -91,7 +91,7 @@ describe MetaInspector::Request do
       def cache.write(k, v) self[k] = v; end
       cache_options = { store: cache }
 
-      MetaInspector::Request.new(url('http://example.com'), faraday_http_cache: cache_options)
+      MetaInspector::Request.new(url('http://example.com'), faraday_options: { faraday_http_cache: cache_options })
 
       expect(cache_options).to eq({ store: cache })
     end

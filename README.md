@@ -477,7 +477,7 @@ cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
 page = MetaInspector.new('http://example.com', faraday_options: { faraday_http_cache: { store: cache } })
 ```
 
-The top-level `faraday_http_cache` option still works, but it is deprecated and prints a warning. Passing it in both places raises an `ArgumentError`.
+The top-level `faraday_http_cache` option still works, but it is deprecated and prints a warning, once per process. Passing it in both places raises an `ArgumentError`.
 
 ## Exception Handling
 

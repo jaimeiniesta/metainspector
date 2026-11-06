@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Accept `faraday_http_cache` inside `faraday_options`, which used to raise `NameError`. The top-level `faraday_http_cache` option still works but is deprecated, and passing both raises `ArgumentError` (#373).
+* Accept `faraday_http_cache` inside `faraday_options`, which used to raise `NameError`. The top-level `faraday_http_cache` option still works but is deprecated: it prints a warning once per process. Passing both raises `ArgumentError` (#373).
 
 ## [Changes in 5.19.0](https://github.com/jaimeiniesta/metainspector/compare/v5.18.1...v5.19.0)
 
