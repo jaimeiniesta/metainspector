@@ -1,5 +1,9 @@
 # MetaInspector Changelog
 
+## Unreleased
+
+* Accept `faraday_http_cache` inside `faraday_options`, which used to raise `NameError`. The top-level `faraday_http_cache` option still works but is deprecated, and passing both raises `ArgumentError` (#373).
+
 ## [Changes in 5.19.0](https://github.com/jaimeiniesta/metainspector/compare/v5.18.1...v5.19.0)
 
 * Security: stop modifying the `faraday_options` hash passed to MetaInspector. When the same hash was reused, its `redirect` options were deleted after the first request, so a redirect `callback` used to block private hosts only ran once and later requests followed any redirect ([GHSA-mm2p-6q2v-7ph5](https://github.com/jaimeiniesta/metainspector/security/advisories/GHSA-mm2p-6q2v-7ph5)). Frozen option hashes no longer raise `FrozenError`.

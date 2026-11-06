@@ -25,8 +25,9 @@ module MetaInspector
       @retries            = options[:retries]
       @encoding           = options[:encoding]
       @headers            = options[:headers]
-      @faraday_options    = options[:faraday_options] || {}
-      @faraday_http_cache = options[:faraday_http_cache]
+      @faraday_http_cache = faraday_http_cache_option(options)
+      # faraday_http_cache configures our middleware, so it must not reach Faraday.new
+      @faraday_options    = (options[:faraday_options] || {}).except(:faraday_http_cache)
 
       response            # request early so we can fail early
     end
@@ -56,6 +57,22 @@ module MetaInspector
     end
 
     private
+
+    # faraday_http_cache goes inside faraday_options. The top-level option still works, but is deprecated.
+    def faraday_http_cache_option(options)
+      nested    = (options[:faraday_options] || {})[:faraday_http_cache]
+      top_level = options[:faraday_http_cache]
+      return nested if top_level.nil?
+
+      unless nested.nil?
+        fail ArgumentError, 'Pass faraday_http_cache inside faraday_options or as a top-level option, not both'
+      end
+
+      warn 'DEPRECATION WARNING: the top-level faraday_http_cache option is deprecated and will be removed ' \
+           'in the next major version. Pass it inside faraday_options instead: ' \
+           'faraday_options: { faraday_http_cache: { store: cache } }'
+      top_level
+    end
 
     def fetch
       Timeout::timeout(fatal_timeout) do

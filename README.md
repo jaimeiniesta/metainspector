@@ -470,12 +470,14 @@ The limit leaves `images.to_a` unchanged, but can affect `images.largest` and th
 
 ### Caching responses
 
-MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option with at least the `:store` key, for example:
+MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option inside `faraday_options`, with at least the `:store` key, for example:
 
 ```ruby
 cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
-page = MetaInspector.new('http://example.com', faraday_http_cache: { store: cache })
+page = MetaInspector.new('http://example.com', faraday_options: { faraday_http_cache: { store: cache } })
 ```
+
+The top-level `faraday_http_cache` option still works, but it is deprecated and prints a warning. Passing it in both places raises an `ArgumentError`.
 
 ## Exception Handling
 
