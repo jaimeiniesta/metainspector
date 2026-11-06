@@ -1,6 +1,6 @@
 # MetaInspector Changelog
 
-## Unreleased
+## [Changes in 5.20.0](https://github.com/jaimeiniesta/metainspector/compare/v5.19.0...v5.20.0)
 
 * Security: route image size downloads through Faraday so they respect configured network and redirect controls. Add optional `url_filter:` to validate the initial page URL, HEAD requests, image URLs and every redirect destination before requesting them. Returning `false` or `nil` blocks the request with `MetaInspector::RequestError`; filter exceptions propagate. Only HTTP(S) requests are supported ([GHSA-6vgc-f9v5-8939](https://github.com/jaimeiniesta/metainspector/security/advisories/GHSA-6vgc-f9v5-8939)).
 * Accept `faraday_http_cache` inside `faraday_options`, which used to raise `NameError`. The top-level `faraday_http_cache` option still works but is deprecated: it prints a warning once per process. Passing both raises `ArgumentError` (#373).
