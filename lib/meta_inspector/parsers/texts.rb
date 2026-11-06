@@ -3,6 +3,12 @@ module MetaInspector
     class TextsParser < Base
       delegate [:parsed, :meta] => :@main_parser
 
+      # Returns the declared HTML language, or nil when missing or blank
+      def language
+        value = parsed.at_css('html')&.[]('lang')&.strip
+        value unless value.to_s.empty?
+      end
+
       # Returns the parsed document title, from the content of the <title> tag
       # within the <head> section.
       def title

@@ -84,6 +84,7 @@ page.feeds               # Get rss or atom links in meta data fields as array of
 ### Texts
 
 ```ruby
+page.language            # declared language from the root <html lang="..."> attribute
 page.title               # title of the page from the head section, as string
 page.best_title          # best title of the page, from a selection of candidates
 page.author              # author of the page from the meta author tag
@@ -97,6 +98,12 @@ page.h4                  # returns h4 text array
 page.h5                  # returns h5 text array
 page.h6                  # returns h6 text array
 ```
+
+`language` trims surrounding whitespace and preserves the declared value, including
+capitalization and regional tags such as `en-US`. It returns `nil` when the `lang`
+attribute is missing, empty, or whitespace-only. It does not infer language from
+the page content or other attributes. The value is also included in `to_hash`
+under the `"language"` key.
 
 `best_title` selects the first non-empty value from the standard `title` meta tag,
 `og:title`, the head `<title>`, a body `<title>`, the first `<h1>`, and finally

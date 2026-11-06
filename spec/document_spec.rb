@@ -29,6 +29,13 @@ describe MetaInspector::Document do
     expect(MetaInspector::Document.new('http://pagerankalert.com').to_s.class).to eq(String)
   end
 
+  it 'should include a nil language in the hash when the document has no declared language' do
+    stub_request(:get, 'http://example.com/').to_return(body: '<html><body></body></html>', headers: { 'Content-Type' => 'text/html' })
+    doc = MetaInspector::Document.new('http://example.com/')
+
+    expect(doc.to_hash).to include('language' => nil)
+  end
+
   it "should return a Hash with all the values set" do
     doc = MetaInspector::Document.new('http://pagerankalert.com')
     expect(doc.to_hash).to eq({
@@ -36,6 +43,7 @@ describe MetaInspector::Document do
                             "scheme"          => "http",
                             "host"            => "pagerankalert.com",
                             "root_url"        => "http://pagerankalert.com/",
+                            "language"        => "en",
                             "title"           => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "best_title"      => "PageRankAlert.com :: Track your PageRank changes & receive alerts",
                             "author"          => nil,
