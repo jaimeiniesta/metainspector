@@ -1,6 +1,50 @@
 require 'spec_helper'
 
 describe MetaInspector do
+  describe '#language' do
+    ['en', 'en-US', 'zh-Hant-TW'].each do |language|
+      it "should return the declared language #{language.inspect}" do
+        page = MetaInspector.new('http://example.com/', document: %(<html lang="#{language}"><body></body></html>))
+
+        expect(page.language).to eq(language)
+      end
+    end
+
+    it 'should strip surrounding whitespace from the declared language' do
+      page = MetaInspector.new('http://example.com/', document: "<html lang=\" \t en-US \n \"><body></body></html>")
+
+      expect(page.language).to eq('en-US')
+    end
+
+    [nil, '', " \t\n "].each do |value|
+      it "should return nil for a missing or blank language (#{value.inspect})" do
+        attribute = value.nil? ? '' : %( lang="#{value}")
+        page = MetaInspector.new('http://example.com/', document: "<html#{attribute}><body></body></html>")
+
+        expect(page.language).to be_nil
+      end
+    end
+
+    it 'should read the root language rather than a descendant language' do
+      page = MetaInspector.new('http://example.com/', document: '<html lang="en"><body lang="es"></body></html>')
+
+      expect(page.language).to eq('en')
+    end
+
+    it 'should not infer language from xml:lang, metadata, or descendants' do
+      html = '<html xml:lang="fr"><head><meta http-equiv="content-language" content="de"></head><body lang="es">Hello</body></html>'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.language).to be_nil
+    end
+
+    it 'should return the declared language from a fetched document' do
+      page = MetaInspector.new('http://pagerankalert.com/')
+
+      expect(page.language).to eq('en')
+    end
+  end
+
   it "should get the title from the head section" do
     page = MetaInspector.new('http://example.com')
     expect(page.title).to eq('An example page')
