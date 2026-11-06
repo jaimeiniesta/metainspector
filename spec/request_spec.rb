@@ -68,6 +68,35 @@ describe MetaInspector::Request do
     end
   end
 
+  describe "options it is given" do
+    it "accepts a frozen faraday_options hash" do
+      expect do
+        MetaInspector::Request.new(url('http://example.com'), faraday_options: { ssl: { verify: true } }.freeze)
+      end.not_to raise_error
+    end
+
+    it "leaves the faraday_options hash unchanged" do
+      callback        = proc {}
+      faraday_options = { redirect: { callback: callback } }
+
+      MetaInspector::Request.new(url('http://example.com'), allow_redirections: true,
+                                                            faraday_options:    faraday_options)
+
+      expect(faraday_options).to eq({ redirect: { callback: callback } })
+    end
+
+    it "leaves the faraday_http_cache hash unchanged" do
+      cache = Hash.new
+      def cache.read(k) self[k]; end
+      def cache.write(k, v) self[k] = v; end
+      cache_options = { store: cache }
+
+      MetaInspector::Request.new(url('http://example.com'), faraday_http_cache: cache_options)
+
+      expect(cache_options).to eq({ store: cache })
+    end
+  end
+
   describe 'exception handling' do
     before(:each) do
       WebMock.allow_net_connect!

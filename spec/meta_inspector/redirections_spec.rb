@@ -52,21 +52,35 @@ describe MetaInspector do
     end
 
     context "when there is a callback to be ran between redirects that blocks redirections to private IP addresses" do
-      it "raises an exception" do
-        stub_request(:get, "https://www.facebook.com/")
-          .to_return(:status => 302,
-                     :headers => { "Location" => "http://10.0.0.0/" })
-
-        redirect_options = {
+      let(:redirect_options) do
+        {
           callback: proc do |_previous_response, next_request|
             ip_address = Resolv.getaddress(next_request.url.host)
             raise PrivateIPAddressError if IPAddr.new(ip_address).private?
           end
         }
+      end
 
+      before do
+        stub_request(:get, "https://www.facebook.com/")
+          .to_return(:status => 302,
+                     :headers => { "Location" => "http://10.0.0.0/" })
+      end
+
+      it "raises an exception" do
         expect {
           MetaInspector.new("https://www.facebook.com/", faraday_options: { redirect: redirect_options })
         }.to raise_error PrivateIPAddressError
+      end
+
+      it "keeps running the callback when the same faraday_options are reused" do
+        faraday_options = { redirect: redirect_options }
+
+        2.times do
+          expect {
+            MetaInspector.new("https://www.facebook.com/", faraday_options: faraday_options)
+          }.to raise_error PrivateIPAddressError
+        end
       end
     end
   end

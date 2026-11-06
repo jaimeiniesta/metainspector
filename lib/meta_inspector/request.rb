@@ -59,10 +59,12 @@ module MetaInspector
 
     def fetch
       Timeout::timeout(fatal_timeout) do
-        @faraday_options.merge!(:url => url)
-        follow_redirects_options = @faraday_options.delete(:redirect) || {}
+        # Work on copies: the caller may reuse or freeze the hashes it passed in, and
+        # losing :redirect would drop a callback that blocks redirects to private hosts
+        faraday_options          = @faraday_options.merge(:url => url)
+        follow_redirects_options = (faraday_options.delete(:redirect) || {}).dup
 
-        session = Faraday.new(@faraday_options) do |faraday|
+        session = Faraday.new(faraday_options) do |faraday|
           faraday.request :retry, max: @retries
 
           faraday.request :gzip
@@ -74,8 +76,9 @@ module MetaInspector
           end
 
           if @faraday_http_cache.is_a?(Hash)
-            @faraday_http_cache[:serializer] ||= Marshal
-            faraday.use Faraday::HttpCache, **@faraday_http_cache
+            cache_options = @faraday_http_cache.dup
+            cache_options[:serializer] ||= Marshal
+            faraday.use Faraday::HttpCache, **cache_options
           end
 
           faraday.headers.merge!(@headers || {})

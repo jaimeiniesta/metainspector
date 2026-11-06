@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Security: stop modifying the `faraday_options` hash passed to MetaInspector. When the same hash was reused, its `redirect` options were deleted after the first request, so a redirect `callback` used to block private hosts only ran once and later requests followed any redirect ([GHSA-mm2p-6q2v-7ph5](https://github.com/jaimeiniesta/metainspector/security/advisories/GHSA-mm2p-6q2v-7ph5)). Frozen option hashes no longer raise `FrozenError`.
 * Add `language` to expose the root HTML `lang` attribute, trimming surrounding whitespace and returning `nil` for missing or blank values. Include it in `to_hash` (#121).
 * Add opt-in `max_image_downloads` to limit image size lookup attempts while preserving dimensions already available in HTML (#242).
 * Add `parsely-title`, `parsely-author`, and `parsely-image-url` fallbacks to `best_title`, `best_author`, and `images.owner_suggested` / `images.best`, preserving existing preferred metadata sources (#214).
