@@ -15,7 +15,8 @@ module MetaInspector
       @links_parser    = MetaInspector::Parsers::LinksParser.new(self)
       @download_images = options[:download_images]
       @images_parser   = MetaInspector::Parsers::ImagesParser.new(self, download_images: @download_images,
-                                                                      max_image_downloads: options[:max_image_downloads])
+                                                                      max_image_downloads: options[:max_image_downloads],
+                                                                      image_downloader: options[:image_downloader])
       @texts_parser    = MetaInspector::Parsers::TextsParser.new(self)
 
       parsed           # parse early so we can fail early

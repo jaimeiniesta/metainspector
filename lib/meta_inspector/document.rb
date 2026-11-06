@@ -15,6 +15,7 @@ module MetaInspector
     # * normalize_url: true by default
     # * download_images: fetch missing image dimensions. Defaults to true
     # * max_image_downloads: maximum image size lookups, or nil for unlimited
+    # * url_filter: callable receiving a URI before each request; false/nil rejects it
     # * faraday_options: an optional hash of options to pass to Faraday on the request.
     #   Its faraday_http_cache key configures response caching with Faraday::HttpCache
     # * faraday_http_cache: deprecated, use faraday_options: { faraday_http_cache: ... }
@@ -39,8 +40,10 @@ module MetaInspector
       @normalize_url      = options[:normalize_url]
       @faraday_options    = options[:faraday_options]
       @faraday_http_cache = options[:faraday_http_cache]
+      @http_session       = MetaInspector::HttpSession.new(options)
       @url                = MetaInspector::URL.new(initial_url, normalize:          @normalize_url)
-      @request            = MetaInspector::Request.new(@url,    allow_redirections: @allow_redirections,
+      @request            = MetaInspector::Request.new(@url,    http_session: @http_session,
+                                                                allow_redirections: @allow_redirections,
                                                                 head_first:         options[:head_first],
                                                                 allow_non_html_content: @allow_non_html_content,
                                                                 connection_timeout: @connection_timeout,
@@ -51,7 +54,8 @@ module MetaInspector
                                                                 faraday_options:    @faraday_options,
                                                                 faraday_http_cache: @faraday_http_cache) unless @document
       @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images,
-                                                                max_image_downloads: @max_image_downloads)
+                                                                max_image_downloads: @max_image_downloads,
+                                                                image_downloader: MetaInspector::ImageDownloader.new(@http_session, @url, options))
     end
 
     extend Forwardable

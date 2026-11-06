@@ -341,8 +341,7 @@ And even customize what to do in between each redirect:
 
 ```ruby
 callback = proc do |previous_response, next_request|
-  ip_address = Resolv.getaddress(next_request.url.host)
-  raise 'Invalid address' if IPAddr.new(ip_address).private?
+  puts "Following redirect to #{next_request.url}"
 end
 
 page = MetaInspector.new(url, faraday_options: { redirect: { callback: callback } })
@@ -351,6 +350,63 @@ page = MetaInspector.new(url, faraday_options: { redirect: { callback: callback 
 
 The `faraday_options[:redirect]` hash is passed to the `FollowRedirects` middleware used by `Faraday`, so that we can use all available options.
 Check them [here](https://github.com/lostisland/faraday_middleware/blob/main/lib/faraday_middleware/response/follow_redirects.rb#L44).
+
+### Filtering request URLs
+
+Use `url_filter:` to decide which destinations MetaInspector may request. The filter receives a Ruby `URI` and runs before the initial page request, the optional HEAD request, image size downloads, and every redirect destination. Only HTTP and HTTPS requests are supported.
+
+For example, allow HTTPS requests to two known hosts:
+
+```ruby
+allowed_hosts = %w[example.com images.example.com]
+
+filter = proc do |uri|
+  uri.scheme == 'https' && allowed_hosts.include?(uri.hostname)
+end
+
+page = MetaInspector.new('https://example.com', url_filter: filter)
+page.images.largest # Image requests and their redirects use the same filter.
+```
+
+A truthy return value permits the request. Returning `false` or `nil` raises `MetaInspector::RequestError` before contacting the rejected destination. This also applies when an image request is rejected:
+
+```ruby
+begin
+  page = MetaInspector.new(url, url_filter: filter)
+  page.images.largest
+rescue MetaInspector::RequestError => error
+  warn error.message
+end
+```
+
+Exceptions raised by your filter propagate to the caller. The filter is optional: MetaInspector does not block private IP addresses by default. It applies to outgoing requests, including image downloads from HTML passed with `document:`. Reading image URLs with `images.to_a` or `images.owner_suggested` does not download them or run the filter.
+
+If your application accepts arbitrary hostnames, this example rejects addresses in private, loopback, link-local and unspecified ranges, including IPv4-mapped IPv6 addresses:
+
+```ruby
+require 'ipaddr'
+require 'resolv'
+
+zero_network = IPAddr.new('0.0.0.0/8')
+
+filter = proc do |uri|
+  addresses = Resolv.getaddresses(uri.hostname)
+
+  !addresses.empty? && addresses.all? do |address|
+    ip = IPAddr.new(address)
+    ip = ip.native if ip.ipv4_mapped?
+
+    !(ip.private? || ip.loopback? || ip.link_local? ||
+      ip.to_i.zero? || zero_network.include?(ip))
+  end
+end
+
+page = MetaInspector.new(url, url_filter: filter)
+```
+
+DNS resolution in this example happens separately from the connection, so it cannot prevent DNS rebinding. Use network egress restrictions as well when processing untrusted URLs. The example covers the listed ranges; applications may need additional address or port restrictions.
+
+The existing redirect `callback` keeps its two arguments and runs only on redirects. Move destination validation from that callback to `url_filter:` to cover initial URLs as well as redirects, for both pages and images.
 
 ### Headers
 
@@ -447,7 +503,13 @@ You can disable URL normalization by passing the `normalize_url: false` option.
 
 ### Image downloading
 
-When you ask for the largest image on the page with `page.images.largest`, it will be determined by its height and width attributes on the HTML markup, and also by downloading a small portion of each image using the [fastimage](https://github.com/sdsykes/fastimage) gem. This is really fast as it doesn't download the entire images, normally just the headers of the image files.
+Image downloading is enabled by default. `page.images.with_size` and `page.images.largest` fetch images with missing HTML dimensions; `page.images.best` also does this when there is no preferred metadata image. The page controls these image URLs, which may point to other hosts.
+
+Image requests use Faraday with the page's proxy, TLS, headers and redirect settings, and respect [`url_filter:`](#filtering-request-urls). Downloaded bytes are passed to [fastimage](https://github.com/sdsykes/fastimage) to determine dimensions. Dimensions already present in HTML are preserved without downloading the image.
+
+Custom page headers are preserved for images on the same origin (scheme, host and port). Requests to other origins, including image redirects, send only standard image request headers such as `User-Agent` and `Accept`; they do not receive page credentials or arbitrary custom headers.
+
+Each size lookup stops at a 256 KiB response body budget or a two-second overall timeout, including redirects. If the dimensions cannot be determined within these limits, they remain `[0, 0]`. Streamed image responses are not stored in the HTTP response cache, and failed image requests are not retried.
 
 If you want to disable this, you can specify it like this:
 

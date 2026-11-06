@@ -1,4 +1,4 @@
-require 'fastimage'
+require_relative '../image_downloader'
 
 module MetaInspector
   module Parsers
@@ -9,6 +9,7 @@ module MetaInspector
       include Enumerable
 
       def initialize(main_parser, options = {})
+        @image_downloader = options[:image_downloader]
         @download_images = options[:download_images]
         @max_image_downloads = options[:max_image_downloads]
         super(main_parser)
@@ -48,7 +49,7 @@ module MetaInspector
             if width.nil? || height.nil?
               if @download_images && (@max_image_downloads.nil? || download_attempts < @max_image_downloads)
                 download_attempts += 1
-                width, height = FastImage.size(url)
+                width, height = @image_downloader.size(url)
               else
                 width, height = [0, 0]
               end
