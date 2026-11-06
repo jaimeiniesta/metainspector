@@ -15,7 +15,9 @@ module MetaInspector
     # * normalize_url: true by default
     # * download_images: fetch missing image dimensions. Defaults to true
     # * max_image_downloads: maximum image size lookups, or nil for unlimited
-    # * faraday_options: an optional hash of options to pass to Faraday on the request
+    # * faraday_options: an optional hash of options to pass to Faraday on the request.
+    #   Its faraday_http_cache key configures response caching with Faraday::HttpCache
+    # * faraday_http_cache: deprecated, use faraday_options: { faraday_http_cache: ... }
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
       @max_image_downloads = options[:max_image_downloads]
