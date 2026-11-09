@@ -1,6 +1,33 @@
 require 'spec_helper'
 
 describe MetaInspector::Document do
+  describe 'max_html_bytes option' do
+    it 'rejects oversized supplied HTML before parsing' do
+      expect do
+        MetaInspector.new('http://example.com/', document: '<p>é</p>', max_html_bytes: 8)
+      end.to raise_error(MetaInspector::ParserError, /HTML.*9 bytes.*8 bytes/)
+    end
+
+    it 'accepts HTML at the byte limit and without a limit' do
+      html = '<title>é</title>'
+      expect(MetaInspector.new('http://example.com/', document: html, max_html_bytes: html.bytesize).title).to eq('é')
+      expect(MetaInspector.new('http://example.com/', document: html).title).to eq('é')
+    end
+
+    it 'rejects oversized fetched HTML' do
+      stub_request(:get, 'http://example.com/').to_return(body: '<p>hello</p>', headers: { 'Content-Type' => 'text/html' })
+      expect { MetaInspector.new('http://example.com/', max_html_bytes: 5) }.to raise_error(MetaInspector::ParserError)
+    end
+
+    [-1, 1.5, '1', true, false].each do |limit|
+      it "rejects invalid limit #{limit.inspect} before fetching" do
+        expect { MetaInspector.new('http://example.com/', max_html_bytes: limit) }
+          .to raise_error(ArgumentError, 'max_html_bytes must be a non-negative Integer or nil')
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/')
+      end
+    end
+  end
+
   describe 'max_image_downloads option' do
     [-1, 1.5, '1', true, false].each do |limit|
       it "should reject #{limit.inspect} before fetching the document" do
