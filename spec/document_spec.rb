@@ -62,6 +62,7 @@ describe MetaInspector::Document do
                                                     'non_http' => ["mailto:pagerankalert@gmail.com"]
                                                   },
                             "images"          => ["http://pagerankalert.com/images/pagerank_alert.png?1305794559"],
+                            "iframes"         => [],
                             "charset"         => "utf-8",
                             "feeds"           => [{href: "http://feeds.feedburner.com/PageRankAlert", title: "PageRankAlert.com blog", type: "application/rss+xml"}],
                             "h1"              => [],
