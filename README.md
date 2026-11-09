@@ -396,7 +396,7 @@ rescue MetaInspector::RequestError => error
 end
 ```
 
-Exceptions raised by your filter propagate to the caller. The filter is optional: MetaInspector does not block private IP addresses by default. It applies to outgoing requests, including image downloads from HTML passed with `document:`. Reading image URLs with `images.to_a` or `images.owner_suggested` does not download them or run the filter.
+Exceptions raised by your filter propagate to the caller. The filter is optional: MetaInspector does not block private IP addresses by default. It applies to outgoing requests, including image downloads from HTML passed with `document:`. Reading image URLs with `images.to_a` or `images.owner_suggested` does not download them or run the filter unless invalid-image rejection is enabled.
 
 If your application accepts arbitrary hostnames, this example rejects addresses in private, loopback, link-local and unspecified ranges, including IPv4-mapped IPv6 addresses:
 
@@ -545,7 +545,44 @@ The default is `nil` (unlimited). The option accepts a non-negative integer or `
 
 The limit counts image size lookup attempts in HTML order, after excluding unparseable URLs and duplicates. Images with both HTML dimensions already present do not consume the limit, and those dimensions are preserved even after the limit is reached. Failed lookups count toward the limit. Images with incomplete dimensions that are not downloaded remain in `images.with_size` with dimensions `[0, 0]`, matching the behavior when downloads are disabled.
 
-The limit leaves `images.to_a` unchanged, but can affect `images.largest` and the largest-image fallback in `images.best`, since images with unknown dimensions cannot be ranked by size. Size lookup results are cached per document, so repeated calls reuse the same results. This limits size lookup attempts, not elapsed time or HTTP requests made while following image redirects.
+By default, the limit leaves `images.to_a` unchanged, but can affect `images.largest` and the largest-image fallback in `images.best`, since images with unknown dimensions cannot be ranked by size. Size lookup results are cached per document, so repeated calls reuse the same results. This limits size lookup attempts, not elapsed time or HTTP requests made while following image redirects.
+
+To discard images that cannot be read by FastImage, opt in to validation:
+
+```ruby
+page = MetaInspector.new('http://example.com',
+  download_image_options: { reject_invalid_images: true })
+page.images.to_a            # excludes images that failed validation
+page.images.owner_suggested # first suggested image that has not failed validation
+page.images.best            # falls back to another suggested or page image
+```
+
+Validation downloads images even when HTML dimensions are present. It applies to
+the image collection, `with_size`, and suggested images; it does not validate the
+favicon. A failed HTTP request, an unsuccessful response, or a response whose
+dimensions FastImage cannot determine is invalid. This is a bounded image-header
+check, not a guarantee that the entire image can be downloaded or decoded.
+
+For validity information without filtering the collection, enable
+`fetch_all_image_meta` and call `with_metadata`:
+
+```ruby
+page = MetaInspector.new('http://example.com', fetch_all_image_meta: true)
+page.images.with_metadata # [{ url: 'http://example.com/image.png', valid: true }, ...]
+```
+
+Metadata follows the original image collection order and includes duplicates and
+invalid entries, even when rejection is also enabled. `valid` is `true` or `false`
+for a lookup that was attempted, and `nil` when no lookup was made (including an
+unresolvable URL). Without `fetch_all_image_meta`, `with_metadata` does not initiate
+validation and returns `nil` validity values.
+
+Both options respect `download_images: false` and `max_image_downloads`. Images
+that cannot be checked because downloads are disabled or the budget is exhausted
+are retained, with unknown validity. Suggested images and collection images share
+the budget in the order they are first queried; repeated URLs reuse their results.
+Consequently the order of API calls can affect which images are checked when a
+limit is set. URL filter errors still propagate to the caller.
 
 ### Caching responses
 
