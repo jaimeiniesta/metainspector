@@ -141,16 +141,19 @@ before falling back to the largest suitable image on the page.
 ### Iframes
 
 ```ruby
-page.iframes             # enumerable collection with one hash of attributes per iframe
-page.iframes.attributes  # the same collection as an array of hashes
-page.iframes.src         # every iframe source as an absolute URL
+page.iframes             # array of attribute hashes, one per iframe
+page.iframe_sources      # resolved source URLs, one per iframe
 ```
 
-Each hash contains every attribute of the `<iframe>` element, keyed by symbol.
-The `src` attribute is resolved against the document's base URL; the rest are
-kept as-is, so boolean attributes such as `allowfullscreen` have an empty string
-value. Iframes without a `src`, or with a blank one, still appear in
-`attributes` but are omitted from `src`.
+Each hash contains the original attributes of an `<iframe>`, keyed by symbol;
+for example, `src` remains as written and boolean attributes such as
+`allowfullscreen` have an empty string value. HTML entities are decoded by the parser.
+Both arrays follow document order and retain duplicates. `iframe_sources` strips
+surrounding whitespace and resolves each `src` against the document's base URL
+without normalizing it. It contains `nil` for a missing, blank, or unresolvable
+source. These methods inspect iframe elements in the page; they do not download
+or inspect the embedded documents. `to_hash['iframes']` contains the attribute
+hashes.
 
 ### Meta tags
 
