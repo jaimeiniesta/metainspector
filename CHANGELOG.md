@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Add `iframes` to expose every iframe source as an absolute URL, and include it in `to_hash` (#222).
+* Add `iframes` to expose every iframe with all its attributes, with `src` resolved to an absolute URL. `iframes.src` returns just the sources, and `to_hash` includes the attribute hashes (#222).
 
 ## [Changes in 5.20.0](https://github.com/jaimeiniesta/metainspector/compare/v5.19.0...v5.20.0)
 

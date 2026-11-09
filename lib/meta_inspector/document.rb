@@ -92,7 +92,7 @@ module MetaInspector
         'h6'               => h6,
         'links'            => links.to_hash,
         'images'           => images.to_a,
-        'iframes'          => iframes.src,
+        'iframes'          => iframes.attributes,
         'charset'          => charset,
         'feeds'            => feeds,
         'content_type'     => content_type,

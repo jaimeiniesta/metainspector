@@ -141,12 +141,16 @@ before falling back to the largest suitable image on the page.
 ### Iframes
 
 ```ruby
-page.iframes             # enumerable collection, with every iframe source as an absolute URL
-page.iframes.src         # the same sources as an array
+page.iframes             # enumerable collection with one hash of attributes per iframe
+page.iframes.attributes  # the same collection as an array of hashes
+page.iframes.src         # every iframe source as an absolute URL
 ```
 
-Relative iframe sources are resolved against the document's base URL. Iframes
-without a `src` attribute, or with a blank one, are ignored.
+Each hash contains every attribute of the `<iframe>` element, keyed by symbol.
+The `src` attribute is resolved against the document's base URL; the rest are
+kept as-is, so boolean attributes such as `allowfullscreen` have an empty string
+value. Iframes without a `src`, or with a blank one, still appear in
+`attributes` but are omitted from `src`.
 
 ### Meta tags
 
