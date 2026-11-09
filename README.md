@@ -138,6 +138,16 @@ in that order, skipping empty or whitespace-only values. Relative image URLs are
 resolved against the document's base URL. `images.best` uses this suggested image
 before falling back to the largest suitable image on the page.
 
+### Iframes
+
+```ruby
+page.iframes             # enumerable collection, with every iframe source as an absolute URL
+page.iframes.src         # the same sources as an array
+```
+
+Relative iframe sources are resolved against the document's base URL. Iframes
+without a `src` attribute, or with a blank one, are ignored.
+
 ### Meta tags
 
 When it comes to meta tags, you have several options:

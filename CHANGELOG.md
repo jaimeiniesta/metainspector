@@ -1,5 +1,9 @@
 # MetaInspector Changelog
 
+## Unreleased
+
+* Add `iframes` to expose every iframe source as an absolute URL, and include it in `to_hash` (#222).
+
 ## [Changes in 5.20.0](https://github.com/jaimeiniesta/metainspector/compare/v5.19.0...v5.20.0)
 
 * Security: route image size downloads through Faraday so they respect configured network and redirect controls. Add optional `url_filter:` to validate the initial page URL, HEAD requests, image URLs and every redirect destination before requesting them. Returning `false` or `nil` blocks the request with `MetaInspector::RequestError`; filter exceptions propagate. Only HTTP(S) requests are supported ([GHSA-6vgc-f9v5-8939](https://github.com/jaimeiniesta/metainspector/security/advisories/GHSA-6vgc-f9v5-8939)).

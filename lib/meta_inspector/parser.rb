@@ -17,6 +17,7 @@ module MetaInspector
       @images_parser   = MetaInspector::Parsers::ImagesParser.new(self, download_images: @download_images,
                                                                       max_image_downloads: options[:max_image_downloads],
                                                                       image_downloader: options[:image_downloader])
+      @iframes_parser  = MetaInspector::Parsers::IframesParser.new(self)
       @texts_parser    = MetaInspector::Parsers::TextsParser.new(self)
 
       parsed           # parse early so we can fail early
@@ -28,6 +29,7 @@ module MetaInspector
     delegate [:head_links, :stylesheets, :canonicals, :feeds, :feed]                       => :@head_links_parser
     delegate [:links, :base_url]                                                           => :@links_parser
     delegate :images                                                                       => :@images_parser
+    delegate :iframes                                                                      => :@iframes_parser
     delegate [:language, :title, :best_title, :author, :best_author, :description, :best_description,
               :h1, :h2, :h3, :h4, :h5, :h6]                                                => :@texts_parser
 
