@@ -543,7 +543,7 @@ page.images.with_size
 
 The default is `nil` (unlimited). The option accepts a non-negative integer or `nil`; `0` disables image downloads. `download_images: false` always disables downloads, regardless of the limit.
 
-The limit counts image size lookup attempts in HTML order, after excluding unparseable URLs and duplicates. Images with both HTML dimensions already present do not consume the limit, and those dimensions are preserved even after the limit is reached. Failed lookups count toward the limit. Images with incomplete dimensions that are not downloaded remain in `images.with_size` with dimensions `[0, 0]`, matching the behavior when downloads are disabled.
+By default, the limit counts image size lookup attempts in HTML order, after excluding unparseable URLs and duplicates. Images with both HTML dimensions already present do not consume the limit, and those dimensions are preserved even after the limit is reached. Failed lookups count toward the limit. Images with incomplete dimensions that are not downloaded remain in `images.with_size` with dimensions `[0, 0]`, matching the behavior when downloads are disabled.
 
 By default, the limit leaves `images.to_a` unchanged, but can affect `images.largest` and the largest-image fallback in `images.best`, since images with unknown dimensions cannot be ranked by size. Size lookup results are cached per document, so repeated calls reuse the same results. This limits size lookup attempts, not elapsed time or HTTP requests made while following image redirects.
 

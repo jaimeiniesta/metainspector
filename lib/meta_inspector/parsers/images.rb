@@ -114,6 +114,13 @@ module MetaInspector
         return nil unless @download_images && (@max_image_downloads.nil? || @download_attempts < @max_image_downloads)
 
         @download_attempts += 1
+        if @reject_invalid_images || @fetch_all_image_meta
+          begin
+            URLPolicy.validate!(url)
+          rescue MetaInspector::RequestError
+            return @image_sizes[url] = nil
+          end
+        end
         @image_sizes[url] = @image_downloader.size(url)
       end
 

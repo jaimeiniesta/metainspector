@@ -64,4 +64,12 @@ RSpec.describe 'image validity' do
     expect(page.images.best).to be_nil
     expect(page.images.to_a).to be_empty
   end
+
+  it 'treats unsupported image URL schemes as invalid' do
+    html = '<meta property="og:image" content="data:image/png;base64,AAAA"><img src="ftp://example.com/image.png"><img src="/good">'
+    page = MetaInspector.new('http://example.com/', **options, document: html, fetch_all_image_meta: true)
+    expect(page.images.best).to eq('http://example.com/good')
+    expect(page.images.to_a).to eq(['http://example.com/good'])
+    expect(page.images.with_metadata.first).to eq(url: 'ftp://example.com/image.png', valid: false)
+  end
 end
