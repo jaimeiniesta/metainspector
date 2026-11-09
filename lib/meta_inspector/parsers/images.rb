@@ -1,4 +1,5 @@
 require_relative '../image_downloader'
+require 'strscan'
 
 module MetaInspector
   module Parsers
@@ -57,10 +58,7 @@ module MetaInspector
       # Returns an array of [img_url, width, height] sorted by image area (width * height)
       def with_size
         @with_size ||= begin
-          img_nodes = parsed.search('//img').select{ |img_node| img_node['src'] }
-          imgs_with_size = img_nodes.map do |img_node|
-            [URL.absolutify(img_node['src'], base_url, normalize: false), img_node['width'], img_node['height']]
-          end
+          imgs_with_size = image_candidates.map(&:dup)
           imgs_with_size.reject! { |url, width, height| url.nil? || url.empty? }
           imgs_with_size.uniq! { |url, width, height| url }
           if @download_images && @reject_invalid_images
@@ -136,11 +134,45 @@ module MetaInspector
       end
 
       def absolutified_images
-        parsed_images.map { |i| URL.absolutify(i, base_url, normalize: false) }
+        image_candidates.map(&:first).uniq
       end
 
-      def parsed_images
-        cleanup(parsed.search('//img/@src'))
+      def image_candidates
+        @image_candidates ||= parsed.xpath('//img | //picture/source').flat_map do |node|
+          candidates = []
+          src = node['src'].to_s.strip if node.name == 'img'
+          candidates << [src, node['width'], node['height']] if src && !src.empty?
+          srcset_urls(node['srcset']).each { |url| candidates << [url, nil, nil] }
+          candidates.map do |url, width, height|
+            [URL.absolutify(url, base_url, normalize: false), width, height]
+          end
+        end
+      end
+
+      def srcset_urls(value)
+        scanner = StringScanner.new(value.to_s)
+        urls = []
+        until scanner.eos?
+          scanner.skip(/[\t\n\f\r ,]+/)
+          break if scanner.eos?
+
+          url = scanner.scan(/[^\t\n\f\r ]+/)
+          if url.end_with?(',')
+            url = url.sub(/,+\z/, '')
+            descriptor = ''
+          else
+            scanner.skip(/[\t\n\f\r ]+/)
+            descriptor = scanner.scan(/[^,]*/).strip
+            scanner.skip(/,/)
+          end
+          urls << url if !url.empty? && valid_srcset_descriptor?(descriptor)
+        end
+        urls
+      end
+
+      def valid_srcset_descriptor?(descriptor)
+        descriptor.empty? || descriptor.match?(/\A[1-9]\d*w\z/) ||
+          (descriptor.match?(/\A(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?x\z/) && descriptor.to_f >= 0)
       end
 
       def content_of(content)
