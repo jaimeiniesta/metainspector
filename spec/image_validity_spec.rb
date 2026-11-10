@@ -72,4 +72,45 @@ RSpec.describe 'image validity' do
     expect(page.images.to_a).to eq(['http://example.com/good'])
     expect(page.images.with_metadata.first).to eq(url: 'ftp://example.com/image.png', valid: false)
   end
+
+  it 'filters redirects to unsupported schemes and falls back to a valid image' do
+    stub_request(:get, 'http://example.com/redirect').to_return(status: 302, headers: { 'Location' => 'ftp://example.com/image.png' })
+    html = '<meta property="og:image" content="/redirect"><img src="/redirect" width="100" height="100"><img src="/good" width="10" height="10">'
+    page = MetaInspector.new('http://example.com/', **options, document: html, fetch_all_image_meta: true)
+    expect(page.images.best).to eq('http://example.com/good')
+    expect(page.images.to_a).to eq(['http://example.com/good'])
+    expect(page.images.with_size).to eq([['http://example.com/good', 10, 10]])
+    expect(page.images.with_metadata.first).to eq(url: 'http://example.com/redirect', valid: false)
+  end
+
+  it 'propagates errors from the URL filter during validation' do
+    error = MetaInspector::RequestError.new('filter failure')
+    page = MetaInspector.new('http://example.com/', **options, document: '<img src="/good">',
+      url_filter: ->(_) { raise error })
+    expect { page.images.to_a }.to raise_error { |raised| expect(raised).to equal(error) }
+  end
+
+  it 'propagates errors raised by the redirect callback during validation' do
+    stub_request(:get, 'http://example.com/redirect').to_return(status: 302, headers: { 'Location' => '/good' })
+    [MetaInspector::RequestError, MetaInspector::URLPolicy::InvalidURL, Faraday::ConnectionFailed].each do |error_class|
+      error = error_class.new('callback failure')
+      callback = ->(_, _) { raise error }
+      page = MetaInspector.new('http://example.com/', **options, document: '<img src="/redirect">',
+        faraday_options: { redirect: { callback: callback } })
+      expect { page.images.to_a }.to raise_error { |raised| expect(raised).to equal(error) }
+    end
+  end
+
+  it 'reports unsupported redirects as invalid in metadata-only mode' do
+    stub_request(:get, 'http://example.com/redirect').to_return(status: 302, headers: { 'Location' => 'ftp://example.com/image.png' })
+    page = MetaInspector.new('http://example.com/', document: '<img src="/redirect">', fetch_all_image_meta: true)
+    expect(page.images.with_metadata).to eq([{ url: 'http://example.com/redirect', valid: false }])
+    expect(page.images.to_a).to eq(['http://example.com/redirect'])
+  end
+
+  it 'preserves default behavior for redirects to unsupported schemes' do
+    stub_request(:get, 'http://example.com/redirect').to_return(status: 302, headers: { 'Location' => 'ftp://example.com/image.png' })
+    page = MetaInspector.new('http://example.com/', document: '<img src="/redirect">')
+    expect { page.images.with_size }.to raise_error(MetaInspector::RequestError, /HTTP or HTTPS/)
+  end
 end

@@ -14,13 +14,13 @@ module MetaInspector
       @read_timeout = [options[:read_timeout] || TIMEOUT, TIMEOUT].min
     end
 
-    def size(url)
+    def size(url, reject_invalid_url: false)
       bytes = ''.b
       received = 0
       status = nil
       stop = Object.new
       Timeout.timeout(TIMEOUT) do
-        session = @session.build(url, image: true, origin: @origin.url)
+        session = @session.build(url, image: true, origin: @origin.url, protect_redirect_callback: reject_invalid_url)
         catch(stop) do
           session.get do |request|
             request.headers['Range'] = "bytes=0-#{MAX_BYTES - 1}"
@@ -45,6 +45,10 @@ module MetaInspector
       FastImage.size(StringIO.new(bytes)) if status && (200..299).cover?(status)
     rescue URLPolicy::Failure => failure
       raise failure.original
+    rescue URLPolicy::InvalidURL
+      raise unless reject_invalid_url
+
+      nil
     rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::SSLError,
            Faraday::FollowRedirects::RedirectLimitReached, URI::InvalidURIError, Timeout::Error
       nil

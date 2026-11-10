@@ -1,6 +1,8 @@
 module MetaInspector
   # Runs inside redirect handling, before cache access or the network adapter.
   class URLPolicy < Faraday::Middleware
+    class InvalidURL < MetaInspector::RequestError; end
+
     class Failure < StandardError
       attr_reader :original
 
@@ -15,11 +17,11 @@ module MetaInspector
     def self.validate!(value)
       uri = URI.parse(value.to_s)
       unless uri.is_a?(URI::HTTP) && uri.hostname && !uri.hostname.empty?
-        raise MetaInspector::RequestError, 'URL must be HTTP or HTTPS'
+        raise InvalidURL, 'URL must be HTTP or HTTPS'
       end
       uri
     rescue URI::InvalidURIError => error
-      raise MetaInspector::RequestError.new(error)
+      raise InvalidURL.new(error)
     end
 
     def initialize(app, filter, image_origin = nil)

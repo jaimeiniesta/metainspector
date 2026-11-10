@@ -121,7 +121,11 @@ module MetaInspector
             return @image_sizes[url] = nil
           end
         end
-        @image_sizes[url] = @image_downloader.size(url)
+        @image_sizes[url] = if @reject_invalid_images || @fetch_all_image_meta
+          @image_downloader.size(url, reject_invalid_url: true)
+        else
+          @image_downloader.size(url)
+        end
       end
 
       def image_validity(url)
