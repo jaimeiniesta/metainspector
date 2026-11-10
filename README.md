@@ -571,8 +571,9 @@ page = MetaInspector.new('http://example.com', fetch_all_image_meta: true)
 page.images.with_metadata # [{ url: 'http://example.com/image.png', valid: true }, ...]
 ```
 
-Metadata follows the original image collection order and includes duplicates and
-invalid entries, even when rejection is also enabled. `valid` is `true` or `false`
+Metadata follows the original image collection order and includes invalid entries,
+even when rejection is also enabled. Duplicate `src` values are removed before URLs
+are resolved. `valid` is `true` or `false`
 for a lookup that was attempted, and `nil` when no lookup was made (including an
 unresolvable URL). Without `fetch_all_image_meta`, `with_metadata` does not initiate
 validation and returns `nil` validity values.
