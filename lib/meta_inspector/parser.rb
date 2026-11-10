@@ -16,6 +16,8 @@ module MetaInspector
       @download_images = options[:download_images]
       @images_parser   = MetaInspector::Parsers::ImagesParser.new(self, download_images: @download_images,
                                                                       max_image_downloads: options[:max_image_downloads],
+                                                                      download_image_options: options[:download_image_options],
+                                                                      fetch_all_image_meta: options[:fetch_all_image_meta],
                                                                       image_downloader: options[:image_downloader])
       @iframes_parser  = MetaInspector::Parsers::IframesParser.new(self)
       @texts_parser    = MetaInspector::Parsers::TextsParser.new(self)

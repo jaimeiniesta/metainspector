@@ -23,10 +23,20 @@ module MetaInspector
       @faraday_options = (options[:faraday_options] || {}).except(:faraday_http_cache)
     end
 
-    def build(url, image: false, origin: nil)
+    def build(url, image: false, origin: nil, protect_redirect_callback: false)
       URLPolicy.validate!(url)
       faraday_options = @faraday_options.merge(url: url)
       redirects = (faraday_options.delete(:redirect) || {}).dup
+      if protect_redirect_callback && redirects[:callback]
+        callback = redirects[:callback]
+        redirects[:callback] = lambda do |*args|
+          begin
+            callback.call(*args)
+          rescue StandardError => error
+            raise URLPolicy::Failure.new(error)
+          end
+        end
+      end
       Faraday.new(faraday_options) do |faraday|
         unless image
           faraday.request :retry, max: @retries

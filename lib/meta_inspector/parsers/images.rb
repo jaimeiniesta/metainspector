@@ -12,6 +12,10 @@ module MetaInspector
         @image_downloader = options[:image_downloader]
         @download_images = options[:download_images]
         @max_image_downloads = options[:max_image_downloads]
+        @reject_invalid_images = (options[:download_image_options] || {})[:reject_invalid_images]
+        @fetch_all_image_meta = options[:fetch_all_image_meta]
+        @image_sizes = {}
+        @download_attempts = 0
         super(main_parser)
       end
 
@@ -30,9 +34,24 @@ module MetaInspector
       # See doc at http://developers.facebook.com/docs/opengraph/
       # If none found, tries with Twitter image, then Parsely image
       def owner_suggested
+        if @download_images && @reject_invalid_images
+          ['og:image', 'twitter:image', 'parsely-image-url'].each do |key|
+            value = content_of(meta[key])
+            url = URL.absolutify(value, base_url, normalize: false) if value
+            return url if url && image_validity(url) != false
+          end
+          return nil
+        end
         suggested_img = content_of(meta['og:image']) || content_of(meta['twitter:image']) ||
                         content_of(meta['parsely-image-url'])
         URL.absolutify(suggested_img, base_url, normalize: false) if suggested_img
+      end
+
+      # Returns validity for each image URL; nil means no lookup was performed.
+      def with_metadata
+        absolutified_images.map do |url|
+          { url: url, valid: @fetch_all_image_meta && url ? image_validity(url) : nil }
+        end
       end
 
       # Returns an array of [img_url, width, height] sorted by image area (width * height)
@@ -44,15 +63,12 @@ module MetaInspector
           end
           imgs_with_size.reject! { |url, width, height| url.nil? || url.empty? }
           imgs_with_size.uniq! { |url, width, height| url }
-          download_attempts = 0
+          if @download_images && @reject_invalid_images
+            imgs_with_size.reject! { |url, width, height| image_validity(url) == false }
+          end
           imgs_with_size.map! do |url, width, height|
             if width.nil? || height.nil?
-              if @download_images && (@max_image_downloads.nil? || download_attempts < @max_image_downloads)
-                download_attempts += 1
-                width, height = @image_downloader.size(url)
-              else
-                width, height = [0, 0]
-              end
+              width, height = image_size(url) || [0, 0]
             end
             [url, width.to_i, height.to_i]
           end
@@ -86,7 +102,37 @@ module MetaInspector
       private
 
       def images_collection
-        @images_collection ||= absolutified_images
+        @images_collection ||= if @download_images && @reject_invalid_images
+          absolutified_images.reject { |url| url && image_validity(url) == false }
+        else
+          absolutified_images
+        end
+      end
+
+      def image_size(url)
+        return @image_sizes[url] if @image_sizes.key?(url)
+        return nil unless @download_images && (@max_image_downloads.nil? || @download_attempts < @max_image_downloads)
+
+        @download_attempts += 1
+        if @reject_invalid_images || @fetch_all_image_meta
+          begin
+            URLPolicy.validate!(url)
+          rescue MetaInspector::RequestError
+            return @image_sizes[url] = nil
+          end
+        end
+        @image_sizes[url] = if @reject_invalid_images || @fetch_all_image_meta
+          @image_downloader.size(url, reject_invalid_url: true)
+        else
+          @image_downloader.size(url)
+        end
+      end
+
+      def image_validity(url)
+        image_size(url)
+        return nil unless @image_sizes.key?(url)
+
+        !@image_sizes[url].nil?
       end
 
       def absolutified_images
