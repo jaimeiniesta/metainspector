@@ -17,12 +17,17 @@ module MetaInspector
     # * max_image_downloads: maximum image size lookups, or nil for unlimited
     # * download_image_options: supports reject_invalid_images (default false)
     # * fetch_all_image_meta: enable image validity metadata (default false)
+    # * max_html_bytes: maximum HTML size before parsing, or nil for unlimited
     # * url_filter: callable receiving a URI before each request; false/nil rejects it
     # * faraday_options: an optional hash of options to pass to Faraday on the request.
     #   Its faraday_http_cache key configures response caching with Faraday::HttpCache
     # * faraday_http_cache: deprecated, use faraday_options: { faraday_http_cache: ... }
     def initialize(initial_url, options = {})
       options             = defaults.merge(options)
+      max_html_bytes = options[:max_html_bytes]
+      unless max_html_bytes.nil? || (max_html_bytes.is_a?(Integer) && max_html_bytes >= 0)
+        raise ArgumentError, 'max_html_bytes must be a non-negative Integer or nil'
+      end
       @max_image_downloads = options[:max_image_downloads]
       unless @max_image_downloads.nil? || (@max_image_downloads.is_a?(Integer) && @max_image_downloads >= 0)
         raise ArgumentError, 'max_image_downloads must be a non-negative Integer or nil'
@@ -56,6 +61,7 @@ module MetaInspector
                                                                 faraday_options:    @faraday_options,
                                                                 faraday_http_cache: @faraday_http_cache) unless @document
       @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images,
+                                                                max_html_bytes: max_html_bytes,
                                                                 max_image_downloads: @max_image_downloads,
                                                                 download_image_options: options[:download_image_options],
                                                                 fetch_all_image_meta: options[:fetch_all_image_meta],

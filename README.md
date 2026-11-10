@@ -314,6 +314,21 @@ You can specify 2 different timeouts when requesting a page:
 
 Both timeouts default to 20 seconds each.
 
+These timeouts apply to fetching, not to parsing HTML. To avoid parsing large
+documents, set `max_html_bytes` to a non-negative integer:
+
+```ruby
+page = MetaInspector.new(url, max_html_bytes: 2 * 1024 * 1024)
+```
+
+The default is `nil` (no limit). HTML larger than the limit raises
+`MetaInspector::ParserError` before parsing, including HTML passed with the
+`document` option. The limit is measured in bytes after fetching and processing
+the response, so it does not limit download size or memory used for the response.
+It also does not guarantee a parsing deadline: even a small document can be
+slow to parse. Ruby's `Timeout.timeout` cannot reliably interrupt Nokogiri's
+native parser; use a separately supervised process if a hard deadline is needed.
+
 You can also specify the number of `retries`, which defaults to 3.
 
 For example, this will time out after 10 seconds waiting for a connection, or after 5 seconds waiting

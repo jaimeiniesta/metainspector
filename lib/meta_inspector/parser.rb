@@ -10,6 +10,7 @@ module MetaInspector
   class Parser
     def initialize(document, options = {})
       @document        = document
+      @max_html_bytes  = options[:max_html_bytes]
       @head_links_parser = MetaInspector::Parsers::HeadLinksParser.new(self)
       @meta_tag_parser = MetaInspector::Parsers::MetaTagsParser.new(self)
       @links_parser    = MetaInspector::Parsers::LinksParser.new(self)
@@ -37,7 +38,13 @@ module MetaInspector
 
     # Returns the whole parsed document
     def parsed
-      @parsed ||= Nokogiri::HTML(@document.to_s)
+      @parsed ||= begin
+        html = @document.to_s
+        if @max_html_bytes && html.bytesize > @max_html_bytes
+          raise MetaInspector::ParserError, "HTML is #{html.bytesize} bytes, exceeding the limit of #{@max_html_bytes} bytes"
+        end
+        Nokogiri::HTML(html)
+      end
     end
   end
 end
