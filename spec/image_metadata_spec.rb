@@ -82,4 +82,20 @@ RSpec.describe 'image metadata' do
     expect(page.images.with_details).to include(include(url: url, type: :png, file_size: png.bytesize))
     expect(page.images.with_details).to include(include(url: 'data:image/png;base64,AAAA', type: nil, file_size: nil))
   end
+
+  it 'sends only the page origin as referer to a cross-origin image server' do
+    image = 'https://assets.example/image.png'
+    stub_request(:get, image).with(headers: { 'Referer' => 'https://example.com/' })
+      .to_return(body: png, headers: { 'Content-Length' => '29' })
+    page = MetaInspector.new('https://example.com/private?token=secret', document: %(<img src="#{image}">),
+      headers: { 'Referer' => 'https://private.example/secret' })
+    expect(page.images.with_details.first).to include(type: :png, file_size: 29)
+  end
+
+  it 'does not send a secure page origin to an insecure image server' do
+    image = 'http://assets.example/image.png'
+    stub_request(:get, image).with { |request| !request.headers.key?('Referer') }.to_return(body: png)
+    page = MetaInspector.new('https://example.com/private', document: %(<img src="#{image}">))
+    expect(page.images.with_details.first).to include(type: :png)
+  end
 end

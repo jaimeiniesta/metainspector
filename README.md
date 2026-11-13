@@ -560,7 +560,7 @@ The array is sorted by descending image area and contains one entry per valid, u
 
 Metadata lookup attempts downloads even when HTML dimensions are present, subject to `download_images`, `max_image_downloads`, and the same request restrictions and byte/time limits described below. The limit counts attempts in HTML order, including failures. Results are cached separately from `with_size`; calling both methods can download an image twice and each method applies the limit independently.
 
-Custom page headers are preserved for images on the same origin (scheme, host and port). Requests to other origins, including image redirects, send only standard image request headers such as `User-Agent` and `Accept`; they do not receive page credentials or arbitrary custom headers.
+Custom page headers are preserved for images on the same origin (scheme, host and port). Requests to other origins, including image redirects, send only standard image request headers such as `User-Agent` and `Accept`; they do not receive page credentials or arbitrary custom headers. They also send a `Referer` containing only the page origin, except when an HTTPS page requests an HTTP image. The page path, query, fragment and credentials are never included in this cross-origin `Referer`.
 
 Each size lookup stops at a 256 KiB response body budget or a two-second overall timeout, including redirects. If the dimensions cannot be determined within these limits, they remain `[0, 0]`. Streamed image responses are not stored in the HTTP response cache, and failed image requests are not retried.
 

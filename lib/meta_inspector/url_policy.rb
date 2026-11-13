@@ -34,6 +34,14 @@ module MetaInspector
       uri = self.class.validate!(env.url)
       if @image_origin && origin(uri) != origin(@image_origin)
         env.request_headers.delete_if { |key, _| !IMAGE_HEADERS.include?(key.downcase) }
+        unless @image_origin.scheme == 'https' && uri.scheme == 'http'
+          referer = @image_origin.dup
+          referer.userinfo = nil
+          referer.path = '/'
+          referer.query = nil
+          referer.fragment = nil
+          env.request_headers['Referer'] = referer.to_s
+        end
       end
       check_filter(uri) if @filter
       @app.call(env)
