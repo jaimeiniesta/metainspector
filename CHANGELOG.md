@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Add opt-in `max_html_bytes` to reject oversized HTML before parsing (#273).
+* Add opt-in `images.with_details` to report image type and file size alongside dimensions (#268).
 * Add `iframes` to expose each iframe's original attributes, and `iframe_sources` to resolve their source URLs (#222).
 
 ## [Changes in 5.20.0](https://github.com/jaimeiniesta/metainspector/compare/v5.19.0...v5.20.0)

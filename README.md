@@ -129,6 +129,7 @@ page.links.external      # every external link found on the page as an absolute 
 ```ruby
 page.images              # enumerable collection of image URLs found on the page
 page.images.with_size    # a sorted array (by descending area) of [image_url, width, height]
+page.images.with_details # image hashes with dimensions, type and file size (downloads images)
 page.images.best         # Most relevant image from og:image, twitter:image, or parsely-image-url; falls back to page.images.largest
 page.images.favicon      # absolute URL to the favicon
 ```
@@ -546,6 +547,18 @@ You can disable URL normalization by passing the `normalize_url: false` option.
 Image downloading is enabled by default. `page.images.with_size` and `page.images.largest` fetch images with missing HTML dimensions; `page.images.best` also does this when there is no preferred metadata image. The page controls these image URLs, which may point to other hosts.
 
 Image requests use Faraday with the page's proxy, TLS, headers and redirect settings, and respect [`url_filter:`](#filtering-request-urls). Downloaded bytes are passed to [fastimage](https://github.com/sdsykes/fastimage) to determine dimensions. Dimensions already present in HTML are preserved without downloading the image.
+
+To opt in to image type and file size, use:
+
+```ruby
+page.images.with_details
+# => [{ url: "https://example.com/photo.png", width: 640, height: 480,
+#       type: :png, file_size: 12345 }]
+```
+
+The array is sorted by descending image area and contains one entry per valid, unique image URL. `type` is a FastImage symbol, or `nil` if it cannot be identified. `file_size` is the total in bytes: the `Content-Length` of an unencoded 200 response, the total in a 206 `Content-Range`, or the byte count of a fully downloaded unencoded 200 response without a `Content-Length`. It is `nil` when the total is unavailable; a partial download's byte count is never used as the total. Servers can report inaccurate lengths. Failed requests return `nil` for both fields; URL policy errors still propagate. Each HTML dimension is preserved when present; a missing dimension is obtained from the image or becomes zero if it cannot be determined.
+
+Metadata lookup attempts downloads even when HTML dimensions are present, subject to `download_images`, `max_image_downloads`, and the same request restrictions and byte/time limits described below. The limit counts attempts in HTML order, including failures. Results are cached separately from `with_size`; calling both methods can download an image twice and each method applies the limit independently.
 
 Custom page headers are preserved for images on the same origin (scheme, host and port). Requests to other origins, including image redirects, send only standard image request headers such as `User-Agent` and `Accept`; they do not receive page credentials or arbitrary custom headers.
 

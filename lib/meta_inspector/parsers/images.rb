@@ -58,16 +58,7 @@ module MetaInspector
       # Returns an array of [img_url, width, height] sorted by image area (width * height)
       def with_size
         @with_size ||= begin
-          candidates_by_url = {}
-          image_candidates.each do |url, width, height, responsive|
-            next if url.nil? || url.empty?
-
-            previous = candidates_by_url[url]
-            if previous.nil? || ((previous[1].nil? || previous[2].nil?) && width && height)
-              candidates_by_url[url] = [url, width, height, responsive]
-            end
-          end
-          imgs_with_size = candidates_by_url.values
+          imgs_with_size = unique_image_candidates
           if @download_images && @reject_invalid_images
             imgs_with_size.reject! { |url, width, height| image_validity(url) == false }
           end
@@ -79,6 +70,28 @@ module MetaInspector
             [url, width.to_i, height.to_i]
           end
           imgs_with_size.sort_by { |url, width, height| -(width.to_i * height.to_i) }
+        end
+      end
+
+      # Returns image details sorted by area. Metadata lookups are opt-in.
+      def with_details
+        @with_details ||= begin
+          images = unique_image_candidates
+          attempts = 0
+          images.map! do |url, width, height, responsive|
+            metadata = nil
+            fetchable = !responsive || http_image_url?(url)
+            if fetchable && @download_images && (@max_image_downloads.nil? || attempts < @max_image_downloads)
+              attempts += 1
+              metadata = @image_downloader.metadata(url)
+            end
+            downloaded_width, downloaded_height = metadata && metadata[:dimensions]
+            width ||= downloaded_width
+            height ||= downloaded_height
+            { url: url, width: width.to_i, height: height.to_i,
+              type: metadata && metadata[:type], file_size: metadata && metadata[:file_size] }
+          end
+          images.sort_by { |image| -(image[:width] * image[:height]) }
         end
       end
 
@@ -106,6 +119,19 @@ module MetaInspector
       end
 
       private
+
+      def unique_image_candidates
+        candidates = {}
+        image_candidates.each do |url, width, height, responsive|
+          next if url.nil? || url.empty?
+
+          previous = candidates[url]
+          if previous.nil? || ((previous[1].nil? || previous[2].nil?) && width && height)
+            candidates[url] = [url, width, height, responsive]
+          end
+        end
+        candidates.values
+      end
 
       def images_collection
         @images_collection ||= if @download_images && @reject_invalid_images
