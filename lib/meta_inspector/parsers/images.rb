@@ -1,4 +1,5 @@
 require_relative '../image_downloader'
+require 'strscan'
 
 module MetaInspector
   module Parsers
@@ -57,18 +58,23 @@ module MetaInspector
       # Returns an array of [img_url, width, height] sorted by image area (width * height)
       def with_size
         @with_size ||= begin
-          img_nodes = parsed.search('//img').select{ |img_node| img_node['src'] }
-          imgs_with_size = img_nodes.map do |img_node|
-            [URL.absolutify(img_node['src'], base_url, normalize: false), img_node['width'], img_node['height']]
+          candidates_by_url = {}
+          image_candidates.each do |url, width, height, responsive|
+            next if url.nil? || url.empty?
+
+            previous = candidates_by_url[url]
+            if previous.nil? || ((previous[1].nil? || previous[2].nil?) && width && height)
+              candidates_by_url[url] = [url, width, height, responsive]
+            end
           end
-          imgs_with_size.reject! { |url, width, height| url.nil? || url.empty? }
-          imgs_with_size.uniq! { |url, width, height| url }
+          imgs_with_size = candidates_by_url.values
           if @download_images && @reject_invalid_images
             imgs_with_size.reject! { |url, width, height| image_validity(url) == false }
           end
-          imgs_with_size.map! do |url, width, height|
+          imgs_with_size.map! do |url, width, height, responsive|
             if width.nil? || height.nil?
-              width, height = image_size(url) || [0, 0]
+              unfetchable = responsive && !@reject_invalid_images && !@fetch_all_image_meta && !http_image_url?(url)
+              width, height = (image_size(url) unless unfetchable) || [0, 0]
             end
             [url, width.to_i, height.to_i]
           end
@@ -135,12 +141,53 @@ module MetaInspector
         !@image_sizes[url].nil?
       end
 
-      def absolutified_images
-        parsed_images.map { |i| URL.absolutify(i, base_url, normalize: false) }
+      def http_image_url?(url)
+        URLPolicy.validate!(url)
+        true
+      rescue URLPolicy::InvalidURL
+        false
       end
 
-      def parsed_images
-        cleanup(parsed.search('//img/@src'))
+      def absolutified_images
+        image_candidates.map(&:first).uniq
+      end
+
+      def image_candidates
+        @image_candidates ||= parsed.xpath('//img | //picture/source').flat_map do |node|
+          candidates = []
+          src = node['src'].to_s.strip if node.name == 'img'
+          candidates << [src, node['width'], node['height']] if src && !src.empty?
+          srcset_urls(node['srcset']).each { |url| candidates << [url, nil, nil, true] }
+          candidates.map do |url, width, height, responsive|
+            [URL.absolutify(url, base_url, normalize: false), width, height, responsive]
+          end
+        end
+      end
+
+      def srcset_urls(value)
+        scanner = StringScanner.new(value.to_s)
+        urls = []
+        until scanner.eos?
+          scanner.skip(/[\t\n\f\r ,]+/)
+          break if scanner.eos?
+
+          url = scanner.scan(/[^\t\n\f\r ]+/)
+          if url.end_with?(',')
+            url = url.sub(/,+\z/, '')
+            descriptor = ''
+          else
+            scanner.skip(/[\t\n\f\r ]+/)
+            descriptor = scanner.scan(/(?:[^,(]|\([^)]*(?:\)|\z))*/).strip
+            scanner.skip(/,/)
+          end
+          urls << url if !url.empty? && valid_srcset_descriptor?(descriptor)
+        end
+        urls
+      end
+
+      def valid_srcset_descriptor?(descriptor)
+        descriptor.empty? || (descriptor.match?(/\A\d+w\z/) && descriptor.to_i > 0) ||
+          (descriptor.match?(/\A(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?x\z/) && descriptor.to_f >= 0)
       end
 
       def content_of(content)

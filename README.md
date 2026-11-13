@@ -127,11 +127,19 @@ page.links.external      # every external link found on the page as an absolute 
 ### Images
 
 ```ruby
-page.images              # enumerable collection, with every img found on the page as an absolute URL
+page.images              # enumerable collection of image URLs found on the page
 page.images.with_size    # a sorted array (by descending area) of [image_url, width, height]
 page.images.best         # Most relevant image from og:image, twitter:image, or parsely-image-url; falls back to page.images.largest
 page.images.favicon      # absolute URL to the favicon
 ```
+
+The collection includes `img[src]`, `img[srcset]`, and `source[srcset]` inside
+`picture`, resolved to absolute URLs and deduplicated. Elements appear in document
+order; for each `img`, `src` comes before its `srcset` candidates, which retain
+their listed order. All candidates are included regardless of media conditions or
+device density. Responsive candidates use their downloaded dimensions for ranking;
+the `img` element's width and height apply only to its `src` fallback. By default,
+non-HTTP responsive URLs remain in the collection but cannot be downloaded for sizing.
 
 `images.owner_suggested` tries `og:image`, `twitter:image`, and `parsely-image-url`
 in that order, skipping empty or whitespace-only values. Relative image URLs are

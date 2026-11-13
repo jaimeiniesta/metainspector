@@ -2,6 +2,93 @@ require 'spec_helper'
 
 describe MetaInspector do
   describe "#images" do
+    it 'preserves fallback dimensions when an earlier picture source repeats its URL' do
+      html = '<picture><source srcset="/same.jpg"><img src="/same.jpg" width="200" height="100"></picture>'
+      page = MetaInspector.new('http://example.com/', document: html, download_images: false)
+
+      expect(page.images.with_size).to eq([['http://example.com/same.jpg', 200, 100]])
+      expect(page.images.best).to eq('http://example.com/same.jpg')
+    end
+
+    it 'does not download inline srcset images or spend the download budget on them' do
+      html = '<img src="/fallback.jpg" width="20" height="20" srcset="data:image/png;base64,AAAA 1x, /100x100 2x">'
+      page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
+
+      expect(page.images.to_a).to include('data:image/png;base64,AAAA')
+      expect(page.images.best).to eq('http://example.com/100x100')
+      expect(WebMock).to have_requested(:get, 'http://example.com/100x100').once
+    end
+
+    it 'skips non-HTTP responsive candidates when selecting the best image' do
+      html = '<picture><source srcset="blob:https://example.com/123 1x"><img src="/fallback.jpg" width="100" height="100"></picture>'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.to_a).to include('blob:https://example.com/123')
+      expect(page.images.best).to eq('http://example.com/fallback.jpg')
+    end
+
+    it 'accepts positive width descriptors with leading zeroes' do
+      html = '<img srcset="/small.jpg 0400w, /large.jpg 0800w, /invalid.jpg 000w">'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.to_a).to eq(['http://example.com/small.jpg', 'http://example.com/large.jpg'])
+    end
+
+    it 'collects responsive candidates in document order and resolves duplicates' do
+      html = <<~HTML
+        <base href="/assets/">
+        <picture><source srcset="small.webp 400w, large.webp 800w">
+          <img src="fallback.jpg" srcset="fallback.jpg 1x, large.jpg 2x">
+        </picture>
+        <img srcset="large.jpg 1x, other.jpg 2x">
+        <source srcset="outside.jpg 1x">
+      HTML
+      page = MetaInspector.new('http://example.com/page', document: html)
+
+      expect(page.images.to_a).to eq(%w[
+        http://example.com/assets/small.webp http://example.com/assets/large.webp
+        http://example.com/assets/fallback.jpg http://example.com/assets/large.jpg
+        http://example.com/assets/other.jpg
+      ])
+    end
+
+    it 'ranks responsive candidates by downloaded dimensions without assigning fallback dimensions to them' do
+      html = '<img src="/10x10" width="10" height="10" srcset="/100x100 2x">'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.with_size).to eq([
+        ['http://example.com/100x100', 100, 100],
+        ['http://example.com/10x10', 10, 10]
+      ])
+      expect(page.images.best).to eq('http://example.com/100x100')
+    end
+
+    it 'keeps commas within candidate URLs and skips invalid descriptors' do
+      html = '<img srcset="/image?a=1,2 1x, /bad.jpg nope, /good.jpg 2x">'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.to_a).to eq(['http://example.com/image?a=1,2', 'http://example.com/good.jpg'])
+    end
+
+    it 'does not treat commas inside invalid parenthesized descriptors as candidate separators' do
+      html = '<img srcset="bad.jpg foo(bar,baz), good.jpg 1x">'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.to_a).to eq(['http://example.com/good.jpg'])
+    end
+
+    it 'applies the download limit to responsive candidates in document order' do
+      html = '<picture><source srcset="/10x10 1x, /100x100 2x"><img src="/fallback.jpg" width="20" height="20"></picture>'
+      page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
+
+      expect(page.images.with_size).to eq([
+        ['http://example.com/fallback.jpg', 20, 20],
+        ['http://example.com/10x10', 10, 10],
+        ['http://example.com/100x100', 0, 0]
+      ])
+      expect(WebMock).not_to have_requested(:get, 'http://example.com/100x100')
+    end
+
     describe "returns an Enumerable" do
       let(:page) { MetaInspector.new('https://twitter.com/markupvalidator') }
 
