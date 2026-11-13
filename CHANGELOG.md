@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Fix downloading and validating image URLs containing Unicode characters while preserving their original form (#536).
 * Add opt-in `max_html_bytes` to reject oversized HTML before parsing (#273).
 * Add opt-in `images.with_details` to report image type and file size alongside dimensions (#268).
 * Add `iframes` to expose each iframe's original attributes, and `iframe_sources` to resolve their source URLs (#222).

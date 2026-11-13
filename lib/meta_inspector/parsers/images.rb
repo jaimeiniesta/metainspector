@@ -81,7 +81,7 @@ module MetaInspector
           images.map! do |url, width, height, responsive|
             metadata = nil
             if @download_images && (@max_image_downloads.nil? || attempts < @max_image_downloads)
-              request_url = url.ascii_only? ? url : URL.new(url).url
+              request_url = image_request_url(url)
               if !responsive || http_image_url?(request_url)
                 attempts += 1
                 metadata = @image_downloader.metadata(request_url)
@@ -148,17 +148,18 @@ module MetaInspector
         return nil unless @download_images && (@max_image_downloads.nil? || @download_attempts < @max_image_downloads)
 
         @download_attempts += 1
+        request_url = image_request_url(url)
         if @reject_invalid_images || @fetch_all_image_meta
           begin
-            URLPolicy.validate!(url)
+            URLPolicy.validate!(request_url)
           rescue MetaInspector::RequestError
             return @image_sizes[url] = nil
           end
         end
         @image_sizes[url] = if @reject_invalid_images || @fetch_all_image_meta
-          @image_downloader.size(url, reject_invalid_url: true)
+          @image_downloader.size(request_url, reject_invalid_url: true)
         else
-          @image_downloader.size(url)
+          @image_downloader.size(request_url)
         end
       end
 
@@ -170,10 +171,14 @@ module MetaInspector
       end
 
       def http_image_url?(url)
-        URLPolicy.validate!(url)
+        URLPolicy.validate!(image_request_url(url))
         true
       rescue URLPolicy::InvalidURL
         false
+      end
+
+      def image_request_url(url)
+        url.ascii_only? ? url : URL.new(url).url
       end
 
       def absolutified_images
