@@ -60,6 +60,17 @@ RSpec.describe 'bounded image downloads' do
       end
     end
 
+    it 'counts a fully received chunked image without a content length' do
+      serve do |socket|
+        socket.write("HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n")
+        socket.write("#{png.bytesize.to_s(16)}\r\n")
+        socket.write(png)
+        socket.write("\r\n0\r\n\r\n")
+      end
+      page = MetaInspector.new('http://page.example/', document: %(<img src="#{@url}">))
+      expect(page.images.with_details.first).to include(type: :png, file_size: png.bytesize)
+    end
+
     it 'bounds binary IO and stops a server that ignores Range before reading its full body' do
       sent = 0
       serve do |socket|
