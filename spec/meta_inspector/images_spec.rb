@@ -19,6 +19,14 @@ describe MetaInspector do
       expect(WebMock).to have_requested(:get, 'http://example.com/100x100').once
     end
 
+    it 'skips non-HTTP responsive candidates when selecting the best image' do
+      html = '<picture><source srcset="blob:https://example.com/123 1x"><img src="/fallback.jpg" width="100" height="100"></picture>'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.to_a).to include('blob:https://example.com/123')
+      expect(page.images.best).to eq('http://example.com/fallback.jpg')
+    end
+
     it 'accepts positive width descriptors with leading zeroes' do
       html = '<img srcset="/small.jpg 0400w, /large.jpg 0800w, /invalid.jpg 000w">'
       page = MetaInspector.new('http://example.com/', document: html)
@@ -60,6 +68,13 @@ describe MetaInspector do
       page = MetaInspector.new('http://example.com/', document: html)
 
       expect(page.images.to_a).to eq(['http://example.com/image?a=1,2', 'http://example.com/good.jpg'])
+    end
+
+    it 'does not treat commas inside invalid parenthesized descriptors as candidate separators' do
+      html = '<img srcset="bad.jpg foo(bar,baz), good.jpg 1x">'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.to_a).to eq(['http://example.com/good.jpg'])
     end
 
     it 'applies the download limit to responsive candidates in document order' do

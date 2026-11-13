@@ -73,8 +73,8 @@ module MetaInspector
           end
           imgs_with_size.map! do |url, width, height, responsive|
             if width.nil? || height.nil?
-              inline_candidate = responsive && url.match?(/\Adata:/i) && !@reject_invalid_images && !@fetch_all_image_meta
-              width, height = (image_size(url) unless inline_candidate) || [0, 0]
+              unfetchable = responsive && !@reject_invalid_images && !@fetch_all_image_meta && !http_image_url?(url)
+              width, height = (image_size(url) unless unfetchable) || [0, 0]
             end
             [url, width.to_i, height.to_i]
           end
@@ -141,6 +141,13 @@ module MetaInspector
         !@image_sizes[url].nil?
       end
 
+      def http_image_url?(url)
+        URLPolicy.validate!(url)
+        true
+      rescue URLPolicy::InvalidURL
+        false
+      end
+
       def absolutified_images
         image_candidates.map(&:first).uniq
       end
@@ -170,7 +177,7 @@ module MetaInspector
             descriptor = ''
           else
             scanner.skip(/[\t\n\f\r ]+/)
-            descriptor = scanner.scan(/[^,]*/).strip
+            descriptor = scanner.scan(/(?:[^,(]|\([^)]*(?:\)|\z))*/).strip
             scanner.skip(/,/)
           end
           urls << url if !url.empty? && valid_srcset_descriptor?(descriptor)

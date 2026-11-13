@@ -138,7 +138,8 @@ The collection includes `img[src]`, `img[srcset]`, and `source[srcset]` inside
 order; for each `img`, `src` comes before its `srcset` candidates, which retain
 their listed order. All candidates are included regardless of media conditions or
 device density. Responsive candidates use their downloaded dimensions for ranking;
-the `img` element's width and height apply only to its `src` fallback.
+the `img` element's width and height apply only to its `src` fallback. By default,
+non-HTTP responsive URLs remain in the collection but cannot be downloaded for sizing.
 
 `images.owner_suggested` tries `og:image`, `twitter:image`, and `parsely-image-url`
 in that order, skipping empty or whitespace-only values. Relative image URLs are
