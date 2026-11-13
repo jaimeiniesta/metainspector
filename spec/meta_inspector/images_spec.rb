@@ -2,6 +2,30 @@ require 'spec_helper'
 
 describe MetaInspector do
   describe "#images" do
+    it 'preserves fallback dimensions when an earlier picture source repeats its URL' do
+      html = '<picture><source srcset="/same.jpg"><img src="/same.jpg" width="200" height="100"></picture>'
+      page = MetaInspector.new('http://example.com/', document: html, download_images: false)
+
+      expect(page.images.with_size).to eq([['http://example.com/same.jpg', 200, 100]])
+      expect(page.images.best).to eq('http://example.com/same.jpg')
+    end
+
+    it 'does not download inline srcset images or spend the download budget on them' do
+      html = '<img src="/fallback.jpg" width="20" height="20" srcset="data:image/png;base64,AAAA 1x, /100x100 2x">'
+      page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
+
+      expect(page.images.to_a).to include('data:image/png;base64,AAAA')
+      expect(page.images.best).to eq('http://example.com/100x100')
+      expect(WebMock).to have_requested(:get, 'http://example.com/100x100').once
+    end
+
+    it 'accepts positive width descriptors with leading zeroes' do
+      html = '<img srcset="/small.jpg 0400w, /large.jpg 0800w, /invalid.jpg 000w">'
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.images.to_a).to eq(['http://example.com/small.jpg', 'http://example.com/large.jpg'])
+    end
+
     it 'collects responsive candidates in document order and resolves duplicates' do
       html = <<~HTML
         <base href="/assets/">

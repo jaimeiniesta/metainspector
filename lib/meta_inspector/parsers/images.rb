@@ -58,15 +58,23 @@ module MetaInspector
       # Returns an array of [img_url, width, height] sorted by image area (width * height)
       def with_size
         @with_size ||= begin
-          imgs_with_size = image_candidates.map(&:dup)
-          imgs_with_size.reject! { |url, width, height| url.nil? || url.empty? }
-          imgs_with_size.uniq! { |url, width, height| url }
+          candidates_by_url = {}
+          image_candidates.each do |url, width, height, responsive|
+            next if url.nil? || url.empty?
+
+            previous = candidates_by_url[url]
+            if previous.nil? || ((previous[1].nil? || previous[2].nil?) && width && height)
+              candidates_by_url[url] = [url, width, height, responsive]
+            end
+          end
+          imgs_with_size = candidates_by_url.values
           if @download_images && @reject_invalid_images
             imgs_with_size.reject! { |url, width, height| image_validity(url) == false }
           end
-          imgs_with_size.map! do |url, width, height|
+          imgs_with_size.map! do |url, width, height, responsive|
             if width.nil? || height.nil?
-              width, height = image_size(url) || [0, 0]
+              inline_candidate = responsive && url.match?(/\Adata:/i) && !@reject_invalid_images && !@fetch_all_image_meta
+              width, height = (image_size(url) unless inline_candidate) || [0, 0]
             end
             [url, width.to_i, height.to_i]
           end
@@ -142,9 +150,9 @@ module MetaInspector
           candidates = []
           src = node['src'].to_s.strip if node.name == 'img'
           candidates << [src, node['width'], node['height']] if src && !src.empty?
-          srcset_urls(node['srcset']).each { |url| candidates << [url, nil, nil] }
-          candidates.map do |url, width, height|
-            [URL.absolutify(url, base_url, normalize: false), width, height]
+          srcset_urls(node['srcset']).each { |url| candidates << [url, nil, nil, true] }
+          candidates.map do |url, width, height, responsive|
+            [URL.absolutify(url, base_url, normalize: false), width, height, responsive]
           end
         end
       end
@@ -171,7 +179,7 @@ module MetaInspector
       end
 
       def valid_srcset_descriptor?(descriptor)
-        descriptor.empty? || descriptor.match?(/\A[1-9]\d*w\z/) ||
+        descriptor.empty? || (descriptor.match?(/\A\d+w\z/) && descriptor.to_i > 0) ||
           (descriptor.match?(/\A(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?x\z/) && descriptor.to_f >= 0)
       end
 
