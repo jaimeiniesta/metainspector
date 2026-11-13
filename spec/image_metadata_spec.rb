@@ -98,4 +98,12 @@ RSpec.describe 'image metadata' do
     page = MetaInspector.new('https://example.com/private', document: %(<img src="#{image}">))
     expect(page.images.with_details.first).to include(type: :png)
   end
+
+  it 'fetches Unicode image URLs while preserving their original representation' do
+    original = "https://example.com/image\u202fname.png?resize=800%2C425"
+    encoded = 'https://example.com/image%E2%80%AFname.png?resize=800%2C425'
+    stub_request(:get, encoded).to_return(body: png)
+    page = MetaInspector.new('https://example.com/', document: %(<img src="#{original}">))
+    expect(page.images.with_details.first).to include(url: original, type: :png, file_size: png.bytesize)
+  end
 end

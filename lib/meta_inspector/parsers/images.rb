@@ -80,10 +80,12 @@ module MetaInspector
           attempts = 0
           images.map! do |url, width, height, responsive|
             metadata = nil
-            fetchable = !responsive || http_image_url?(url)
-            if fetchable && @download_images && (@max_image_downloads.nil? || attempts < @max_image_downloads)
-              attempts += 1
-              metadata = @image_downloader.metadata(url)
+            if @download_images && (@max_image_downloads.nil? || attempts < @max_image_downloads)
+              request_url = url.ascii_only? ? url : URL.new(url).url
+              if !responsive || http_image_url?(request_url)
+                attempts += 1
+                metadata = @image_downloader.metadata(request_url)
+              end
             end
             downloaded_width, downloaded_height = metadata && metadata[:dimensions]
             width ||= downloaded_width
