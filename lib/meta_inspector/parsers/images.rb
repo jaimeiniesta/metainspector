@@ -154,7 +154,7 @@ module MetaInspector
 
         unless validating_images?
           @download_attempts += 1
-          return @image_sizes[url] = @image_downloader.size(url)
+          return @image_sizes[url] = @image_downloader.size(encoded_url(url))
         end
 
         # A URL that fails this pre-check is invalid without a request, so it
@@ -199,7 +199,7 @@ module MetaInspector
       end
 
       def http_image_url?(url)
-        URLPolicy.validate!(url)
+        URLPolicy.validate!(encoded_url(url))
         true
       rescue URLPolicy::InvalidURL
         false

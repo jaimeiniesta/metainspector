@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Fix downloading and validating image URLs containing Unicode characters while preserving their original form (#536).
 * Add opt-in `max_html_bytes` to reject oversized HTML before parsing (#273).
 * Add opt-in `images.with_details` to report image type and file size alongside dimensions (#268). When image validation is enabled, it reuses the validation lookups and, with `reject_invalid_images`, omits images that failed validation instead of raising for non-HTTP URLs. Validation now normalizes non-ASCII image URLs before requesting them, and URLs found invalid without a request no longer count toward `max_image_downloads` (#537).
 * Add `iframes` to expose each iframe's original attributes, and `iframe_sources` to resolve their source URLs (#222).
