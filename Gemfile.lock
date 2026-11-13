@@ -15,7 +15,7 @@ PATH
       nokogiri (~> 1.19.5)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     addressable (2.9.2)
       public_suffix (>= 2.0.2, < 8.0)
