@@ -74,7 +74,15 @@ module MetaInspector
     delegate [:url, :scheme, :host, :root_url,
               :tracked?, :untracked_url, :untrack!]   => :@url
 
-    delegate [:content_type, :response]               => :@request
+    # No request is made when the HTML is passed with the document: option,
+    # so these return nil in that case
+    def content_type
+      @request&.content_type
+    end
+
+    def response
+      @request&.response
+    end
 
     delegate [:parsed, :language, :title, :best_title, :author, :best_author,
               :h1, :h2, :h3, :h4, :h5, :h6, :description, :best_description, :links,
@@ -110,8 +118,8 @@ module MetaInspector
         'content_type'     => content_type,
         'meta_tags'        => meta_tags,
         'favicon'          => images.favicon,
-        'response'         => { 'status'  => response.status,
-                                'headers' => response.headers }
+        'response'         => response && { 'status'  => response.status,
+                                            'headers' => response.headers }
       }
     end
 

@@ -58,6 +58,10 @@ page.response.headers # { "server"=>"nginx", "content-type"=>"text/html; charset
                       #   "cache-control"=>"must-revalidate, private, max-age=0", ... }
 ```
 
+When the HTML is passed with the `document` option, no request is made, so
+`page.response` and `page.content_type` return `nil`, and so do the `response`
+and `content_type` keys of `to_hash`.
+
 ## Accessing scraped data
 
 ### URL
@@ -289,7 +293,7 @@ Please be aware that all keys are converted to downcase, so it's `'dc.date.issue
 
 ```ruby
 page.charset             # UTF-8
-page.content_type        # content-type returned by the server when the url was requested
+page.content_type        # content-type returned by the server when the url was requested, or nil with the document option
 ```
 
 ## Other representations
