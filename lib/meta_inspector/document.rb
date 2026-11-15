@@ -16,6 +16,7 @@ module MetaInspector
     # * download_images: fetch missing image dimensions. Defaults to true
     # * max_image_downloads: maximum image size lookups, or nil for unlimited
     # * download_image_options: supports reject_invalid_images (default false)
+    # * inline_image_data: return full data URLs in image results (default false)
     # * fetch_all_image_meta: enable image validity metadata (default false)
     # * max_html_bytes: maximum HTML size before parsing, or nil for unlimited
     # * url_filter: callable receiving a URI before each request; false/nil rejects it
@@ -65,6 +66,7 @@ module MetaInspector
                                                                 max_image_downloads: @max_image_downloads,
                                                                 download_image_options: options[:download_image_options],
                                                                 fetch_all_image_meta: options[:fetch_all_image_meta],
+                                                                inline_image_data: options[:inline_image_data],
                                                                 image_downloader: MetaInspector::ImageDownloader.new(@http_session, @url, options))
     end
 

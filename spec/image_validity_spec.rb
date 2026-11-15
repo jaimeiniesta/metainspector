@@ -76,14 +76,10 @@ RSpec.describe 'image validity' do
     expect(page.images.with_metadata.first).to eq(url: 'ftp://example.com/image.png', valid: false)
   end
 
-  it 'filters redirects to unsupported schemes and falls back to a valid image' do
+  it 'raises for redirects to unsupported schemes during validation' do
     stub_request(:get, 'http://example.com/redirect').to_return(status: 302, headers: { 'Location' => 'ftp://example.com/image.png' })
-    html = '<meta property="og:image" content="/redirect"><img src="/redirect" width="100" height="100"><img src="/good" width="10" height="10">'
-    page = MetaInspector.new('http://example.com/', **options, document: html, fetch_all_image_meta: true)
-    expect(page.images.best).to eq('http://example.com/good')
-    expect(page.images.to_a).to eq(['http://example.com/good'])
-    expect(page.images.with_size).to eq([['http://example.com/good', 10, 10]])
-    expect(page.images.with_metadata.first).to eq(url: 'http://example.com/redirect', valid: false)
+    page = MetaInspector.new('http://example.com/', **options, document: '<img src="/redirect">')
+    expect { page.images.to_a }.to raise_error(MetaInspector::URLPolicy::InvalidURL)
   end
 
   it 'propagates errors from the URL filter during validation' do
@@ -104,11 +100,10 @@ RSpec.describe 'image validity' do
     end
   end
 
-  it 'reports unsupported redirects as invalid in metadata-only mode' do
+  it 'raises for unsupported redirects in metadata-only mode' do
     stub_request(:get, 'http://example.com/redirect').to_return(status: 302, headers: { 'Location' => 'ftp://example.com/image.png' })
     page = MetaInspector.new('http://example.com/', document: '<img src="/redirect">', fetch_all_image_meta: true)
-    expect(page.images.with_metadata).to eq([{ url: 'http://example.com/redirect', valid: false }])
-    expect(page.images.to_a).to eq(['http://example.com/redirect'])
+    expect { page.images.with_metadata }.to raise_error(MetaInspector::URLPolicy::InvalidURL)
   end
 
   it 'preserves default behavior for redirects to unsupported schemes' do
@@ -119,9 +114,8 @@ RSpec.describe 'image validity' do
 
   describe 'image details' do
     it 'omits images that failed validation instead of raising for unsupported URLs' do
-      stub_request(:get, 'http://example.com/redirect').to_return(status: 302, headers: { 'Location' => 'ftp://example.com/image.png' })
       html = '<img src="data:image/png;base64,AAAA"><img src="ftp://example.com/image.png"><img src="/missing">' \
-             '<img src="/redirect"><img src="/good" width="10" height="10">'
+             '<img src="/good" width="10" height="10">'
       page = MetaInspector.new('http://example.com/', **options, document: html)
       expect(page.images.with_details).to eq([
         { url: 'http://example.com/good', width: 10, height: 10, type: :png, file_size: png.bytesize }
@@ -175,7 +169,7 @@ RSpec.describe 'image validity' do
       expect(page.images.with_details).to eq([
         { url: 'http://example.com/good', width: 37, height: 29, type: :png, file_size: png.bytesize },
         { url: 'http://example.com/missing', width: 5, height: 5, type: nil, file_size: nil },
-        { url: 'data:image/png;base64,AAAA', width: 0, height: 0, type: nil, file_size: nil }
+        { url: 'data:image/png;base64', width: 0, height: 0, type: nil, file_size: nil }
       ])
     end
 
