@@ -161,6 +161,20 @@ describe MetaInspector::Document do
     it "should get the title" do
       expect(doc.title).to eq("Hello From Passed Html")
     end
+
+    it 'returns nil content type and response, since no request was made' do
+      expect do
+        expect(doc.content_type).to be_nil
+        expect(doc.response).to be_nil
+      end.not_to output.to_stderr
+    end
+
+    it 'serializes to_hash with nil content type and response' do
+      hash = doc.to_hash
+
+      expect(hash).to include('title' => 'Hello From Passed Html', 'content_type' => nil, 'response' => nil)
+      expect(hash['links']['internal']).to eq(['http://cnn.com/hello'])
+    end
   end
 
   it "should return a String as to_s" do
