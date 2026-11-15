@@ -78,8 +78,8 @@ module MetaInspector
 
     delegate [:parsed, :language, :title, :best_title, :author, :best_author,
               :h1, :h2, :h3, :h4, :h5, :h6, :description, :best_description, :links,
-              :images, :iframes, :iframe_sources, :feeds, :feed, :charset, :meta_tags,
-              :meta_tag, :meta, :favicon,
+              :images, :iframes, :iframe_sources, :feeds, :charset, :meta_tags,
+              :meta_tag, :meta,
               :head_links, :stylesheets, :canonicals] => :@parser
 
     # Returns all document data as a nested Hash

@@ -4,6 +4,10 @@ describe MetaInspector::Parser do
   let(:doc)    { MetaInspector::Document.new('http://pagerankalert.com') }
   let(:parser) { MetaInspector::Parser.new(doc) }
 
+  it 'does not expose the obsolete feed method' do
+    expect(parser).not_to respond_to(:feed)
+  end
+
   it "should have a Nokogiri::HTML::Document as parsed" do
     expect(parser.parsed.class).to eq(Nokogiri::HTML::Document)
   end

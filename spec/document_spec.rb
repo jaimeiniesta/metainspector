@@ -1,6 +1,50 @@
 require 'spec_helper'
 
 describe MetaInspector::Document do
+  describe 'public API' do
+    let(:html) do
+      <<~HTML
+        <html><head>
+          <link rel="icon" href="/icon.png">
+          <link rel="alternate" type="application/rss+xml" title="News" href="/feed.xml">
+        </head><body></body></html>
+      HTML
+    end
+    let(:page) { MetaInspector.new('https://example.com/', document: html) }
+
+    it 'does not expose the obsolete feed and favicon methods' do
+      expect(page).not_to respond_to(:feed, :favicon)
+    end
+
+    it 'exposes feeds through the plural API' do
+      expect(page.feeds).to eq([
+        { title: 'News', href: 'https://example.com/feed.xml', type: 'application/rss+xml' }
+      ])
+    end
+
+    it 'exposes the favicon through the images API' do
+      expect(page.images.favicon).to eq('https://example.com/icon.png')
+    end
+
+    ['<html></html>', nil].each do |document|
+      context "with #{document ? 'empty' : 'populated'} HTML" do
+        before do
+          stub_request(:get, 'https://example.com/').to_return(
+            body: document || html, headers: { 'Content-Type' => 'text/html' }
+          )
+        end
+
+        MetaInspector::Document.public_instance_methods(false).sort.each do |method|
+          it "can call ##{method}" do
+            fetched_page = MetaInspector.new('https://example.com/', download_images: false)
+
+            expect { fetched_page.public_send(method) }.not_to raise_error
+          end
+        end
+      end
+    end
+  end
+
   describe 'max_html_bytes option' do
     it 'rejects oversized supplied HTML before parsing' do
       expect do
