@@ -76,6 +76,43 @@ describe MetaInspector::URL do
     expect(url.url).to eq('http://example.com/foo')
   end
 
+  [
+    'http://example.com/foo?b=2&a=1',
+    'http://example.com/foo?tag=x&tag=y',
+    'http://example.com/foo?q=a+b'
+  ].each do |untracked|
+    it "should leave the query of an untracked url unchanged (#{untracked})" do
+      expect(MetaInspector::URL.new(untracked).untracked_url).to eq(untracked)
+    end
+  end
+
+  it "should keep the order, repeated keys and encoding of non-tracking parameters" do
+    url = MetaInspector::URL.new('http://example.com/foo?tag=x&utm_source=news&tag=y&q=a+b&a=1')
+    expect(url.untracked_url).to eq('http://example.com/foo?tag=x&tag=y&q=a+b&a=1')
+  end
+
+  it "should remove every occurrence of a repeated tracking parameter" do
+    url = MetaInspector::URL.new('http://example.com/foo?utm_source=a&x=1&utm_source=b')
+    expect(url.untracked_url).to eq('http://example.com/foo?x=1')
+  end
+
+  it "should keep the fragment when removing tracking parameters" do
+    url = MetaInspector::URL.new('http://example.com/foo?a=1&utm_source=x#top')
+    expect(url.untracked_url).to eq('http://example.com/foo?a=1#top')
+  end
+
+  it "should remove percent-encoded tracking parameters" do
+    url = MetaInspector::URL.new('http://example.com/foo?a=1&utm%5Fsource=x', normalize: false)
+    expect(url.tracked?).to be true
+    expect(url.untracked_url).to eq('http://example.com/foo?a=1')
+  end
+
+  it "should keep the order and repeated keys of non-tracking parameters when untracking" do
+    url = MetaInspector::URL.new('http://example.com/foo?b=2&tag=x&utm_campaign=sale&tag=y&a=1')
+    url.untrack!
+    expect(url.url).to eq('http://example.com/foo?b=2&tag=x&tag=y&a=1')
+  end
+
   it "should say if the url is tracked" do
     expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_source=1234').tracked?).to be true
     expect(MetaInspector::URL.new('http://example.com/foo?not_utm_thing=bar&utm_medium=1234').tracked?).to be true

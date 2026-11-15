@@ -33,11 +33,15 @@ module MetaInspector
       return found_tracking_params.any?
     end
 
+    # Removes only the tracking key=value pairs, keeping the rest of the
+    # query string as written: order, repeated keys and encoding.
     def untracked_url
       u = parsed(url)
-      return url unless u.query_values
-      query_values = u.query_values.delete_if { |key, _| WELL_KNOWN_TRACKING_PARAMS.include? key }
-      u.query_values = query_values.length > 0 ? query_values : nil
+      return url unless u.query
+      params = u.query.split('&', -1)
+      kept   = params.reject { |param| tracking_param?(param) }
+      return url if kept.length == params.length
+      u.query = kept.empty? ? nil : kept.join('&')
       u.to_s
     end
 
@@ -72,6 +76,11 @@ module MetaInspector
 
     def self.defaults
       { :normalize => true }
+    end
+
+    def tracking_param?(param)
+      key = Addressable::URI.unencode_component(param.split('=', 2).first)
+      WELL_KNOWN_TRACKING_PARAMS.include?(key)
     end
 
     # Adds 'http' as default scheme, if there is none
