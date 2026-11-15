@@ -99,4 +99,83 @@ RSpec.describe 'runnable examples' do
       expect(a_request(:get, 'https://www.example.com/')).to have_been_made.once
     end
   end
+
+  describe 'responsive_images' do
+    it 'lists src and srcset candidates in document order' do
+      stub_page('/', <<~HTML)
+        <meta property="og:image" content="/og.png">
+        <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" srcset="/medium.png 2x, /large.png 1000w">
+        <picture><source srcset="/wide.webp"><img src="/fallback.png"></picture>
+      HTML
+
+      stdout = run_example('responsive_images', 'http://site.example/')
+      expect(stdout.lines.grep(/^ ==> /).map(&:strip)).to eq([
+        '==> data:image/gif;base64',
+        '==> http://site.example/medium.png',
+        '==> http://site.example/large.png',
+        '==> http://site.example/wide.webp',
+        '==> http://site.example/fallback.png'
+      ])
+      expect(stdout).to include('5 image candidates found', 'BEST: http://site.example/og.png')
+      expect(stdout).not_to include('R0lGOD')
+    end
+  end
+
+  describe 'image_details' do
+    before do
+      stub_page('/', '<img src="/100x100.jpg"><img src="/10x10.jpg">')
+      stub_image('/100x100.jpg', '100x100.jpg.response')
+      stub_image('/10x10.jpg', '10x10.jpg.response')
+    end
+
+    it 'prints dimensions, type and file size, largest first' do
+      stub_page('/', '<img src="/10x10.jpg"><img src="/100x100.jpg">')
+      stdout = run_example('image_details', 'http://site.example/')
+      expect(stdout).to match(%r{100x100\.jpg 100x100 png, \d+ bytes.*10x10\.jpg 10x10 jpeg, \d+ bytes}m)
+    end
+
+    it 'respects the download limit' do
+      stdout = run_example('image_details', 'http://site.example/', '1')
+      expect(stdout).to include('http://site.example/100x100.jpg 100x100 png,',
+                                'http://site.example/10x10.jpg 0x0 unknown type, unknown size')
+      expect(a_request(:get, 'http://site.example/10x10.jpg')).not_to have_been_made
+    end
+  end
+
+  describe 'image_validation' do
+    before do
+      stub_page('/', <<~HTML)
+        <meta property="og:image" content="/missing.png">
+        <img src="/10x10.jpg"><img src="/broken.png">
+      HTML
+      stub_image('/10x10.jpg', '10x10.jpg.response')
+      stub_page('/broken.png', '<title>Not an image</title>')
+      stub_page('/missing.png', '<title>Missing</title>', status: 404)
+    end
+
+    it 'reports validity and skips invalid images' do
+      stdout = run_example('image_validation', 'http://site.example/')
+      expect(stdout).to include('http://site.example/10x10.jpg: valid',
+                                'http://site.example/broken.png: invalid',
+                                'BEST: http://site.example/10x10.jpg')
+      filtered = stdout.split("images remain after validation...\n", 2).last
+      expect(filtered).to include(' ==> http://site.example/10x10.jpg')
+      expect(filtered).not_to include('broken.png', 'missing.png')
+      expect(a_request(:get, 'http://site.example/missing.png')).to have_been_made.once
+    end
+
+    it 'reports images beyond the download limit as not checked' do
+      stdout = run_example('image_validation', 'http://site.example/', '1')
+      expect(stdout).to include('http://site.example/10x10.jpg: valid',
+                                'http://site.example/broken.png: not checked')
+      expect(a_request(:get, 'http://site.example/broken.png')).not_to have_been_made
+      expect(a_request(:get, 'http://site.example/missing.png')).not_to have_been_made
+    end
+
+    it 'can run twice without warnings' do
+      expect {
+        2.times { run_example('image_validation', 'http://site.example/') }
+      }.not_to output.to_stderr
+    end
+  end
 end

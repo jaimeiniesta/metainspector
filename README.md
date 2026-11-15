@@ -678,6 +678,9 @@ You can also run them from inside `examples/`, for example `bundle exec ruby bas
 * `spider.rb`: follows internal links using a queue and lists the pages visited.
 * `link_checker.rb`: checks linked pages and reports broken links with their origin.
 * `faraday_redirect_options.rb`: restricts requests to allowed HTTPS hosts with `url_filter:` and logs redirects with a callback.
+* `responsive_images.rb`: lists `img[src]`, `img[srcset]` and `picture source[srcset]` candidates, plus the best image.
+* `image_details.rb <url> [max_downloads]`: prints dimensions, type and file size, largest first; image downloads default to a limit of 10.
+* `image_validation.rb <url> [max_downloads]`: reports image validity, filters invalid candidates and prints the best image; image downloads default to a limit of 10, with remaining images reported as not checked.
 
 What follows is an example of use from irb:
 
