@@ -48,4 +48,27 @@ RSpec.describe 'Unicode image URLs' do
     expect(a_request(:get, encoded)).to have_been_made.once
     expect(a_request(:get, target)).not_to have_been_made
   end
+
+  {
+    'an invalid UTF-8 host' => 'https://%C3/ñ.png',
+    'an oversized Unicode host label' => "https://#{'ñ' * 300}.com/a.png"
+  }.each do |description, malformed|
+    context "with #{description}" do
+      it 'skips a srcset candidate that cannot be normalized' do
+        page = MetaInspector.new('https://example.com/', document: %(<img srcset="#{malformed} 1x">))
+
+        expect(page.images.with_size).to eq([[malformed, 0, 0]])
+      end
+
+      it 'rejects images that cannot be normalized when validating' do
+        html = %(<meta property="og:image" content="#{malformed}"><img src="#{malformed}">)
+        page = MetaInspector.new('https://example.com/', document: html,
+          download_image_options: { reject_invalid_images: true }, fetch_all_image_meta: true)
+
+        expect(page.images.owner_suggested).to be_nil
+        expect(page.images.to_a).to eq([])
+        expect(page.images.with_metadata).to eq([{ url: malformed, valid: false }])
+      end
+    end
+  end
 end
