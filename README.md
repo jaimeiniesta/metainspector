@@ -681,6 +681,8 @@ You can also run them from inside `examples/`, for example `bundle exec ruby bas
 * `responsive_images.rb`: lists `img[src]`, `img[srcset]` and `picture source[srcset]` candidates, plus the best image.
 * `image_details.rb <url> [max_downloads]`: prints dimensions, type and file size, largest first; image downloads default to a limit of 10.
 * `image_validation.rb <url> [max_downloads]`: reports image validity, filters invalid candidates and prints the best image; image downloads default to a limit of 10, with remaining images reported as not checked.
+* `iframes.rb`: lists iframe attributes and resolved source URLs without downloading embedded documents.
+* `html_size_limit.rb <url> [max_bytes]`: skips HTML over the byte limit (default: 2 MiB). The limit applies after download and does not bound parse time.
 
 What follows is an example of use from irb:
 

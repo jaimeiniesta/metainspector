@@ -178,4 +178,29 @@ RSpec.describe 'runnable examples' do
       }.not_to output.to_stderr
     end
   end
+
+  describe 'iframes' do
+    it 'prints iframe attributes without downloading embedded documents' do
+      stub_page('/', '<iframe src=" /embed " title="Video" allowfullscreen></iframe><iframe></iframe>')
+
+      stdout = run_example('iframes', 'http://site.example/')
+      expect(stdout).to include('2 iframes found', ' ==> http://site.example/embed',
+                                'title="Video"', 'allowfullscreen=""', ' ==> (no source)')
+      expect(a_request(:get, 'http://site.example/embed')).not_to have_been_made
+    end
+  end
+
+  describe 'html_size_limit' do
+    before do
+      stub_page('/', '<title>Small page</title>'.ljust(200))
+    end
+
+    it 'parses pages within the limit' do
+      expect(run_example('html_size_limit', 'http://site.example/')).to include('TITLE: Small page')
+    end
+
+    it 'skips pages over the limit' do
+      expect(run_example('html_size_limit', 'http://site.example/', '50')).to include('Skipped:')
+    end
+  end
 end
