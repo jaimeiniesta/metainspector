@@ -47,4 +47,73 @@ describe MetaInspector do
     end
   end
 
+  describe "rel token matching" do
+    { feeds: 'alternate', stylesheets: 'stylesheet', canonicals: 'canonical' }.each do |method, keyword|
+      describe "##{method}" do
+        let(:document) do
+          %(<html><head><link #{rel_attribute} type="application/rss+xml" title="Example" href="/resource"></head></html>)
+        end
+        let(:page) { MetaInspector.new('https://example.com/page', document: document) }
+        let(:expected_link) do
+          attributes = { title: 'Example', href: 'https://example.com/resource', type: 'application/rss+xml' }
+          attributes[:rel] = rel unless method == :feeds
+          attributes
+        end
+
+        [keyword, "#{keyword} nofollow", "nofollow #{keyword}", keyword.upcase,
+         "nofollow #{keyword.capitalize}", " #{keyword}  nofollow ",
+         "#{keyword} #{keyword}", "nofollow\t#{keyword}", "nofollow\n#{keyword}",
+         "nofollow\f#{keyword}", "nofollow\r#{keyword}"].each do |value|
+          context "with rel=#{value.inspect}" do
+            let(:rel) { value }
+            let(:rel_attribute) { %(rel="#{rel}") }
+
+            it "matches the complete token and preserves the link attributes" do
+              expect(page.public_send(method)).to eq([expected_link])
+              expect(page.head_links.first[:rel]).to eq(rel)
+            end
+          end
+        end
+
+        [nil, '', 'nofollow', "not-#{keyword}", "#{keyword}-extra",
+         "nofollow,#{keyword}", "nofollow&#160;#{keyword}", "nofollow&#11;#{keyword}"].each do |value|
+          context "with rel=#{value.inspect}" do
+            let(:rel_attribute) { value.nil? ? '' : %(rel="#{value}") }
+
+            it "does not match a missing or incomplete token" do
+              expect(page.public_send(method)).to eq([])
+            end
+          end
+        end
+      end
+    end
+  end
+
+  describe "feeds with combined rel tokens" do
+    let(:page) { MetaInspector.new('https://example.com/page', document: document) }
+    let(:document) do
+      <<~HTML
+        <html><head>
+          <base href="https://feeds.example.com/blog/">
+          <link rel="alternate nofollow" type="text/html" href="page">
+          <link rel="alternate nofollow" href="missing-type">
+          <link rel="alternate nofollow" type="application/rss+xml">
+          <link rel="alternate nofollow" type="application/rss+xml" href="">
+          <link rel="alternate nofollow" type="application/rss+xml" href=" \t ">
+          <link rel="alternate nofollow" type="application/rss+xml" title="RSS" href="feed.rss">
+          <link rel="nofollow ALTERNATE" type="application/atom+xml" href="feed.atom">
+          <link rel="AlTeRnAtE nofollow" type="application/json" href="feed.json">
+        </head></html>
+      HTML
+    end
+
+    it "keeps supported feeds in document order, skips invalid feeds and resolves the base URL" do
+      expect(page.feeds).to eq([
+        { title: 'RSS', href: 'https://feeds.example.com/blog/feed.rss', type: 'application/rss+xml' },
+        { title: nil, href: 'https://feeds.example.com/blog/feed.atom', type: 'application/atom+xml' },
+        { title: nil, href: 'https://feeds.example.com/blog/feed.json', type: 'application/json' }
+      ])
+    end
+  end
+
 end
