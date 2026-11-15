@@ -75,12 +75,13 @@ RSpec.describe 'image metadata' do
     expect { page.images.with_details }.to raise_error(MetaInspector::RequestError)
   end
 
-  it 'includes responsive image candidates without fetching non-HTTP sources' do
+  it 'returns unknown metadata for an invalid inline image among responsive candidates' do
     stub_request(:get, url).to_return(body: png)
-    html = %(<picture><source srcset="#{url} 2x, data:image/png;base64,AAAA 1x"></picture>)
+    invalid_png = 'data:image/png;base64,AAAA' # Decodes to three zero bytes, not a PNG.
+    html = %(<picture><source srcset="#{url} 2x, #{invalid_png} 1x"></picture>)
     page = MetaInspector.new('https://example.com/', document: html)
     expect(page.images.with_details).to include(include(url: url, type: :png, file_size: png.bytesize))
-    expect(page.images.with_details).to include(include(url: 'data:image/png;base64,AAAA', type: nil, file_size: nil))
+    expect(page.images.with_details).to include(include(url: 'data:image/png;base64', type: nil, file_size: nil))
   end
 
   it 'sends only the page origin as referer to a cross-origin image server' do

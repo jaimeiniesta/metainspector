@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+* Decode `data:` images locally and treat other unsupported image schemes as unknown without consuming the download budget; URL-filter rejections and redirects to unsupported schemes still raise (#544).
+* Image results now omit `data:` URL payloads by default, including in `to_a` and `to_hash`. Set `inline_image_data: true` to retain full URLs; otherwise `best` and `largest` skip inline images (#545).
+
 * Fix downloading and validating image URLs containing Unicode characters while preserving their original form (#536).
 * Add opt-in `max_html_bytes` to reject oversized HTML before parsing (#273).
 * Add opt-in `images.with_details` to report image type and file size alongside dimensions (#268). When image validation is enabled, it reuses the validation lookups and, with `reject_invalid_images`, omits images that failed validation instead of raising for non-HTTP URLs. Validation now normalizes non-ASCII image URLs before requesting them, and URLs found invalid without a request no longer count toward `max_image_downloads` (#537).

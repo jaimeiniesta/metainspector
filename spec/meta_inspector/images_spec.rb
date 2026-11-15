@@ -14,7 +14,7 @@ describe MetaInspector do
       html = '<img src="/fallback.jpg" width="20" height="20" srcset="data:image/png;base64,AAAA 1x, /100x100 2x">'
       page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
 
-      expect(page.images.to_a).to include('data:image/png;base64,AAAA')
+      expect(page.images.to_a).to include('data:image/png;base64')
       expect(page.images.best).to eq('http://example.com/100x100')
       expect(WebMock).to have_requested(:get, 'http://example.com/100x100').once
     end

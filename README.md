@@ -542,6 +542,19 @@ While this is generally useful, it can be [tricky](https://github.com/sporkmonge
 
 You can disable URL normalization by passing the `normalize_url: false` option.
 
+### Inline images
+
+By default, image results replace each `data:` URL with its header before the comma,
+for example `data:image/png;base64`. This applies to the image collection, image
+metadata and size results, suggested images, favicon, and `to_hash`; raw `meta_tags`
+are unchanged. Different inline images can have the same displayed header. `best`
+and `largest` skip inline images when these placeholders are used.
+
+Pass `inline_image_data: true` to return full data URLs and allow them to compete
+for `best` and `largest`. Base64 and percent-encoded data images are decoded locally
+for dimensions and metadata, without a network request or using the download budget.
+`download_images: false` disables these lookups too.
+
 ### Image downloading
 
 Image downloading is enabled by default. `page.images.with_size` and `page.images.largest` fetch images with missing HTML dimensions; `page.images.best` also does this when there is no preferred metadata image. The page controls these image URLs, which may point to other hosts.
@@ -597,7 +610,7 @@ Validation downloads images even when HTML dimensions are present. It applies to
 the image collection, `with_size`, `with_details`, and suggested images; it does
 not validate the favicon. A failed HTTP request, an unsuccessful response, or a
 response whose dimensions FastImage cannot determine is invalid. An image URL that
-is not HTTP or HTTPS, such as a `data:` URL, is invalid without a request. URLs
+uses an unsupported scheme is invalid without a request. Valid `data:` images are decoded locally. URLs
 with non-ASCII characters are normalized before the request; results keep the
 original URL. This is a bounded image-header check, not a guarantee that the
 entire image can be downloaded or decoded.
@@ -618,16 +631,16 @@ unresolvable URL). Without `fetch_all_image_meta`, `with_metadata` does not init
 validation and returns `nil` validity values.
 
 Both options respect `download_images: false` and `max_image_downloads`. Images
-that cannot be checked because downloads are disabled or the budget is exhausted
-are retained, with unknown validity. URLs found invalid without a request do not
-count toward the limit. Suggested images and collection images share
+that cannot be checked because downloads are disabled or the HTTP budget is exhausted
+are retained, with unknown validity. Local data images and URLs found invalid without
+a request do not count toward the limit. Suggested images and collection images share
 the budget in the order they are first queried; repeated URLs reuse their results.
 Consequently the order of API calls can affect which images are checked when a
 limit is set. URL filter errors still propagate to the caller.
 
 With either option, `with_details` takes type and file size from these validation
 lookups, so each image is downloaded at most once and shares the same budget.
-Image URLs that are not HTTP or HTTPS get `nil` metadata instead of raising. With
+Unsupported image URL schemes get `nil` metadata instead of raising; redirects to unsupported schemes still raise. With
 `reject_invalid_images`, `with_details` omits images that failed validation, like
 `with_size`; images that were not checked are kept with `nil` type and file size.
 

@@ -1,6 +1,7 @@
 require 'stringio'
 require 'fastimage'
 require 'timeout'
+require 'base64'
 
 module MetaInspector
   class ImageDownloader
@@ -20,6 +21,20 @@ module MetaInspector
 
     def metadata(url, reject_invalid_url: false)
       fetch(url, metadata: true, reject_invalid_url: reject_invalid_url)
+    end
+
+    def inline_metadata(url)
+      header, payload = url.split(',', 2)
+      return nil unless payload && !payload.match?(/%(?![0-9a-fA-F]{2})/)
+
+      bytes = payload.gsub(/%([0-9a-fA-F]{2})/) { [$1.to_i(16)].pack('C') }.b
+      bytes = Base64.strict_decode64(bytes) if header.match?(/;base64\z/i)
+      dimensions = FastImage.size(StringIO.new(bytes))
+      return nil unless dimensions
+
+      { dimensions: dimensions, type: FastImage.type(StringIO.new(bytes)), file_size: bytes.bytesize }
+    rescue ArgumentError
+      nil
     end
 
     private
@@ -65,10 +80,6 @@ module MetaInspector
         file_size: file_size(status, headers, completed, bytes.bytesize) }
     rescue URLPolicy::Failure => failure
       raise failure.original
-    rescue URLPolicy::InvalidURL
-      raise unless reject_invalid_url
-
-      nil
     rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::SSLError,
            Faraday::FollowRedirects::RedirectLimitReached, URI::InvalidURIError, Timeout::Error
       nil
