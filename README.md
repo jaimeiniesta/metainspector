@@ -666,7 +666,25 @@ Web page scraping is tricky, you can expect to find different exceptions during 
 
 ## Examples
 
-You can find some sample scripts on the `examples` folder, including a basic scraping and a spider that will follow external links using a queue. What follows is an example of use from irb:
+Runnable sample scripts live in `examples/`. From the repository root, pass the URL as an argument:
+
+```sh
+bundle exec ruby examples/basic_scraping.rb https://example.com
+```
+
+You can also run them from inside `examples/`, for example `bundle exec ruby basic_scraping.rb https://example.com`. If no URL is supplied, the scripts prompt for one, except `faraday_redirect_options.rb`, which defaults to `https://example.com`.
+
+* `basic_scraping.rb`: prints the page title, metadata and links, plus the page data as JSON.
+* `spider.rb`: follows internal links using a queue and lists the pages visited.
+* `link_checker.rb`: checks linked pages and reports broken links with their origin.
+* `faraday_redirect_options.rb`: restricts requests to allowed HTTPS hosts with `url_filter:` and logs redirects with a callback.
+* `responsive_images.rb`: lists `img[src]`, `img[srcset]` and `picture source[srcset]` candidates, plus the best image.
+* `image_details.rb <url> [max_downloads]`: prints dimensions, type and file size, largest first; image downloads default to a limit of 10.
+* `image_validation.rb <url> [max_downloads]`: reports image validity, filters invalid candidates and prints the best image; image downloads default to a limit of 10, with remaining images reported as not checked.
+* `iframes.rb`: lists iframe attributes and resolved source URLs without downloading embedded documents.
+* `html_size_limit.rb <url> [max_bytes]`: skips HTML over the byte limit (default: 2 MiB). The limit applies after download and does not bound parse time.
+
+What follows is an example of use from irb:
 
 ```ruby
 $ irb

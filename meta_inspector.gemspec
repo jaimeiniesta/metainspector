@@ -24,6 +24,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'faraday-http-cache', '>= 2.8', '< 4.0'
   gem.add_dependency 'faraday-retry', '~> 2.0'
   gem.add_dependency 'addressable', '~> 2.9.1'
+  gem.add_dependency 'base64', '~> 0.3'
   gem.add_dependency 'fastimage', '~> 2.2'
   gem.add_dependency 'nesty', '~> 1.0'
 
@@ -31,8 +32,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'webmock', '~> 3.17'
   gem.add_development_dependency 'rake', '~> 13.0'
   gem.add_development_dependency 'pry', '~> 0.14'
-  gem.add_development_dependency 'puma', '~> 8.0', '>= 8.0.2'
   gem.add_development_dependency 'rubocop', '~> 1.34'
   gem.add_development_dependency 'resolv', '~> 0.8'
-  gem.add_development_dependency 'sinatra', '~> 4.2'
 end

@@ -2,9 +2,10 @@
 #
 # Usage example:
 #
-#   ruby basic_scraping.rb jaimeiniesta.com
+#   bundle exec ruby examples/basic_scraping.rb jaimeiniesta.com
 
-require '../lib/metainspector'
+require 'json'
+require_relative '../lib/metainspector'
 puts "Using MetaInspector #{MetaInspector::VERSION}"
 
 # Get the starting URL
@@ -33,4 +34,4 @@ page.links.non_http.each do |link|
 end
 
 puts "\nto_hash..."
-puts page.to_hash
+puts JSON.pretty_generate(page.to_hash)

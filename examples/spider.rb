@@ -2,9 +2,9 @@
 #
 # Usage example:
 #
-#   ruby spider.rb example.com
+#   bundle exec ruby examples/spider.rb example.com
 
-require '../lib/metainspector'
+require_relative '../lib/metainspector'
 puts "Using MetaInspector #{MetaInspector::VERSION}"
 
 # Two arrays, one for the scraping queue and one for the visited links

@@ -2,9 +2,9 @@
 #
 # Usage example:
 #
-#   ruby link_checker.rb example.com
+#   bundle exec ruby examples/link_checker.rb example.com
 
-require '../lib/metainspector'
+require_relative '../lib/metainspector'
 puts "Using MetaInspector #{MetaInspector::VERSION}"
 
 class BrokenLinkChecker
