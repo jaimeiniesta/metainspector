@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* `untracked_url` and `untrack!` remove only the `utm_*` tracking parameters and keep the rest of the query string as written, instead of sorting keys, dropping repeated keys and re-encoding values (#557).
+* `untracked_url` and `untrack!` remove only the `utm_*` tracking parameters and keep the rest of the query string as written, instead of sorting keys, dropping repeated keys and re-encoding values (#557). **The returned URL changes** for any query with more than one parameter, or with `+` in a value: `?b=2&a=1` used to come back as `?a=1&b=2` and `?q=a+b` as `?q=a%20b`. If you store `untracked_url` values to spot duplicate pages, new results may not match the ones you saved before, so normalize both sides yourself or re-generate the stored values.
 
 ## [Changes in 5.21.0](https://github.com/jaimeiniesta/metainspector/compare/v5.20.0...v5.21.0)
 
