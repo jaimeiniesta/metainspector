@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Skip whitespace-only metadata in `best_description` so later metadata and paragraph fallbacks are considered (#550).
 * Example scripts run from any directory and are verified in the test suite. New examples for responsive images, image details, image validation, iframes and `max_html_bytes`; the unused redirect test server is removed (#538).
 * Decode `data:` images locally and treat other unsupported image schemes as unknown without consuming the download budget; URL-filter rejections and redirects to unsupported schemes still raise (#544).
 * Image results now omit `data:` URL payloads by default, including in `to_a` and `to_hash`. Set `inline_image_data: true` to retain full URLs; otherwise `best` and `largest` skip inline images (#545).

@@ -287,6 +287,56 @@ describe MetaInspector do
       expect(page.best_description).to eq("the twitter description")
     end
 
+    ['', ' ', "\n\t "].each do |blank|
+      it "should skip a blank standard description (#{blank.inspect})" do
+        html = %(<html><head><meta name="description" content="#{blank}"><meta property="og:description" content="Useful Open Graph description"></head></html>)
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.best_description).to eq('Useful Open Graph description')
+        expect(page.description).to eq(blank)
+      end
+
+      it "should skip a blank Open Graph description (#{blank.inspect})" do
+        html = %(<html><head><meta property="og:description" content="#{blank}"><meta name="twitter:description" content="Useful Twitter description"></head></html>)
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.best_description).to eq('Useful Twitter description')
+      end
+
+      it "should skip a blank Twitter description (#{blank.inspect})" do
+        paragraph = 'This paragraph provides a useful description when the Twitter description is blank and no other metadata descriptions exist.'
+        html = %(<html><head><meta name="twitter:description" content="#{blank}"></head><body><p>#{paragraph}</p></body></html>)
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.best_description).to eq(paragraph)
+      end
+
+      it "should use a paragraph when all metadata descriptions are blank (#{blank.inspect})" do
+        paragraph = 'This paragraph provides a useful description when the standard, Open Graph, and Twitter metadata descriptions are all blank.'
+        html = %(<html><head><meta name="description" content="#{blank}"><meta property="og:description" content="#{blank}"><meta name="twitter:description" content="#{blank}"></head><body><p>#{paragraph}</p></body></html>)
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.best_description).to eq(paragraph)
+      end
+
+      it "should return nil when all metadata descriptions are blank and there is no paragraph (#{blank.inspect})" do
+        html = %(<html><head><meta name="description" content="#{blank}"><meta property="og:description" content="#{blank}"><meta name="twitter:description" content="#{blank}"></head></html>)
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.best_description).to be_nil
+      end
+    end
+
+    ['description', 'og:description', 'twitter:description'].each do |name|
+      it "should preserve whitespace in a useful #{name} value" do
+        description = " \n Useful description\t "
+        html = %(<html><head><meta name="#{name}" content="#{description}"></head></html>)
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.best_description).to eq(description)
+      end
+    end
+
     it "should return the secondary description if no meta tag is present" do
       page = MetaInspector.new('http://theonion-no-description.com')
 

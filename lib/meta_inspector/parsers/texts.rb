@@ -64,7 +64,7 @@ module MetaInspector
         @description ||= meta['description']
       end
 
-      # A description getter that returns the first non-nill description
+      # A description getter that returns the first non-blank description
       # from the following candidates:
       # - the standard meta description
       # - the og:description meta tag
@@ -119,7 +119,7 @@ module MetaInspector
           meta['twitter:description'],
           secondary_description
         ]
-        candidates.find { |x| !x.to_s.empty? }
+        candidates.find { |x| !x.to_s.strip.empty? }
       end
 
       # Look for the first <p> block with 120 characters or more
