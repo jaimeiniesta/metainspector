@@ -109,8 +109,11 @@ module MetaInspector
 
       # Return favicon url if exist
       def favicon
-        query = '//link[@rel="icon" or contains(@rel, "shortcut")]'
-        value = parsed.xpath(query)[0].attributes['href'].value
+        link = parsed.xpath('//link[@rel]').find do |node|
+          # Keep legacy shortcut-only links while matching whole, ASCII-insensitive tokens.
+          node['rel'].tr('A-Z', 'a-z').split(/[ \t\n\f\r]+/).any? { |rel| rel == 'icon' || rel == 'shortcut' }
+        end
+        value = link.attributes['href'].value
         @favicon ||= result_url(URL.absolutify(value, base_url, normalize: false))
       rescue
         nil

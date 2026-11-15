@@ -513,6 +513,49 @@ describe MetaInspector do
   end
 
   describe '#favicon' do
+    ['alternate icon', 'icon alternate', 'alternate icon stylesheet', 'ICON', 'AlTeRnAtE IcOn'].each do |rel|
+      it "recognizes the icon token in #{rel.inspect}" do
+        html = %(<html><head><link rel="#{rel}" href="/favicon.png"></head></html>)
+        page = MetaInspector.new('https://githubuniverse.com/', document: html)
+
+        expect(page.images.favicon).to eq('https://githubuniverse.com/favicon.png')
+      end
+    end
+
+    [" ", "\t", "\n", "\f", "\r"].each do |whitespace|
+      it "splits rel tokens on ASCII whitespace #{whitespace.inspect}" do
+        html = %(<html><head><link rel="#{whitespace}alternate#{whitespace}ICON#{whitespace}" href="/favicon.png"></head></html>)
+        page = MetaInspector.new('https://githubuniverse.com/', document: html)
+
+        expect(page.images.favicon).to eq('https://githubuniverse.com/favicon.png')
+      end
+    end
+
+    ['apple-touch-icon', 'mask-icon', 'iconic', 'not-shortcut', 'shortcut-other',
+     "alternate\u00a0icon", "alternate\vicon", '', nil].each do |rel|
+      it "does not treat #{rel.inspect} as a favicon relationship" do
+        attribute = rel.nil? ? '' : %(rel="#{rel}")
+        html = %(<html><head><link #{attribute} href="/other.png"></head></html>)
+        page = MetaInspector.new('https://githubuniverse.com/', document: html)
+
+        expect(page.images.favicon).to be_nil
+      end
+    end
+
+    it 'uses the first matching link in document order' do
+      html = <<~HTML
+        <html><head>
+          <link rel="apple-touch-icon" href="/touch.png">
+          <link rel="not-shortcut" href="/other.png">
+          <link rel="alternate ICON" href="/first.png">
+          <link rel="icon" href="/second.png">
+        </head></html>
+      HTML
+      page = MetaInspector.new('https://githubuniverse.com/', document: html)
+
+      expect(page.images.favicon).to eq('https://githubuniverse.com/first.png')
+    end
+
     it "should get favicon link when marked as icon" do
       page = MetaInspector.new('http://pagerankalert.com/')
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Match favicon `rel` tokens case-insensitively across ASCII whitespace, including `alternate icon`, while rejecting unrelated substrings and retaining legacy `shortcut` links (#548).
 * Match feed, stylesheet and canonical `rel` keywords case-insensitively within ASCII whitespace-separated token lists (#549).
 * Skip whitespace-only metadata in `best_description` so later metadata and paragraph fallbacks are considered (#550).
 * Example scripts run from any directory and are verified in the test suite. New examples for responsive images, image details, image validation, iframes and `max_html_bytes`; the unused redirect test server is removed (#538).
