@@ -215,6 +215,57 @@ describe MetaInspector do
     end
   end
 
+  describe 'Base element lookup' do
+    # Searching the whole document for <base> once per link, image, iframe or
+    # <link> made these methods take quadratic time on large pages (#573).
+    callers = {
+      'links.all'      => ->(page) { page.links.all },
+      'images.to_a'    => ->(page) { page.images.to_a },
+      'iframe_sources' => ->(page) { page.iframe_sources },
+      'head_links'     => ->(page) { page.head_links },
+      'feeds'          => ->(page) { page.feeds }
+    }
+
+    { 'without a base element' => '', 'with a base element' => '<base href="/dir/">' }.each do |name, base|
+      context name do
+        let(:html) do
+          <<~HTML
+            <html><head>#{base}
+            <link rel="stylesheet" href="a.css"><link rel="stylesheet" href="b.css">
+            <link rel="alternate" type="application/rss+xml" href="a.xml">
+            <link rel="alternate" type="application/atom+xml" href="b.xml">
+            </head><body>
+            <a href="a">a</a><a href="b">b</a><a href="c">c</a>
+            <img src="a.png"><img src="b.png"><img srcset="c.png 1x, d.png 2x">
+            <iframe src="a.html"></iframe><iframe src="b.html"></iframe>
+            </body></html>
+          HTML
+        end
+        let(:page) { MetaInspector.new('http://example.com/', document: html) }
+
+        callers.each do |method, call|
+          it "searches the document for it only once for #{method}" do
+            allow(page.parsed).to receive(:search).and_call_original
+
+            call.call(page)
+
+            expect(page.parsed).to have_received(:search).with('base').once
+          end
+        end
+      end
+    end
+
+    it 'keeps following the page URL when there is no base element' do
+      page = MetaInspector.new('http://example.com/?utm_source=feed', document: '<html><body><a href="a">a</a></body></html>')
+
+      expect(page.links.base_url).to eq('http://example.com/?utm_source=feed')
+
+      page.untrack!
+
+      expect(page.links.base_url).to eq('http://example.com/')
+    end
+  end
+
   describe 'Non-HTTP links' do
     before(:each) do
       @m = MetaInspector.new('http://example.com/nonhttp')
