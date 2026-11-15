@@ -672,11 +672,12 @@ Runnable sample scripts live in `examples/`. From the repository root, pass the 
 bundle exec ruby examples/basic_scraping.rb https://example.com
 ```
 
-You can also run them from inside `examples/`, for example `bundle exec ruby basic_scraping.rb https://example.com`. If no URL is supplied, these scripts prompt for one.
+You can also run them from inside `examples/`, for example `bundle exec ruby basic_scraping.rb https://example.com`. If no URL is supplied, the scripts prompt for one, except `faraday_redirect_options.rb`, which defaults to `https://example.com`.
 
 * `basic_scraping.rb`: prints the page title, metadata and links, plus the page data as JSON.
 * `spider.rb`: follows internal links using a queue and lists the pages visited.
 * `link_checker.rb`: checks linked pages and reports broken links with their origin.
+* `faraday_redirect_options.rb`: restricts requests to allowed HTTPS hosts with `url_filter:` and logs redirects with a callback.
 
 What follows is an example of use from irb:
 

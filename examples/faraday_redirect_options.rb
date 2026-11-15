@@ -2,8 +2,8 @@
 # requests. A redirect callback can also observe redirects, but it is not a
 # substitute for url_filter: it does not check the initial request.
 #
-# Usage from the examples directory:
-#   bundle exec ruby faraday_redirect_options.rb https://example.com
+# Usage from the repository root:
+#   bundle exec ruby examples/faraday_redirect_options.rb https://example.com
 #
 # Choose hosts under your control for your application. A hostname allowlist
 # alone does not prevent DNS rebinding or compromised DNS; use network egress
