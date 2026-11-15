@@ -16,6 +16,7 @@ module MetaInspector
         @reject_invalid_images = (options[:download_image_options] || {})[:reject_invalid_images]
         @fetch_all_image_meta = options[:fetch_all_image_meta]
         @image_sizes = {}
+        @image_metadata = {}
         @download_attempts = 0
         super(main_parser)
       end
@@ -64,7 +65,7 @@ module MetaInspector
           end
           imgs_with_size.map! do |url, width, height, responsive|
             if width.nil? || height.nil?
-              unfetchable = responsive && !@reject_invalid_images && !@fetch_all_image_meta && !http_image_url?(url)
+              unfetchable = responsive && !validating_images? && !http_image_url?(url)
               width, height = (image_size(url) unless unfetchable) || [0, 0]
             end
             [url, width.to_i, height.to_i]
@@ -74,14 +75,18 @@ module MetaInspector
       end
 
       # Returns image details sorted by area. Metadata lookups are opt-in.
+      # With validation enabled, details reuse the validation lookups.
       def with_details
         @with_details ||= begin
-          images = unique_image_candidates
           attempts = 0
-          images.map! do |url, width, height, responsive|
+          images = unique_image_candidates.filter_map do |url, width, height, responsive|
             metadata = nil
-            if @download_images && (@max_image_downloads.nil? || attempts < @max_image_downloads)
-              request_url = url.ascii_only? ? url : URL.new(url).url
+            if validating_images?
+              next if @reject_invalid_images && image_validity(url) == false
+
+              metadata = image_metadata(url)
+            elsif @download_images && (@max_image_downloads.nil? || attempts < @max_image_downloads)
+              request_url = encoded_url(url)
               if !responsive || http_image_url?(request_url)
                 attempts += 1
                 metadata = @image_downloader.metadata(request_url)
@@ -147,19 +152,43 @@ module MetaInspector
         return @image_sizes[url] if @image_sizes.key?(url)
         return nil unless @download_images && (@max_image_downloads.nil? || @download_attempts < @max_image_downloads)
 
+        unless validating_images?
+          @download_attempts += 1
+          return @image_sizes[url] = @image_downloader.size(url)
+        end
+
+        # A URL that fails this pre-check is invalid without a request, so it
+        # does not count toward the limit. Only the pre-check is rescued:
+        # url_filter and redirect callback errors must still propagate.
+        begin
+          request_url = encoded_url(url)
+          URLPolicy.validate!(request_url)
+        rescue URLPolicy::InvalidURL
+          return @image_sizes[url] = nil
+        end
         @download_attempts += 1
-        if @reject_invalid_images || @fetch_all_image_meta
-          begin
-            URLPolicy.validate!(url)
-          rescue MetaInspector::RequestError
-            return @image_sizes[url] = nil
-          end
-        end
-        @image_sizes[url] = if @reject_invalid_images || @fetch_all_image_meta
-          @image_downloader.size(url, reject_invalid_url: true)
-        else
-          @image_downloader.size(url)
-        end
+        # Metadata comes from the same download and lets with_details reuse it.
+        metadata = @image_downloader.metadata(request_url, reject_invalid_url: true)
+        @image_metadata[url] = metadata
+        @image_sizes[url] = metadata && metadata[:dimensions]
+      end
+
+      def image_metadata(url)
+        image_size(url)
+        @image_metadata[url]
+      end
+
+      def validating_images?
+        @reject_invalid_images || @fetch_all_image_meta
+      end
+
+      # Normalizes non-ASCII URLs for the request; results keep the original.
+      # A URL that cannot be normalized is returned as is, so URL validation
+      # rejects it instead of Addressable raising.
+      def encoded_url(url)
+        url.ascii_only? ? url : URL.new(url).url
+      rescue StandardError
+        url
       end
 
       def image_validity(url)

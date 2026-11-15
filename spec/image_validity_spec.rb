@@ -44,6 +44,9 @@ RSpec.describe 'image validity' do
       page = MetaInspector.new('http://example.com/', **options, **limits, document: html)
       expect(page.images.best).to eq('http://example.com/missing')
       expect(page.images.to_a).to eq(['http://example.com/not-image'])
+      expect(page.images.with_details).to eq([
+        { url: 'http://example.com/not-image', width: 10, height: 10, type: nil, file_size: nil }
+      ])
     end
     expect(a_request(:get, 'http://example.com/missing')).not_to have_been_made
   end
@@ -112,5 +115,87 @@ RSpec.describe 'image validity' do
     stub_request(:get, 'http://example.com/redirect').to_return(status: 302, headers: { 'Location' => 'ftp://example.com/image.png' })
     page = MetaInspector.new('http://example.com/', document: '<img src="/redirect">')
     expect { page.images.with_size }.to raise_error(MetaInspector::RequestError, /HTTP or HTTPS/)
+  end
+
+  describe 'image details' do
+    it 'omits images that failed validation instead of raising for unsupported URLs' do
+      stub_request(:get, 'http://example.com/redirect').to_return(status: 302, headers: { 'Location' => 'ftp://example.com/image.png' })
+      html = '<img src="data:image/png;base64,AAAA"><img src="ftp://example.com/image.png"><img src="/missing">' \
+             '<img src="/redirect"><img src="/good" width="10" height="10">'
+      page = MetaInspector.new('http://example.com/', **options, document: html)
+      expect(page.images.with_details).to eq([
+        { url: 'http://example.com/good', width: 10, height: 10, type: :png, file_size: png.bytesize }
+      ])
+    end
+
+    it 'reuses validation lookups instead of downloading images again' do
+      page = MetaInspector.new('http://example.com/', **options, document: '<img src="/good">')
+      expect(page.images.to_a).to eq(['http://example.com/good'])
+      expect(page.images.with_details).to eq([
+        { url: 'http://example.com/good', width: 37, height: 29, type: :png, file_size: png.bytesize }
+      ])
+      expect(a_request(:get, 'http://example.com/good')).to have_been_made.once
+    end
+
+    it 'shares the validation budget and keeps unchecked images without metadata' do
+      html = '<meta property="og:image" content="/missing"><img src="/good" width="10" height="10">'
+      page = MetaInspector.new('http://example.com/', **options, document: html, max_image_downloads: 1)
+      expect(page.images.owner_suggested).to be_nil
+      expect(page.images.with_details).to eq([
+        { url: 'http://example.com/good', width: 10, height: 10, type: nil, file_size: nil }
+      ])
+      expect(a_request(:get, 'http://example.com/good')).not_to have_been_made
+    end
+
+    it 'does not spend the budget on unsupported URLs, which need no request' do
+      html = '<picture><source srcset="data:image/png;base64,AAAA 1x"></picture><img src="/good">'
+      page = MetaInspector.new('http://example.com/', **options, document: html, max_image_downloads: 1)
+      expect(page.images.with_details).to eq([
+        { url: 'http://example.com/good', width: 37, height: 29, type: :png, file_size: png.bytesize }
+      ])
+    end
+
+    it 'propagates URL filter rejections' do
+      page = MetaInspector.new('http://example.com/', **options, document: '<img src="/good">',
+        url_filter: ->(_) { false })
+      expect { page.images.with_details }.to raise_error(MetaInspector::RequestError, /url_filter/)
+    end
+
+    it 'propagates invalid URL errors raised by the redirect callback' do
+      stub_request(:get, 'http://example.com/redirect').to_return(status: 302, headers: { 'Location' => '/good' })
+      error = MetaInspector::URLPolicy::InvalidURL.new('callback failure')
+      page = MetaInspector.new('http://example.com/', **options, document: '<img src="/redirect">',
+        faraday_options: { redirect: { callback: ->(_, _) { raise error } } })
+      expect { page.images.with_details }.to raise_error { |raised| expect(raised).to equal(error) }
+    end
+
+    it 'keeps unsupported URLs and failed lookups with unknown metadata in metadata-only mode' do
+      html = '<img src="data:image/png;base64,AAAA"><img src="/missing" width="5" height="5"><img src="/good">'
+      page = MetaInspector.new('http://example.com/', document: html, fetch_all_image_meta: true)
+      expect(page.images.with_details).to eq([
+        { url: 'http://example.com/good', width: 37, height: 29, type: :png, file_size: png.bytesize },
+        { url: 'http://example.com/missing', width: 5, height: 5, type: nil, file_size: nil },
+        { url: 'data:image/png;base64,AAAA', width: 0, height: 0, type: nil, file_size: nil }
+      ])
+    end
+
+    it 'treats Unicode image URLs that cannot be normalized as invalid' do
+      html = %(<img src="http://%C3/ñ.png"><img src="/good" width="10" height="10">)
+      page = MetaInspector.new('http://example.com/', **options, document: html)
+      expect(page.images.to_a).to eq(['http://example.com/good'])
+      expect(page.images.with_details).to eq([
+        { url: 'http://example.com/good', width: 10, height: 10, type: :png, file_size: png.bytesize }
+      ])
+    end
+
+    it 'validates Unicode image URLs in their encoded form, preserving the original URL' do
+      original = "http://example.com/image\u202fname.png"
+      stub_request(:get, 'http://example.com/image%E2%80%AFname.png').to_return(body: png)
+      page = MetaInspector.new('http://example.com/', **options, document: %(<img src="#{original}">))
+      expect(page.images.to_a).to eq([original])
+      expect(page.images.with_details).to eq([
+        { url: original, width: 37, height: 29, type: :png, file_size: png.bytesize }
+      ])
+    end
   end
 end

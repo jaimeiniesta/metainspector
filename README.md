@@ -558,7 +558,7 @@ page.images.with_details
 
 The array is sorted by descending image area and contains one entry per valid, unique image URL. `type` is a FastImage symbol, or `nil` if it cannot be identified. `file_size` is the total in bytes: the `Content-Length` of an unencoded 200 response, the total in a 206 `Content-Range`, or the byte count of a fully downloaded unencoded 200 response without a `Content-Length`. It is `nil` when the total is unavailable; a partial download's byte count is never used as the total. Servers can report inaccurate lengths. Failed requests return `nil` for both fields; URL policy errors still propagate. Each HTML dimension is preserved when present; a missing dimension is obtained from the image or becomes zero if it cannot be determined.
 
-Metadata lookup attempts downloads even when HTML dimensions are present, subject to `download_images`, `max_image_downloads`, and the same request restrictions and byte/time limits described below. The limit counts attempts in HTML order, including failures. Results are cached separately from `with_size`; calling both methods can download an image twice and each method applies the limit independently.
+Metadata lookup attempts downloads even when HTML dimensions are present, subject to `download_images`, `max_image_downloads`, and the same request restrictions and byte/time limits described below. The limit counts attempts in HTML order, including failures. Results are cached separately from `with_size`; calling both methods can download an image twice and each method applies the limit independently. When `reject_invalid_images` or `fetch_all_image_meta` is enabled, `with_details` reuses the validation lookups instead, as described below.
 
 Custom page headers are preserved for images on the same origin (scheme, host and port). Requests to other origins, including image redirects, send only standard image request headers such as `User-Agent` and `Accept`; they do not receive page credentials or arbitrary custom headers. They also send a `Referer` containing only the page origin, except when an HTTPS page requests an HTTP image. The page path, query, fragment and credentials are never included in this cross-origin `Referer`.
 
@@ -594,10 +594,13 @@ page.images.best            # falls back to another suggested or page image
 ```
 
 Validation downloads images even when HTML dimensions are present. It applies to
-the image collection, `with_size`, and suggested images; it does not validate the
-favicon. A failed HTTP request, an unsuccessful response, or a response whose
-dimensions FastImage cannot determine is invalid. This is a bounded image-header
-check, not a guarantee that the entire image can be downloaded or decoded.
+the image collection, `with_size`, `with_details`, and suggested images; it does
+not validate the favicon. A failed HTTP request, an unsuccessful response, or a
+response whose dimensions FastImage cannot determine is invalid. An image URL that
+is not HTTP or HTTPS, such as a `data:` URL, is invalid without a request. URLs
+with non-ASCII characters are normalized before the request; results keep the
+original URL. This is a bounded image-header check, not a guarantee that the
+entire image can be downloaded or decoded.
 
 For validity information without filtering the collection, enable
 `fetch_all_image_meta` and call `with_metadata`:
@@ -616,10 +619,17 @@ validation and returns `nil` validity values.
 
 Both options respect `download_images: false` and `max_image_downloads`. Images
 that cannot be checked because downloads are disabled or the budget is exhausted
-are retained, with unknown validity. Suggested images and collection images share
+are retained, with unknown validity. URLs found invalid without a request do not
+count toward the limit. Suggested images and collection images share
 the budget in the order they are first queried; repeated URLs reuse their results.
 Consequently the order of API calls can affect which images are checked when a
 limit is set. URL filter errors still propagate to the caller.
+
+With either option, `with_details` takes type and file size from these validation
+lookups, so each image is downloaded at most once and shares the same budget.
+Image URLs that are not HTTP or HTTPS get `nil` metadata instead of raising. With
+`reject_invalid_images`, `with_details` omits images that failed validation, like
+`with_size`; images that were not checked are kept with `nil` type and file size.
 
 ### Caching responses
 

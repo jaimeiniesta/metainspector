@@ -18,8 +18,8 @@ module MetaInspector
       fetch(url, metadata: false, reject_invalid_url: reject_invalid_url)
     end
 
-    def metadata(url)
-      fetch(url, metadata: true, reject_invalid_url: false)
+    def metadata(url, reject_invalid_url: false)
+      fetch(url, metadata: true, reject_invalid_url: reject_invalid_url)
     end
 
     private
