@@ -81,6 +81,11 @@ page.canonicals          # an array of hashes of all head/links where rel='canon
 page.feeds               # Get rss or atom links in meta data fields as array of hash in the form { href: "...", title: "...", type: "..." }
 ```
 
+`page.feed` is a deprecated compatibility method that returns the first RSS or
+Atom feed's absolute URL, or `nil` if none is found. It skips JSON feeds. Each
+call emits a deprecation warning. Use `page.feeds` instead; `page.feed` is
+scheduled for removal in **6.0**.
+
 ### Texts
 
 ```ruby
@@ -133,6 +138,10 @@ page.images.with_details # image hashes with dimensions, type and file size (dow
 page.images.best         # Most relevant image from og:image, twitter:image, or parsely-image-url; falls back to page.images.largest
 page.images.favicon      # absolute URL to the favicon
 ```
+
+`page.favicon` is a deprecated shortcut for `page.images.favicon`, returning the
+same URL or `nil`. Each call emits a deprecation warning. Use
+`page.images.favicon` instead; `page.favicon` is scheduled for removal in **6.0**.
 
 The collection includes `img[src]`, `img[srcset]`, and `source[srcset]` inside
 `picture`, resolved to absolute URLs and deduplicated. Elements appear in document

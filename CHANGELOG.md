@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Restore working `page.feed` and `page.favicon` compatibility methods with deprecation warnings and removal scheduled for 6.0. `feed` returns the first RSS/Atom URL (or `nil`), and `favicon` returns `images.favicon`. Migrate to `page.feeds` and `page.images.favicon` (#547).
 * Match favicon `rel` tokens case-insensitively across ASCII whitespace, including `alternate icon`, while rejecting unrelated substrings and retaining legacy `shortcut` links (#548).
 * Match feed, stylesheet and canonical `rel` keywords case-insensitively within ASCII whitespace-separated token lists (#549).
 * Skip whitespace-only metadata in `best_description` so later metadata and paragraph fallbacks are considered (#550).
