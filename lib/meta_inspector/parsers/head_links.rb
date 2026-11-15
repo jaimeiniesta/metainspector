@@ -21,16 +21,17 @@ module MetaInspector
       end
 
       def stylesheets
-        @stylesheets ||= head_links.select { |hl| hl[:rel] == 'stylesheet' }
+        @stylesheets ||= head_links.select { |hl| rel_includes?(hl[:rel], 'stylesheet') }
       end
 
       def canonicals
-        @canonicals ||= head_links.select { |hl| hl[:rel] == 'canonical' }
+        @canonicals ||= head_links.select { |hl| rel_includes?(hl[:rel], 'canonical') }
       end
 
       def feeds
         @feeds ||=
-          parsed.search("//link[@rel='alternate']").map do |link|
+          parsed.search('//link[@rel]').map do |link|
+            next unless rel_includes?(link['rel'], 'alternate')
             next if !KNOWN_FEED_TYPES.include?(link["type"]) || link["href"].to_s.strip == ''
 
             {
@@ -39,6 +40,12 @@ module MetaInspector
               type: link["type"]
             }
           end.compact
+      end
+
+      private
+
+      def rel_includes?(rel, keyword)
+        rel.to_s.downcase(:ascii).split(/[ \t\n\f\r]+/).include?(keyword)
       end
     end
   end
