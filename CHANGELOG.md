@@ -1,6 +1,6 @@
 # MetaInspector Changelog
 
-## Unreleased
+## [Changes in 5.21.0](https://github.com/jaimeiniesta/metainspector/compare/v5.20.0...v5.21.0)
 
 * Restore working `page.feed` and `page.favicon` compatibility methods with deprecation warnings and removal scheduled for 6.0. `feed` returns the first RSS/Atom URL (or `nil`), and `favicon` returns `images.favicon`. Migrate to `page.feeds` and `page.images.favicon` (#547).
 * Match favicon `rel` tokens case-insensitively across ASCII whitespace, including `alternate icon`, while rejecting unrelated substrings and retaining legacy `shortcut` links (#548).
@@ -9,8 +9,9 @@
 * Example scripts run from any directory and are verified in the test suite. New examples for responsive images, image details, image validation, iframes and `max_html_bytes`; the unused redirect test server is removed (#538).
 * Decode `data:` images locally and treat other unsupported image schemes as unknown without consuming the download budget; URL-filter rejections and redirects to unsupported schemes still raise (#544).
 * Image results now omit `data:` URL payloads by default, including in `to_a` and `to_hash`. Set `inline_image_data: true` to retain full URLs; otherwise `best` and `largest` skip inline images (#545).
-
 * Fix downloading and validating image URLs containing Unicode characters while preserving their original form (#536).
+* Include responsive image candidates from `img[srcset]` and `picture source[srcset]`, alongside `img[src]`, with resolved, deduplicated URLs in document order. All candidates are included regardless of media conditions or device density; responsive candidates use downloaded dimensions for ranking (#269).
+* Add opt-in image validation with `download_image_options: { reject_invalid_images: true }` to omit invalid collection and suggested images, allowing `images.best` to fall back to another image. Use `fetch_all_image_meta: true` and `images.with_metadata` for validity information without filtering. Both options respect download controls and share a cached validation budget; unchecked images retain unknown validity (#271).
 * Add opt-in `max_html_bytes` to reject oversized HTML before parsing (#273).
 * Add opt-in `images.with_details` to report image type and file size alongside dimensions (#268). When image validation is enabled, it reuses the validation lookups and, with `reject_invalid_images`, omits images that failed validation instead of raising for non-HTTP URLs. Validation now normalizes non-ASCII image URLs before requesting them, and URLs found invalid without a request no longer count toward `max_image_downloads` (#537).
 * Add `iframes` to expose each iframe's original attributes, and `iframe_sources` to resolve their source URLs (#222).
