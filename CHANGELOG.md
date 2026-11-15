@@ -1,5 +1,9 @@
 # MetaInspector Changelog
 
+## Unreleased
+
+* `untracked_url` and `untrack!` remove only the `utm_*` tracking parameters and keep the rest of the query string as written, instead of sorting keys, dropping repeated keys and re-encoding values (#557).
+
 ## [Changes in 5.21.0](https://github.com/jaimeiniesta/metainspector/compare/v5.20.0...v5.21.0)
 
 * Restore working `page.feed` and `page.favicon` compatibility methods with deprecation warnings and removal scheduled for 6.0. `feed` returns the first RSS/Atom URL (or `nil`), and `favicon` returns `images.favicon`. Migrate to `page.feeds` and `page.images.favicon` (#547).
