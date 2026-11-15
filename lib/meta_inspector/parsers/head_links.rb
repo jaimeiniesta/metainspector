@@ -42,6 +42,14 @@ module MetaInspector
           end.compact
       end
 
+      # Deprecated compatibility method; remove in 6.0.
+      def feed
+        warn 'DEPRECATION WARNING: page.feed is deprecated and will be removed in 6.0. ' \
+             'Use page.feeds instead.'
+        first_feed = feeds.find { |link| %r{/(rss|atom)\+xml$}i.match?(link[:type]) }
+        first_feed && first_feed[:href]
+      end
+
       private
 
       def rel_includes?(rel, keyword)

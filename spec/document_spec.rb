@@ -12,8 +12,8 @@ describe MetaInspector::Document do
     end
     let(:page) { MetaInspector.new('https://example.com/', document: html) }
 
-    it 'does not expose the obsolete feed and favicon methods' do
-      expect(page).not_to respond_to(:feed, :favicon)
+    it 'retains the deprecated feed and favicon methods' do
+      expect(page).to respond_to(:feed, :favicon)
     end
 
     it 'exposes feeds through the plural API' do
@@ -24,6 +24,69 @@ describe MetaInspector::Document do
 
     it 'exposes the favicon through the images API' do
       expect(page.images.favicon).to eq('https://example.com/icon.png')
+    end
+
+    { feed: 'feeds', favicon: 'images.favicon' }.each do |method, replacement|
+      it "warns on each call to ##{method}, naming its replacement and removal version" do
+        2.times do
+          expect { page.public_send(method) }.to output(
+            "DEPRECATION WARNING: page.#{method} is deprecated and will be removed in 6.0. Use page.#{replacement} instead.\n"
+          ).to_stderr
+        end
+      end
+
+      it "returns nil from ##{method} when the document has no matching metadata" do
+        empty_page = MetaInspector.new('https://example.com/', document: '<html></html>')
+
+        expect { expect(empty_page.public_send(method)).to be_nil }.to output(/DEPRECATION/).to_stderr
+      end
+    end
+
+    it 'returns the favicon URL from the deprecated shortcut' do
+      expect { expect(page.favicon).to eq(page.images.favicon) }.to output(/DEPRECATION/).to_stderr
+    end
+
+    it 'keeps the supported APIs and serialization free of deprecation warnings' do
+      stub_request(:get, 'https://example.com/').to_return(body: html)
+      fetched_page = MetaInspector.new('https://example.com/', download_images: false)
+
+      expect do
+        fetched_page.feeds
+        fetched_page.images.favicon
+        fetched_page.to_hash
+      end.not_to output.to_stderr
+    end
+
+    describe '#feed' do
+      let(:html) do
+        <<~HTML
+          <html><head>
+            <base href="https://example.com/blog/">
+            <link rel="alternate" type="application/json" href="feed.json">
+            <link rel="alternate" type="#{first_type}" href="first.xml">
+            <link rel="alternate" type="application/rss+xml" href="second.xml">
+          </head></html>
+        HTML
+      end
+
+      ['application/rss+xml', 'application/atom+xml'].each do |type|
+        context "with #{type} first" do
+          let(:first_type) { type }
+
+          it 'returns the first RSS or Atom URL, skipping JSON and resolving the base URL' do
+            expect { expect(page.feed).to eq('https://example.com/blog/first.xml') }
+              .to output(/DEPRECATION/).to_stderr
+          end
+        end
+      end
+
+      context 'with only JSON feeds' do
+        let(:html) { '<link rel="alternate" type="application/json" href="/feed.json">' }
+
+        it 'returns nil' do
+          expect { expect(page.feed).to be_nil }.to output(/DEPRECATION/).to_stderr
+        end
+      end
     end
 
     ['<html></html>', nil].each do |document|
@@ -38,7 +101,11 @@ describe MetaInspector::Document do
           it "can call ##{method}" do
             fetched_page = MetaInspector.new('https://example.com/', download_images: false)
 
-            expect { fetched_page.public_send(method) }.not_to raise_error
+            if [:feed, :favicon].include?(method)
+              expect { fetched_page.public_send(method) }.to output(/DEPRECATION/).to_stderr
+            else
+              expect { fetched_page.public_send(method) }.not_to raise_error
+            end
           end
         end
       end
