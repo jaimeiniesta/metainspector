@@ -666,7 +666,19 @@ Web page scraping is tricky, you can expect to find different exceptions during 
 
 ## Examples
 
-You can find some sample scripts on the `examples` folder, including a basic scraping and a spider that will follow external links using a queue. What follows is an example of use from irb:
+Runnable sample scripts live in `examples/`. From the repository root, pass the URL as an argument:
+
+```sh
+bundle exec ruby examples/basic_scraping.rb https://example.com
+```
+
+You can also run them from inside `examples/`, for example `bundle exec ruby basic_scraping.rb https://example.com`. If no URL is supplied, these scripts prompt for one.
+
+* `basic_scraping.rb`: prints the page title, metadata and links, plus the page data as JSON.
+* `spider.rb`: follows internal links using a queue and lists the pages visited.
+* `link_checker.rb`: checks linked pages and reports broken links with their origin.
+
+What follows is an example of use from irb:
 
 ```ruby
 $ irb
