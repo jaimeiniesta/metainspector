@@ -52,9 +52,13 @@ module MetaInspector
         current_base_href || url
       end
 
-      # Returns the value of the href attribute on the <base /> tag, if exists
+      # Returns the value of the href attribute on the <base /> tag, if exists.
+      # Memoized, nil included, as it's needed once per link, image, iframe
+      # and head link, and searching the whole document every time is slow.
       def base_href
-        parsed.search('base').first.attributes['href'].value rescue nil
+        return @base_href if defined?(@base_href)
+
+        @base_href = parsed.search('base').first.attributes['href'].value rescue nil
       end
     end
   end
