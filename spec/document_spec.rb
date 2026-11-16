@@ -1,6 +1,57 @@
 require 'spec_helper'
+require 'json'
 
 describe MetaInspector::Document do
+  describe '#to_hash response headers' do
+    let(:url) { 'https://headers.example/' }
+    let(:page) { MetaInspector.new(url, download_images: false) }
+
+    before do
+      stub_request(:get, url).to_return(
+        body: '<title>Example</title>',
+        headers: { 'Content-Type' => 'text/html', 'X-Olaf' => header_value }
+      )
+    end
+
+    {
+      'ASCII text' => ['plain text'.b, 'plain text'],
+      'UTF-8 text' => ["\u2603", "\u2603"],
+      'text with a known encoding' => ["caf\xE9".force_encoding(Encoding::ISO_8859_1), 'café'],
+      'UTF-8 bytes in a binary string' => ["\u2603".b, "\u2603"],
+      'invalid UTF-8 bytes in a binary string' => ["snowman \xFF".b, "snowman \uFFFD"],
+      'invalid bytes in a UTF-8 string' => ["snowman \xFF", "snowman \uFFFD"]
+    }.each do |description, (value, expected)|
+      context "with #{description}" do
+        let(:header_value) { value }
+
+        it 'serializes the headers as valid UTF-8 in JSON' do
+          serialized = JSON.pretty_generate(page.to_hash)
+
+          expect(JSON.parse(serialized)['response']['headers']['x-olaf']).to eq(expected)
+          expect(page.to_hash['response']['headers']['x-olaf'].encoding).to eq(Encoding::UTF_8)
+        end
+      end
+    end
+
+    context 'when preserving the original response' do
+      let(:header_value) { "\u2603".b }
+
+      it 'leaves the raw headers and their encoding unchanged' do
+        raw_headers = page.response.headers
+        raw_value = raw_headers['x-olaf']
+        raw_value.freeze
+        raw_headers.freeze
+
+        page.to_hash
+
+        expect(page.response.headers).to equal(raw_headers)
+        expect(raw_headers['x-olaf']).to equal(raw_value)
+        expect(raw_value.bytes).to eq([0xE2, 0x98, 0x83])
+        expect(raw_value.encoding).to eq(Encoding::BINARY)
+      end
+    end
+  end
+
   describe 'public API' do
     let(:html) do
       <<~HTML
