@@ -330,6 +330,15 @@ page = MetaInspector.new(url, :encoding => 'UTF-8')
 For HTML passed with `document:`, invalid byte sequences in the string's encoding
 are replaced before parsing. The original string is still available through `page.to_s`.
 
+Legacy HTML charsets use browser-compatible supersets: GB2312 uses GBK,
+Shift_JIS uses Windows-31J, EUC-KR uses CP949, Big5 uses Big5-HKSCS, and
+ISO-8859-1 uses Windows-1252. This applies to HTTP charset declarations, HTML
+meta declarations and the encoding of supplied strings, preserving characters
+outside the strict legacy charset and the rest of the document. Declared meta
+charsets and raw response bytes are preserved. Strings tagged with one of these
+legacy encodings are converted to UTF-8 before cleanup; `page.to_s` returns the
+converted text for downloaded pages.
+
 Fetched bodies with non-ASCII-compatible encodings, such as UTF-16, UTF-32 and
 ISO-2022-JP, are converted to UTF-8 before NUL characters are removed and the HTML
 is parsed. `page.to_s` returns that UTF-8 text; the conversion preserves the raw
