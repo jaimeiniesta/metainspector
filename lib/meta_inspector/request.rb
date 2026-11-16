@@ -93,8 +93,8 @@ module MetaInspector
 
     def perform_request(session, method)
       session.public_send(method) do |req|
-        req.options.timeout      = @connection_timeout
-        req.options.open_timeout = @read_timeout
+        req.options.open_timeout = @connection_timeout
+        req.options.timeout      = @read_timeout
       end
     end
 

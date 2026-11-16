@@ -69,6 +69,30 @@ describe MetaInspector::Request do
   end
 
   describe "options it is given" do
+    [false, true].each do |head_first|
+      it "uses independent connection and read timeouts with head_first: #{head_first}" do
+        requests = []
+        stubs = Faraday::Adapter::Test::Stubs.new do |stub|
+          [:head, :get].each do |method|
+            stub.public_send(method, '/') do |env|
+              requests << [env.method, env.request.open_timeout, env.request.timeout]
+              [200, { 'Content-Type' => 'text/html' }, '<html></html>']
+            end
+          end
+        end
+        connection = Faraday.new { |faraday| faraday.adapter :test, stubs }
+        http_session = instance_double(MetaInspector::HttpSession, build: connection)
+
+        MetaInspector::Request.new(url('http://example.com'), http_session: http_session,
+                                                            head_first: head_first,
+                                                            connection_timeout: 1,
+                                                            read_timeout: 10)
+
+        methods = head_first ? [:head, :get] : [:get]
+        expect(requests).to eq(methods.map { |method| [method, 1, 10] })
+      end
+    end
+
     it "accepts a frozen faraday_options hash" do
       expect do
         MetaInspector::Request.new(url('http://example.com'), faraday_options: { ssl: { verify: true } }.freeze)
