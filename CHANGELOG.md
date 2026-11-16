@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Return only the first `<title>` in the head for `title` and `to_hash['title']`, instead of concatenating all titles (#564).
 * Fix `charset` returning `nil` for lowercase or mixed-case `http-equiv="content-type"` declarations. Read the `charset` parameter by name regardless of parameter order, spacing or case, and remove surrounding quotes (#562).
 * Fix swapped `connection_timeout` and `read_timeout` options for GET and HEAD requests (#561). The connection timeout now limits opening the connection, and the read timeout limits waiting for the response.
 * Fix garbled titles, descriptions and other text on compressed pages whose charset is declared only in the `Content-Type` header, including when custom headers enable compression (#572). Apply the charset after decompressing the response body.
