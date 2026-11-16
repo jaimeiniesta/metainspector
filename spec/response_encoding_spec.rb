@@ -1,6 +1,122 @@
 require 'spec_helper'
 require 'zlib'
 
+RSpec.describe 'legacy HTML charset labels' do
+  let(:url) { 'https://encoding.example/page' }
+
+  [
+    ['gb2312', 'GBK', '朱镕基'],
+    ['shift_jis', 'Windows-31J', '①㈱髙'],
+    ['euc-kr', 'CP949', '똠'],
+    ['big5', 'Big5-HKSCS', '嗰'],
+    ['iso-8859-1', 'Windows-1252', 'It’s €5']
+  ].each do |label, encoding, title|
+    context "with #{label} containing #{encoding} characters" do
+      let(:html) do
+        %(<html><head><meta charset="#{label}"><title>#{title}</title></head>) +
+          %(<body><h1><p>#{title}</p></h1><a href="/after">after</a></body></html>)
+      end
+      let(:bytes) { html.encode(encoding).b }
+
+      def expect_complete_page(page, title)
+        expect(page.title).to eq(title)
+        expect(page.h1).to eq([title])
+        expect(page.links.raw).to eq(['/after'])
+        expect(page.parsed.errors.select(&:fatal?)).to be_empty
+      end
+
+      it 'parses a supplied binary document without changing its bytes or declared charset' do
+        original = bytes.dup
+        page = MetaInspector.new(url, document: bytes.freeze)
+
+        expect_complete_page(page, title)
+        expect(page.charset).to eq(label)
+        expect(page.to_s).to equal(bytes)
+        expect(bytes).to eq(original)
+      end
+
+      it 'parses a supplied string tagged with the strict encoding before scrubbing' do
+        tagged = bytes.dup.force_encoding(label).freeze
+        page = MetaInspector.new(url, document: tagged)
+
+        expect_complete_page(page, title)
+        expect(page.to_s).to equal(tagged)
+      end
+
+      it 'parses a response declaring its charset only in HTML' do
+        stub_request(:get, url).to_return(body: bytes, headers: { 'Content-Type' => 'text/html' })
+
+        expect_complete_page(MetaInspector.new(url), title)
+      end
+
+      it 'parses an http-equiv declaration with mixed case and reordered attributes' do
+        body = html.sub(%(<meta charset="#{label}">),
+                        %(<META content="text/html; charset=#{label.upcase}" HTTP-EQUIV="Content-Type">))
+                   .encode(encoding).b
+        stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => 'text/html' })
+
+        expect_complete_page(MetaInspector.new(url), title)
+      end
+
+      it 'parses a charset declared only in the HTTP header, preserving the raw body' do
+        body = html.sub(%(<meta charset="#{label}">), '').encode(encoding).b
+        stub_request(:get, url).to_return(body: body, headers: {
+          'Content-Type' => "text/html; charset=#{label}"
+        })
+        page = MetaInspector.new(url)
+
+        expect_complete_page(page, title)
+        expect(page.response.body.b).to eq(body)
+        expect(page.response.body.encoding).to eq(Encoding.find(label))
+      end
+
+      it 'parses the HTTP charset after gzip decompression' do
+        stub_request(:get, url).to_return(body: Zlib.gzip(bytes), headers: {
+          'Content-Type' => "text/html; charset=#{label}", 'Content-Encoding' => 'gzip'
+        })
+
+        expect_complete_page(MetaInspector.new(url), title)
+      end
+
+      it 'supports a forced legacy encoding without discarding superset characters' do
+        stub_request(:get, url).to_return(body: bytes, headers: { 'Content-Type' => 'text/html' })
+
+        expect_complete_page(MetaInspector.new(url, encoding: label), title)
+      end
+    end
+  end
+
+  it 'keeps a UTF-8 string authoritative over a legacy meta declaration' do
+    html = '<meta charset="gb2312"><title>朱镕基</title><a href="/after">after</a>'
+
+    page = MetaInspector.new(url, document: html)
+
+    expect(page.title).to eq('朱镕基')
+    expect(page.links.raw).to eq(['/after'])
+  end
+
+  it 'uses Windows-31J character mappings for both binary and tagged strings' do
+    title = '～∥－￠￡￢'
+    html = %(<meta charset="shift_jis"><title>#{title}</title><a href="/after">after</a>)
+    bytes = html.encode('Windows-31J')
+
+    [bytes.b, bytes.dup.force_encoding('Shift_JIS')].each do |document|
+      page = MetaInspector.new(url, document: document)
+
+      expect(page.title).to eq(title)
+      expect(page.links.raw).to eq(['/after'])
+    end
+  end
+
+  it 'keeps a forced UTF-8 encoding authoritative over the HTTP charset' do
+    stub_request(:get, url).to_return(body: '<title>朱镕基</title>'.b, headers: {
+      'Content-Type' => 'text/html; charset=gb2312'
+    })
+
+    expect(MetaInspector.new(url, encoding: 'UTF-8').title).to eq('朱镕基')
+  end
+end
+
 RSpec.describe 'compressed page encoding' do
   let(:url) { 'https://encoding.example/page' }
   let(:title) { 'Café – £5' }

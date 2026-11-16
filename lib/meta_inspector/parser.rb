@@ -1,4 +1,5 @@
 require 'nokogiri'
+require_relative 'html_encoding'
 
 module MetaInspector
   ##
@@ -51,10 +52,17 @@ module MetaInspector
         if @max_html_bytes && html.bytesize > @max_html_bytes
           raise MetaInspector::ParserError, "HTML is #{html.bytesize} bytes, exceeding the limit of #{@max_html_bytes} bytes"
         end
-        html = html.scrub
+        html = HtmlEncoding.normalize(html).scrub
         # Keep libxml2's encoding detection and resource-limit validation. HTML5
         # has different limits and would otherwise accept oversized text nodes.
         document = Nokogiri::HTML(html)
+        # For untagged bytes, let Nokogiri detect the declaration, then parse
+        # again after the same conversion used for tagged strings. libxml2's
+        # Windows-31J decoder still uses some strict Shift_JIS character mappings.
+        if html.encoding == Encoding::BINARY && HtmlEncoding.superset(document.encoding)
+          html = HtmlEncoding.normalize(html.dup.force_encoding(document.encoding))
+          document = Nokogiri::HTML(html)
+        end
         limit_error = document.errors.find do |error|
           error.message.match?(/Excessive depth in document|Resource limit exceeded|xmlSAX2Characters: huge text node/)
         end
@@ -79,10 +87,10 @@ module MetaInspector
       encoding = encoding.sub(/\AISO_/i, 'ISO-').sub(/:\d+\z/, '')
       encoding = case encoding.downcase
                  when 'latin1', 'l1' then 'ISO-8859-1'
-                 # gb2312 pages commonly contain GBK characters, as browsers allow.
-                 when 'gb2312', 'gb_2312-80' then 'GBK'
+                 when 'gb_2312-80' then 'GB2312'
                  else encoding
                  end
+      encoding = HtmlEncoding.superset(encoding) || encoding
       html.encode(Encoding::UTF_8, encoding, invalid: :replace, undef: :replace)
     rescue ArgumentError, Encoding::ConverterNotFoundError
       # libxml2 supports encodings (such as UTF-7) that Ruby cannot transcode.
