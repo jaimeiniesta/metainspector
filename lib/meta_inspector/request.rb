@@ -88,7 +88,7 @@ module MetaInspector
     end
 
     def response_content_type(response)
-      response.headers['content-type']&.split(';')&.first
+      response.headers['content-type']&.split(';')&.first&.strip&.downcase
     end
 
     def perform_request(session, method)
