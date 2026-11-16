@@ -692,9 +692,17 @@ The top-level `faraday_http_cache` option still works, but it is deprecated and 
 Web page scraping is tricky, you can expect to find different exceptions during the request of the page or the parsing of its contents. MetaInspector will encapsulate these exceptions on these main errors:
 
 * `MetaInspector::TimeoutError`. When fetching a web page has taken too long.
-* `MetaInspector::RequestError`. When there has been an error on the request phase. Examples: page not found, SSL failure, invalid URI.
+* `MetaInspector::RequestError`. When there has been an error on the request phase. Examples: DNS failure, refused connection, SSL failure, invalid URI.
 * `MetaInspector::ParserError`. When there has been an error parsing the contents of the page.
 * `MetaInspector::NonHtmlError`. When the contents of the page was not HTML. See also the `allow_non_html_content` option
+
+HTTP error statuses such as 403, 404 and 500 do not raise `MetaInspector::RequestError`. Their response bodies are processed like any other page, and you can check the status through `page.response.status`:
+
+```ruby
+page = MetaInspector.new(url) # a URL that returns an HTML error page
+page.response.status         # => 404
+page.title                   # => the title of the error page
+```
 
 ## Examples
 
