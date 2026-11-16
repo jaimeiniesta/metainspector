@@ -119,7 +119,7 @@ module MetaInspector
         'meta_tags'        => meta_tags,
         'favicon'          => images.favicon,
         'response'         => response && { 'status'  => response.status,
-                                            'headers' => response.headers }
+                                            'headers' => serialized_response_headers }
       }
     end
 
@@ -129,6 +129,14 @@ module MetaInspector
     end
 
     private
+
+    def serialized_response_headers
+      response.headers.transform_values do |value|
+        # Net::HTTP returns binary strings, even when the bytes are valid UTF-8.
+        source_encoding = value.encoding == Encoding::BINARY ? Encoding::UTF_8 : value.encoding
+        value.encode(Encoding::UTF_8, source_encoding, invalid: :replace, undef: :replace)
+      end
+    end
 
     def defaults
       { :connection_timeout     => 20,
