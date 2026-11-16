@@ -1,6 +1,57 @@
 require 'spec_helper'
 require 'zlib'
 
+RSpec.describe 'conflicting page charset declarations' do
+  let(:url) { 'https://encoding.example/page' }
+  let(:html) do
+    '<html><head><meta charset=utf-8><title>中国</title></head>' \
+      '<body><p>新闻</p><meta charset=gbk><a href="/a">a</a></body></html>'
+  end
+
+  it 'uses the first meta charset when Content-Type has no charset' do
+    body = html.b
+    stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => 'text/html' })
+
+    page = MetaInspector.new(url)
+
+    expect(page.title).to eq('中国')
+    expect(page.links.raw).to eq(['/a'])
+    expect(page.response.body).to eq(body)
+    expect(page.to_s.encoding).to eq(Encoding::BINARY)
+  end
+
+  it 'preserves the HTTP charset over conflicting meta declarations' do
+    body = html.encode('GBK').b
+    stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => 'text/html; charset=GBK' })
+
+    page = MetaInspector.new(url)
+
+    expect(page.title).to eq('中国')
+    expect(page.links.raw).to eq(['/a'])
+    expect(page.to_s.encoding).to eq(Encoding.find('GBK'))
+  end
+
+  it 'preserves a forced encoding over conflicting meta declarations' do
+    stub_request(:get, url).to_return(body: html.b, headers: { 'Content-Type' => 'text/html; charset=GBK' })
+
+    page = MetaInspector.new(url, encoding: 'UTF-8')
+
+    expect(page.title).to eq('中国')
+    expect(page.links.raw).to eq(['/a'])
+  end
+
+  it 'honors a UTF-8 BOM when Content-Type has no charset' do
+    body = "\xEF\xBB\xBF".b + html.sub('charset=utf-8', 'charset=gbk').b
+    stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => 'text/html' })
+
+    page = MetaInspector.new(url)
+
+    expect(page.title).to eq('中国')
+    expect(page.links.raw).to eq(['/a'])
+    expect(page.response.body).to eq(body)
+  end
+end
+
 RSpec.describe 'compressed page encoding' do
   let(:url) { 'https://encoding.example/page' }
   let(:title) { 'Café – £5' }

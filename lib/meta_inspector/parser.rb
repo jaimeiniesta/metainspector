@@ -1,4 +1,5 @@
 require 'nokogiri'
+require_relative 'html_encoding'
 
 module MetaInspector
   ##
@@ -51,7 +52,7 @@ module MetaInspector
         if @max_html_bytes && html.bytesize > @max_html_bytes
           raise MetaInspector::ParserError, "HTML is #{html.bytesize} bytes, exceeding the limit of #{@max_html_bytes} bytes"
         end
-        document = Nokogiri::HTML(html.scrub)
+        document = Nokogiri::HTML(html.scrub, nil, HTMLEncoding.detect(html))
         limit_error = document.errors.find do |error|
           error.message.match?(/Excessive depth in document|Resource limit exceeded|xmlSAX2Characters: huge text node/)
         end

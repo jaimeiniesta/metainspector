@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Use the first meta charset declaration for binary HTML bodies, so a later conflicting declaration no longer garbles text or truncates the page. Preserve HTTP and string encodings, and prefer a byte-order mark over meta declarations (#575).
 * Parse responses declared as UTF-16, UTF-32 or ISO-2022-JP by converting non-ASCII-compatible bodies to UTF-8 before removing NUL characters. Preserve the raw response body during conversion and wrap invalid or unsupported encoding conversions in `MetaInspector::RequestError` (#568).
 * Raise `MetaInspector::ParserError` during initialization when Nokogiri truncates HTML at its nesting or content resource limits, instead of silently returning incomplete links, headings and other metadata. Other recoverable HTML and encoding errors remain tolerated (#565).
 * Convert response header values in `to_hash` to UTF-8, replacing invalid bytes, so non-ASCII headers no longer prevent JSON serialization. The original `response.headers` values are preserved (#563).
