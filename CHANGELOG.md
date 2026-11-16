@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Fix `charset` returning `nil` for lowercase or mixed-case `http-equiv="content-type"` declarations. Read the `charset` parameter by name regardless of parameter order, spacing or case, and remove surrounding quotes (#562).
 * Fix swapped `connection_timeout` and `read_timeout` options for GET and HEAD requests (#561). The connection timeout now limits opening the connection, and the read timeout limits waiting for the response.
 * Fix garbled titles, descriptions and other text on compressed pages whose charset is declared only in the `Content-Type` header, including when custom headers enable compression (#572). Apply the charset after decompressing the response body.
 * `untracked_url` and `untrack!` remove only the `utm_*` tracking parameters and keep the rest of the query string as written, instead of sorting keys, dropping repeated keys and re-encoding values (#557). **The returned URL changes** for any query with more than one parameter, or with `+` in a value: `?b=2&a=1` used to come back as `?a=1&b=2` and `?q=a+b` as `?q=a%20b`. If you store `untracked_url` values to spot duplicate pages, new results may not match the ones you saved before, so normalize both sides yourself or re-generate the stored values.
