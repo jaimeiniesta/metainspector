@@ -330,6 +330,12 @@ page = MetaInspector.new(url, :encoding => 'UTF-8')
 For HTML passed with `document:`, invalid byte sequences in the string's encoding
 are replaced before parsing. The original string is still available through `page.to_s`.
 
+Fetched bodies with non-ASCII-compatible encodings, such as UTF-16, UTF-32 and
+ISO-2022-JP, are converted to UTF-8 before NUL characters are removed and the HTML
+is parsed. `page.to_s` returns that UTF-8 text; the conversion preserves the raw
+`page.response.body`. Invalid or unsupported conversions raise
+`MetaInspector::RequestError` with the original encoding error as the cause.
+
 ### Timeout & Retries
 
 You can specify 2 different timeouts when requesting a page:

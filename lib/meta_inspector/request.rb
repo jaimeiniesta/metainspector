@@ -28,8 +28,9 @@ module MetaInspector
       return unless response
       body = response.body
       body = body.encode!(@encoding, @encoding, :invalid => :replace) if @encoding
+      body = body.encode(Encoding::UTF_8) unless body.encoding.ascii_compatible?
       body.tr("\000", '')
-    rescue ArgumentError => e
+    rescue ArgumentError, EncodingError => e
       raise MetaInspector::RequestError.new(e)
     end
 
