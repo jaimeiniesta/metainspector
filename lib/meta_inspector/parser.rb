@@ -53,10 +53,10 @@ module MetaInspector
           raise MetaInspector::ParserError, "HTML is #{html.bytesize} bytes, exceeding the limit of #{@max_html_bytes} bytes"
         end
         html = HtmlEncoding.normalize(html).scrub
-        # Keep libxml2's encoding detection and resource-limit validation. HTML5
-        # has different limits and would otherwise accept oversized text nodes.
-        document = Nokogiri::HTML(html)
-        # For untagged bytes, let Nokogiri detect the declaration, then parse
+        # Keep libxml2's resource-limit validation. HTML5 has different limits
+        # and would otherwise accept oversized text nodes.
+        document = Nokogiri::HTML(html, nil, HtmlEncoding.detect(html))
+        # For untagged bytes, use the selected declaration, then parse
         # again after the same conversion used for tagged strings. libxml2's
         # Windows-31J decoder still uses some strict Shift_JIS character mappings.
         if html.encoding == Encoding::BINARY && HtmlEncoding.superset(document.encoding)

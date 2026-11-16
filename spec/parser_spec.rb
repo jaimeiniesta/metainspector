@@ -153,6 +153,83 @@ describe MetaInspector::Parser do
   end
 
   describe 'valid bytes in a passed document' do
+    it 'uses the first charset declaration in a binary string' do
+      html = '<html><head><meta charset="utf-8"><title>中国</title></head>' \
+        '<body><p>新闻</p><meta charset="gbk"><a href="/a">a</a></body></html>'
+      page = MetaInspector.new('http://example.com', document: html.b)
+
+      expect(page.title).to eq('中国')
+      expect(page.links.raw).to eq(['/a'])
+      expect(page.parsed.encoding).to eq('UTF-8')
+    end
+
+    [
+      '<meta http-equiv="content-type" content="text/html; CHARSET = UTF-8">',
+      %q{<META CONTENT="text/html; charset='UTF-8'" HTTP-EQUIV="Content-Type">},
+      '<meta charset=UTF-8>',
+      '<meta data-note="a > b" charset="UTF-8">'
+    ].each do |declaration|
+      it "honors the first declaration written as #{declaration}" do
+        html = "<html><head>#{declaration}<meta charset=gbk><title>中国</title></head>" \
+          '<body><a href="/a">a</a></body></html>'
+        page = MetaInspector.new('http://example.com', document: html.b)
+
+        expect(page.title).to eq('中国')
+        expect(page.links.raw).to eq(['/a'])
+      end
+    end
+
+    it 'uses a legacy declaration before a conflicting modern declaration' do
+      html = '<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">' \
+        '<meta charset=UTF-8><title>Café</title><a href="/a">a</a>'
+      page = MetaInspector.new('http://example.com', document: html.encode('ISO-8859-1').b)
+
+      expect(page.title).to eq('Café')
+      expect(page.links.raw).to eq(['/a'])
+    end
+
+    it 'ignores meta-like text in comments, scripts and other attributes' do
+      html = '<!-- <meta charset=gbk> --><script>var tag = "<meta charset=gbk>";</script>' +
+        %q{<meta name="example" content='<meta charset=gbk>'>} +
+        '<meta charset=UTF-8><meta charset=gbk><title>中国</title><a href="/a">a</a>'
+      page = MetaInspector.new('http://example.com', document: html.b)
+
+      expect(page.title).to eq('中国')
+      expect(page.links.raw).to eq(['/a'])
+    end
+
+    %w[textarea xmp title iframe noembed].each do |element|
+      it "ignores meta-like text inside #{element}" do
+        html = "<#{element}><meta charset=gbk></#{element}><meta charset=UTF-8>" \
+          '<h1>中国</h1><a href="/a">a</a>'
+        page = MetaInspector.new('http://example.com', document: html.b)
+
+        expect(page.h1).to eq(['中国'])
+        expect(page.links.raw).to eq(['/a'])
+      end
+    end
+
+    %w[UTF-8 UTF-16LE UTF-16BE UTF-32LE UTF-32BE].each do |encoding|
+      it "honors a #{encoding} BOM before conflicting meta declarations" do
+        html = "\uFEFF<html><head><meta charset=gbk><title>中国</title></head>" \
+          '<body><a href="/a">a</a></body></html>'
+        body = html.encode(encoding).b.freeze
+        page = MetaInspector.new('http://example.com', document: body)
+
+        expect(page.title).to eq('中国')
+        expect(page.links.raw).to eq(['/a'])
+        expect(page.to_s).to equal(body)
+      end
+    end
+
+    it 'preserves an explicitly tagged string over conflicting meta declarations' do
+      html = '<meta charset=gbk><title>中国</title><meta charset=UTF-8><a href="/a">a</a>'
+      page = MetaInspector.new('http://example.com', document: html)
+
+      expect(page.title).to eq('中国')
+      expect(page.links.raw).to eq(['/a'])
+    end
+
     it 'preserves the valid Shift_JIS encoding name when parsing headings' do
       html = '<meta charset="Shift_JIS"><h1><p>日本</p></h1>'.encode('Shift_JIS').b
       page = MetaInspector.new('http://example.com', document: html)
