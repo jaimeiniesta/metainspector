@@ -15,8 +15,8 @@ describe MetaInspector::Parser do
       .to output(/DEPRECATION.*page\.favicon.*6\.0.*page\.images\.favicon/).to_stderr
   end
 
-  it "should have a Nokogiri::HTML::Document as parsed" do
-    expect(parser.parsed.class).to eq(Nokogiri::HTML::Document)
+  it "should have a Nokogiri::HTML5::Document as parsed" do
+    expect(parser.parsed.class).to eq(Nokogiri::HTML5::Document)
   end
 
   it "should return the document as a string" do
@@ -43,6 +43,21 @@ describe MetaInspector::Parser do
       expect do
         MetaInspector.new('http://example.com')
       end.to raise_error(MetaInspector::ParserError, /Excessive depth in document/)
+    end
+
+    it 'wraps the HTML5 tree depth limit when HTML4 would close nested paragraphs' do
+      html = '<div><h1><p>' * 220 + 'deep'
+
+      expect do
+        MetaInspector.new('http://example.com', document: html)
+      end.to raise_error(MetaInspector::ParserError, /tree depth limit/)
+    end
+
+    it 'does not introduce an attribute count limit' do
+      attributes = (1..500).map { |i| "data-#{i}=\"#{i}\"" }.join(' ')
+      page = MetaInspector.new('http://example.com', document: "<h1 #{attributes}><p>Hello</p></h1>")
+
+      expect(page.h1).to eq(['Hello'])
     end
 
     {
@@ -215,6 +230,29 @@ describe MetaInspector::Parser do
       expect(page.links.raw).to eq(['/a'])
     end
 
+    it 'preserves the valid Shift_JIS encoding name when parsing headings' do
+      html = '<meta charset="Shift_JIS"><h1><p>日本</p></h1>'.encode('Shift_JIS').b
+      page = MetaInspector.new('http://example.com', document: html)
+
+      expect(page.h1).to eq(['日本'])
+    end
+
+    %w[latin1 L1 ISO_8859-1 ISO_8859-1:1987].each do |charset|
+      it "accepts the libxml2 charset alias #{charset} for HTML5 headings" do
+        html = "<meta charset=\"#{charset}\"><h1><p>Café</p></h1>".encode('ISO-8859-1').b
+        page = MetaInspector.new('http://example.com', document: html)
+
+        expect(page.h1).to eq(['Café'])
+      end
+    end
+
+    it 'retains HTML4 support for encodings without a Ruby converter' do
+      html = '<meta charset="UTF-7"><title>Caf+AOk-</title>'.b
+      page = MetaInspector.new('http://example.com', document: html)
+
+      expect(page.title).to eq('Café')
+    end
+
     it 'preserves valid UTF-8 characters around invalid bytes' do
       html = "<title>Café \xFF 日本語</title>"
       page = MetaInspector.new('http://example.com', document: html)
@@ -234,6 +272,18 @@ describe MetaInspector::Parser do
       page = MetaInspector.new('http://example.com', document: html)
 
       expect(page.title).to eq('Café')
+    end
+
+    it 'decodes GBK characters in a binary document declaring gb2312 before HTML5 parsing' do
+      html = '<meta charset="gb2312"><h1><p>朱镕基</p></h1><a href="/after">after</a>'.encode('GBK').b
+      original = html.dup
+      page = MetaInspector.new('http://example.com', document: html.freeze)
+
+      expect(page.h1).to eq(['朱镕基'])
+      expect(page.best_title).to eq('朱镕基')
+      expect(page.links.raw).to eq(['/after'])
+      expect(page.to_s).to equal(html)
+      expect(html).to eq(original)
     end
   end
 end
