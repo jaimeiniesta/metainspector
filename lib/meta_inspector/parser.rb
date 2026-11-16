@@ -51,7 +51,7 @@ module MetaInspector
         if @max_html_bytes && html.bytesize > @max_html_bytes
           raise MetaInspector::ParserError, "HTML is #{html.bytesize} bytes, exceeding the limit of #{@max_html_bytes} bytes"
         end
-        Nokogiri::HTML(html)
+        Nokogiri::HTML(html.scrub)
       end
     end
   end
