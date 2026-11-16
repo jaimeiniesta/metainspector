@@ -482,6 +482,10 @@ If you want to override the default headers then use the `headers` option:
 page = MetaInspector.new('example.com', :headers => {'User-Agent' => 'My custom User-Agent'})
 ```
 
+The `headers` option replaces all default headers. To keep requesting uncompressed
+responses with a custom User-Agent, also pass `'Accept-Encoding' => 'identity'`.
+Otherwise, the compression middleware requests compressed responses automatically.
+
 ### Disabling SSL verification (or any other Faraday options)
 
 Faraday can be passed options via `:faraday_options`.
