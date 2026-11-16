@@ -37,8 +37,12 @@ module MetaInspector
       end
 
       def charset_from_meta_content_type
-        parsed.css("meta[http-equiv='Content-Type']")[0]
-          .attributes['content'].value.split(';')[1].split('=')[1] rescue nil
+        tag = parsed.css('meta[http-equiv]').find do |meta|
+          meta['http-equiv'].casecmp('Content-Type').zero?
+        end
+        return unless tag
+
+        tag['content'].to_s[/;\s*charset\s*=\s*["']?([^;\s"']+)/i, 1]
       end
 
       def meta_tags_by(attribute)
