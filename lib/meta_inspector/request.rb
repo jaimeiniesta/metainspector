@@ -1,5 +1,6 @@
 require 'timeout'
 require_relative 'http_session'
+require_relative 'html_encoding'
 
 module MetaInspector
 
@@ -27,7 +28,9 @@ module MetaInspector
     def read
       return unless response
       body = response.body
-      body = body.encode!(@encoding, @encoding, :invalid => :replace) if @encoding
+      body = body.dup.force_encoding(@encoding) if @encoding
+      body = HtmlEncoding.normalize(body)
+      body = body.scrub if @encoding
       body = body.encode(Encoding::UTF_8) unless body.encoding.ascii_compatible?
       body.tr("\000", '')
     rescue ArgumentError, EncodingError => e

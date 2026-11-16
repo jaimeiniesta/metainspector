@@ -1,4 +1,5 @@
 require 'nokogiri'
+require_relative 'html_encoding'
 
 module MetaInspector
   ##
@@ -51,7 +52,15 @@ module MetaInspector
         if @max_html_bytes && html.bytesize > @max_html_bytes
           raise MetaInspector::ParserError, "HTML is #{html.bytesize} bytes, exceeding the limit of #{@max_html_bytes} bytes"
         end
-        document = Nokogiri::HTML(html.scrub)
+        html = HtmlEncoding.normalize(html).scrub
+        document = Nokogiri::HTML(html)
+        # For untagged bytes, let Nokogiri detect the declaration, then parse
+        # again after the same conversion used for tagged strings. libxml2's
+        # Windows-31J decoder still uses some strict Shift_JIS character mappings.
+        if html.encoding == Encoding::BINARY && HtmlEncoding.superset(document.encoding)
+          html = HtmlEncoding.normalize(html.dup.force_encoding(document.encoding))
+          document = Nokogiri::HTML(html)
+        end
         limit_error = document.errors.find do |error|
           error.message.match?(/Excessive depth in document|Resource limit exceeded|xmlSAX2Characters: huge text node/)
         end
