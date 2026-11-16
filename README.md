@@ -327,6 +327,9 @@ If you get a `MetaInspector::RequestError, "invalid byte sequence in UTF-8"` or 
 page = MetaInspector.new(url, :encoding => 'UTF-8')
 ```
 
+For HTML passed with `document:`, invalid byte sequences in the string's encoding
+are replaced before parsing. The original string is still available through `page.to_s`.
+
 ### Timeout & Retries
 
 You can specify 2 different timeouts when requesting a page:

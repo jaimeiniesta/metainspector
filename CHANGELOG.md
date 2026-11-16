@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Replace invalid byte sequences before parsing HTML passed with `document:`, so extracted text and `to_hash` no longer raise encoding errors. The original string returned by `to_s` is preserved (#569).
 * Wrap malformed gzip/deflate responses and invalid `mailto:` page URLs or redirect destinations in `MetaInspector::RequestError`. Invalid `mailto:` image URLs return unknown dimensions instead of raising (#567).
 * Return only the first `<title>` in the head for `title` and `to_hash['title']`, instead of concatenating all titles (#564).
 * Fix `charset` returning `nil` for lowercase or mixed-case `http-equiv="content-type"` declarations. Read the `charset` parameter by name regardless of parameter order, spacing or case, and remove surrounding quotes (#562).
