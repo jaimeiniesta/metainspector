@@ -23,6 +23,86 @@ describe MetaInspector::Parser do
     expect(parser.to_s.class).to eq(String)
   end
 
+  describe 'parser resource limits' do
+    let(:deep_html) do
+      "<html><body>#{'<div>' * 256}<a href=\"/deep\">deep</a>#{'</div>' * 256}" \
+        '<a href="/after">after</a><h1>After</h1></body></html>'
+    end
+
+    it 'rejects a passed document truncated by the nesting limit' do
+      expect do
+        MetaInspector.new('http://example.com', document: deep_html)
+      end.to raise_error(MetaInspector::ParserError, /Excessive depth in document/)
+    end
+
+    it 'rejects a downloaded document truncated by the nesting limit' do
+      stub_request(:get, 'http://example.com/').to_return(
+        body: deep_html, headers: { 'Content-Type' => 'text/html' }
+      )
+
+      expect do
+        MetaInspector.new('http://example.com')
+      end.to raise_error(MetaInspector::ParserError, /Excessive depth in document/)
+    end
+
+    {
+      'text node' => ['<p>', '</p>'],
+      'attribute value' => ['<p title="', '">text</p>'],
+      'comment' => ['<!--', '-->']
+    }.each do |kind, (opening, closing)|
+      it "does not silently lose content after an oversized #{kind}" do
+        html = "#{opening}#{'x' * 12_000_000}#{closing}<a href=\"/after\">after</a>"
+
+        # Some system libxml2 versions allow oversized attributes and comments.
+        if Nokogiri::HTML(html).at_css('a')
+          page = MetaInspector.new('http://example.com', document: html)
+          expect(page.links.raw).to eq(['/after'])
+        else
+          expect do
+            MetaInspector.new('http://example.com', document: html)
+          end.to raise_error(MetaInspector::ParserError, /Resource limit exceeded|huge text node/)
+        end
+      end
+    end
+
+    it 'preserves all links and headings below the nesting limit' do
+      html = "<html><body>#{'<div>' * 250}<a href=\"/deep\">deep</a>#{'</div>' * 250}" \
+        '<a href="/after">after</a><h1>After</h1></body></html>'
+      page = MetaInspector.new('http://example.com', document: html)
+
+      expect(page.links.raw).to eq(['/deep', '/after'])
+      expect(page.h1).to eq(['After'])
+    end
+
+    it 'continues recovering from ordinary HTML errors' do
+      html = '<html><body><unexpected>text</unexpected><a href="/after">after</a></body></html>'
+      page = MetaInspector.new('http://example.com', document: html)
+
+      expect(page.parsed.errors).not_to be_empty
+      expect(page.links.raw).to eq(['/after'])
+    end
+
+    it 'continues recovering from fatal encoding errors that do not truncate the document' do
+      html = "<meta charset=\"UTF-8\"><title>caf\xE9</title><a href=\"/after\">after</a>".b
+      page = MetaInspector.new('http://example.com', document: html)
+
+      expect(page.parsed.errors.any?(&:fatal?)).to be(true)
+      expect(page.links.raw).to eq(['/after'])
+    end
+
+    it 'rejects the nonfatal huge-text diagnostic from older system libxml2 versions' do
+      parsed = Nokogiri::HTML('<p>truncated</p>')
+      error = Nokogiri::XML::SyntaxError.new('xmlSAX2Characters: huge text node')
+      allow(error).to receive(:level).and_return(2)
+      parsed.errors << error
+      allow(Nokogiri).to receive(:HTML).and_return(parsed)
+
+      expect do
+        MetaInspector.new('http://example.com', document: '<p>text</p><a href="/after">after</a>')
+      end.to raise_error(MetaInspector::ParserError, /huge text node/)
+    end
+  end
+
   describe 'invalid bytes in a passed document' do
     let(:html) do
       "<html><head><title>caf\xE9</title></head><body><h1>caf\xE9</h1></body></html>"
