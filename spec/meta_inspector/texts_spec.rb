@@ -50,6 +50,56 @@ describe MetaInspector do
     expect(page.title).to eq('An example page')
   end
 
+  describe '#title' do
+    let(:page) do
+      MetaInspector.new('http://example.com/', document: html)
+    end
+
+    context 'when the head contains multiple titles' do
+      let(:html) { '<html><head><title>One</title><title>Two</title></head></html>' }
+
+      it 'should return only the first title' do
+        expect(page.title).to eq('One')
+      end
+
+      it 'should include only the first title in to_hash' do
+        expect(page.to_hash['title']).to eq('One')
+      end
+    end
+
+    context 'when the first title is empty' do
+      let(:html) { '<html><head><title></title><title>Two</title></head></html>' }
+
+      it 'should return an empty string without falling back to a later title' do
+        expect(page.title).to eq('')
+      end
+    end
+
+    context 'when the title contains whitespace and entities' do
+      let(:html) { '<html><head><title>  One &amp; Two  </title></head></html>' }
+
+      it 'should preserve whitespace and decode entities' do
+        expect(page.title).to eq('  One & Two  ')
+      end
+    end
+
+    context 'when there is no title' do
+      let(:html) { '<html><head></head><body></body></html>' }
+
+      it 'should return an empty string' do
+        expect(page.title).to eq('')
+      end
+    end
+
+    context 'when the title is only in the body' do
+      let(:html) { '<html><head></head><body><title>Body title</title></body></html>' }
+
+      it 'should return an empty string' do
+        expect(page.title).to eq('')
+      end
+    end
+  end
+
   describe "#h1" do 
     it "should find h1 content" do
       page = MetaInspector.new('http://example.com/headings')

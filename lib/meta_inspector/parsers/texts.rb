@@ -9,10 +9,10 @@ module MetaInspector
         value unless value.to_s.empty?
       end
 
-      # Returns the parsed document title, from the content of the <title> tag
+      # Returns the parsed document title, from the content of the first <title> tag
       # within the <head> section.
       def title
-        @title ||= parsed.css('head title').inner_text rescue nil
+        @title ||= parsed.at_css('head title')&.inner_text.to_s rescue nil
       end
 
       def best_title
