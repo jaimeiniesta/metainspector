@@ -354,6 +354,12 @@ It also does not guarantee a parsing deadline: even a small document can be
 slow to parse. Ruby's `Timeout.timeout` cannot reliably interrupt Nokogiri's
 native parser; use a separately supervised process if a hard deadline is needed.
 
+Nokogiri also enforces limits on nesting depth and the size of individual text
+nodes, attribute values and comments. If one of these limits truncates the HTML,
+MetaInspector raises `MetaInspector::ParserError` during initialization, with the
+parser's diagnostic in the message. These limits apply even when `max_html_bytes`
+is `nil`. Ordinary HTML errors and recoverable encoding errors are still tolerated.
+
 You can also specify the number of `retries`, which defaults to 3.
 
 For example, this will time out after 10 seconds waiting for a connection, or after 5 seconds waiting

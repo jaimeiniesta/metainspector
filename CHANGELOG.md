@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Raise `MetaInspector::ParserError` during initialization when Nokogiri truncates HTML at its nesting or content resource limits, instead of silently returning incomplete links, headings and other metadata. Other recoverable HTML and encoding errors remain tolerated (#565).
 * Convert response header values in `to_hash` to UTF-8, replacing invalid bytes, so non-ASCII headers no longer prevent JSON serialization. The original `response.headers` values are preserved (#563).
 * Replace invalid byte sequences before parsing HTML passed with `document:`, so extracted text and `to_hash` no longer raise encoding errors. The original string returned by `to_s` is preserved (#569).
 * Wrap malformed gzip/deflate responses and invalid `mailto:` page URLs or redirect destinations in `MetaInspector::RequestError`. Invalid `mailto:` image URLs return unknown dimensions instead of raising (#567).
