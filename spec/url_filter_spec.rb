@@ -32,7 +32,8 @@ RSpec.describe 'outbound URL policy' do
     expect(a_request(:get, 'https://internal.example/page')).not_to have_been_made
   end
 
-  [RuntimeError, Faraday::TimeoutError, Faraday::ConnectionFailed, URI::InvalidURIError, Timeout::Error].each do |error_class|
+  [RuntimeError, Faraday::TimeoutError, Faraday::ConnectionFailed, URI::InvalidURIError,
+   URI::InvalidComponentError, Zlib::DataError, Timeout::Error].each do |error_class|
     [:page, :image].each do |target|
       it "preserves a filter's #{error_class} on a #{target}" do
         error = error_class.new('policy failed')

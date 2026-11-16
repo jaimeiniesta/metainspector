@@ -80,6 +80,8 @@ module MetaInspector
         file_size: file_size(status, headers, completed, bytes.bytesize) }
     rescue URLPolicy::Failure => failure
       raise failure.original
+    rescue URI::InvalidComponentError => error
+      raise MetaInspector::RequestError.new(error)
     rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::SSLError,
            Faraday::FollowRedirects::RedirectLimitReached, URI::InvalidURIError, Timeout::Error
       nil

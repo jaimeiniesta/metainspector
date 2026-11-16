@@ -20,7 +20,7 @@ module MetaInspector
         raise InvalidURL, 'URL must be HTTP or HTTPS'
       end
       uri
-    rescue URI::InvalidURIError => error
+    rescue URI::InvalidURIError, URI::InvalidComponentError => error
       raise InvalidURL.new(error)
     end
 

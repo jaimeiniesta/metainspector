@@ -43,7 +43,8 @@ module MetaInspector
       raise failure.original
     rescue Faraday::TimeoutError => e
       raise MetaInspector::TimeoutError.new(e)
-    rescue Faraday::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError, Faraday::FollowRedirects::RedirectLimitReached => e
+    rescue Faraday::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError, URI::InvalidComponentError,
+           Faraday::FollowRedirects::RedirectLimitReached, Zlib::Error => e
       raise MetaInspector::RequestError.new(e)
     end
 
