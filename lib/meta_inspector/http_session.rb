@@ -40,6 +40,8 @@ module MetaInspector
       Faraday.new(faraday_options) do |faraday|
         unless image
           faraday.request :retry, max: @retries
+          # Responses run in reverse order: decompress before applying the charset.
+          faraday.response :encoding
           faraday.request :gzip
         end
         if @allow_redirections
@@ -54,7 +56,6 @@ module MetaInspector
           faraday.use Faraday::HttpCache, **cache_options
         end
         faraday.headers.merge!(@headers || {})
-        faraday.response :encoding unless image
         faraday.adapter :net_http
       end
     end
