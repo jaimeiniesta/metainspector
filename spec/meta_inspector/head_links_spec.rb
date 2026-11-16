@@ -56,7 +56,7 @@ describe MetaInspector do
         let(:page) { MetaInspector.new('https://example.com/page', document: document) }
         let(:expected_link) do
           attributes = { title: 'Example', href: 'https://example.com/resource', type: 'application/rss+xml' }
-          attributes[:rel] = rel unless method == :feeds
+          attributes[:rel] = rel.gsub(/\r\n?/, "\n") unless method == :feeds
           attributes
         end
 
@@ -68,9 +68,9 @@ describe MetaInspector do
             let(:rel) { value }
             let(:rel_attribute) { %(rel="#{rel}") }
 
-            it "matches the complete token and preserves the link attributes" do
+            it "matches the complete token and preserves the parsed link attributes" do
               expect(page.public_send(method)).to eq([expected_link])
-              expect(page.head_links.first[:rel]).to eq(rel)
+              expect(page.head_links.first[:rel]).to eq(rel.gsub(/\r\n?/, "\n"))
             end
           end
         end

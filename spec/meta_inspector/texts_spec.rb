@@ -1,6 +1,38 @@
 require 'spec_helper'
 
 describe MetaInspector do
+  describe 'headings containing paragraphs' do
+    (1..6).each do |level|
+      {
+        '<p>Hello</p>' => 'Hello',
+        'Hi <p>there</p>' => 'Hi there',
+        '<p>Hello <em>there</em></p> friend' => 'Hello there friend'
+      }.each do |content, text|
+        it "preserves #{content.inspect} inside h#{level}" do
+          html = "<h#{level}>#{content}</h#{level}><p>Outside</p>"
+          page = MetaInspector.new('http://example.com', document: html)
+
+          expect(page.public_send("h#{level}")).to eq([text])
+        end
+      end
+    end
+
+    it 'uses the complete first heading as the best title' do
+      page = MetaInspector.new('http://example.com', document: '<h1>Hi <p>there</p></h1><h1>Later</h1>')
+
+      expect(page.best_title).to eq('Hi there')
+      expect(page.to_hash['h1']).to eq(['Hi there', 'Later'])
+    end
+
+    it 'preserves paragraph content in downloaded headings' do
+      stub_request(:get, 'http://example.com/').to_return(
+        body: '<h1><p>Hello</p></h1>', headers: { 'Content-Type' => 'text/html' }
+      )
+
+      expect(MetaInspector.new('http://example.com').h1).to eq(['Hello'])
+    end
+  end
+
   describe '#language' do
     ['en', 'en-US', 'zh-Hant-TW'].each do |language|
       it "should return the declared language #{language.inspect}" do

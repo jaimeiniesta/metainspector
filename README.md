@@ -314,8 +314,15 @@ page.to_s         # A String with the contents of the HTML document
 And the full scraped document is accessible from:
 
 ```ruby
-page.parsed  # Nokogiri doc that you can use it to get any element from the page
+page.parsed  # Nokogiri::HTML5::Document that you can use to get any element from the page
 ```
+
+The DOM follows HTML5 parsing rules, including keeping paragraphs inside headings
+produced by CMS editors. Malformed markup may produce a different tree than the
+previous HTML4 parser. HTML5 also normalizes literal CR and CRLF line endings to
+LF, including in attribute values; `to_s` still returns the original document.
+For legacy charsets that Ruby cannot convert to UTF-8 (such as UTF-7),
+MetaInspector retains the HTML4 document and its parsing behavior.
 
 ## Options
 
@@ -364,7 +371,10 @@ Nokogiri also enforces limits on nesting depth and the size of individual text
 nodes, attribute values and comments. If one of these limits truncates the HTML,
 MetaInspector raises `MetaInspector::ParserError` during initialization, with the
 parser's diagnostic in the message. These limits apply even when `max_html_bytes`
-is `nil`. Ordinary HTML errors and recoverable encoding errors are still tolerated.
+is `nil`. MetaInspector retains an HTML4 validation pass for these limits and
+encoding detection before building the HTML5 DOM. HTML5's tree depth limit also
+raises `MetaInspector::ParserError` during initialization. Ordinary HTML errors
+and recoverable encoding errors are still tolerated.
 
 You can also specify the number of `retries`, which defaults to 3.
 
