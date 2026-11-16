@@ -14,12 +14,13 @@ RSpec.describe 'legacy HTML charset labels' do
     context "with #{label} containing #{encoding} characters" do
       let(:html) do
         %(<html><head><meta charset="#{label}"><title>#{title}</title></head>) +
-          '<body><a href="/after">after</a></body></html>'
+          %(<body><h1><p>#{title}</p></h1><a href="/after">after</a></body></html>)
       end
       let(:bytes) { html.encode(encoding).b }
 
       def expect_complete_page(page, title)
         expect(page.title).to eq(title)
+        expect(page.h1).to eq([title])
         expect(page.links.raw).to eq(['/after'])
         expect(page.parsed.errors.select(&:fatal?)).to be_empty
       end
