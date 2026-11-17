@@ -111,6 +111,12 @@ page.canonicals          # an array of hashes of all head/links where rel='canon
 page.feeds               # RSS, Atom or JSON feed links as an array of hashes: { href: "...", title: "...", type: "..." }
 ```
 
+`feeds` returns `<link rel="alternate">` elements whose `type` is
+`application/rss+xml`, `application/atom+xml`, `application/feed+json` (JSON Feed
+1.1) or `application/json` (JSON Feed 1.0). The type is matched case-insensitively
+and ignoring parameters such as `; charset=utf-8`; `type` in the result is the
+attribute as written.
+
 `page.feed` is a deprecated compatibility method that returns the first RSS or
 Atom feed's absolute URL, or `nil` if none is found. It skips JSON feeds. Each
 call emits a deprecation warning. Use `page.feeds` instead; `page.feed` is

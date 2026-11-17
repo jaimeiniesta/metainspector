@@ -92,6 +92,40 @@ describe MetaInspector::Document do
       ])
     end
 
+    describe 'feed types' do
+      let(:html) do
+        <<~HTML
+          <html><head>
+            <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed.xml">
+            <link rel="alternate" type="application/feed+json" title="JSON Feed" href="/feed.json">
+            <link rel="alternate" type="Application/Atom+XML" title="Atom" href="/atom.xml">
+            <link rel="alternate" type=" application/rss+xml ; charset=utf-8" title="RSS with parameter" href="/rss2.xml">
+            <link rel="alternate" type="application/rss+xml-ish" title="Unknown" href="/other.xml">
+            <link rel="alternate" type="text/html" title="Translation" href="/es/">
+          </head></html>
+        HTML
+      end
+
+      it 'matches JSON Feed 1.1 and types with any case, whitespace or parameters, keeping the type as written' do
+        expect(page.feeds).to eq([
+          { title: 'RSS', href: 'https://example.com/feed.xml', type: 'application/rss+xml' },
+          { title: 'JSON Feed', href: 'https://example.com/feed.json', type: 'application/feed+json' },
+          { title: 'Atom', href: 'https://example.com/atom.xml', type: 'Application/Atom+XML' },
+          { title: 'RSS with parameter', href: 'https://example.com/rss2.xml',
+            type: ' application/rss+xml ; charset=utf-8' }
+        ])
+      end
+
+      it 'returns RSS or Atom feeds with parameters from the deprecated feed method' do
+        page = MetaInspector.new('https://example.com/', document: <<~HTML)
+          <link rel="alternate" type="application/feed+json" href="/feed.json">
+          <link rel="alternate" type="application/atom+xml; charset=utf-8" href="/atom.xml">
+        HTML
+
+        expect { expect(page.feed).to eq('https://example.com/atom.xml') }.to output(/DEPRECATION/).to_stderr
+      end
+    end
+
     it 'exposes the favicon through the images API' do
       expect(page.images.favicon).to eq('https://example.com/icon.png')
     end

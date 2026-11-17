@@ -3,8 +3,9 @@ module MetaInspector
     class HeadLinksParser < Base
       delegate [:parsed, :base_url] => :@main_parser
 
+      # application/json is JSON Feed 1.0; application/feed+json is 1.1.
       KNOWN_FEED_TYPES = %w[
-        application/rss+xml application/atom+xml application/json
+        application/rss+xml application/atom+xml application/json application/feed+json
       ].freeze
 
       def head_links
@@ -32,7 +33,7 @@ module MetaInspector
         @feeds ||=
           parsed.search('//link[@rel]').map do |link|
             next unless rel_includes?(link['rel'], 'alternate')
-            next if !KNOWN_FEED_TYPES.include?(link["type"]) || link["href"].to_s.strip == ''
+            next if !KNOWN_FEED_TYPES.include?(media_type(link["type"])) || link["href"].to_s.strip == ''
 
             {
               title: link["title"],
@@ -46,11 +47,17 @@ module MetaInspector
       def feed
         warn 'DEPRECATION WARNING: page.feed is deprecated and will be removed in 6.0. ' \
              'Use page.feeds instead.'
-        first_feed = feeds.find { |link| %r{/(rss|atom)\+xml$}i.match?(link[:type]) }
+        first_feed = feeds.find { |link| %w[application/rss+xml application/atom+xml].include?(media_type(link[:type])) }
         first_feed && first_feed[:href]
       end
 
       private
+
+      # Media types are case-insensitive and may carry parameters
+      # (https://mimesniff.spec.whatwg.org/#mime-type-essence).
+      def media_type(type)
+        type.to_s.split(';', 2).first.to_s.strip.downcase(:ascii)
+      end
 
       def rel_includes?(rel, keyword)
         rel.to_s.downcase(:ascii).split(/[ \t\n\f\r]+/).include?(keyword)
