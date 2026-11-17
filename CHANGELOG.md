@@ -1,6 +1,6 @@
 # MetaInspector Changelog
 
-## Unreleased
+## [Changes in 6.0.0](https://github.com/jaimeiniesta/metainspector/compare/v5.22.0...v6.0.0)
 
 * **Breaking:** `max_image_downloads` defaults to `20` instead of `nil` (unlimited), so a page with many images no longer decides how many requests `images.with_size`, `images.largest` and `images.best` make. Images past the limit that lack HTML dimensions get `[0, 0]` and can't win `largest`. Pass `max_image_downloads: nil` to keep downloading every image (#600).
 * **Breaking:** raise `ArgumentError` for unknown options, naming them, instead of ignoring them. A misspelled option, or one with a String key as read from JSON or YAML, did nothing: `MetaInspector.new(url, 'document' => html)` fetched the page instead of parsing `html`. Option keys must be Symbols (#604).
