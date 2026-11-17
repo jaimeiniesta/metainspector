@@ -50,6 +50,25 @@ describe MetaInspector::Document do
         expect(raw_value.encoding).to eq(Encoding::BINARY)
       end
     end
+
+    context 'when the response was compressed' do
+      let(:header_value) { 'unused' }
+      let(:html) { '<html><head><title>Hello</title></head></html>' }
+
+      before do
+        stub_request(:get, url).to_return(
+          body: Zlib.gzip(html),
+          headers: { 'Content-Type' => 'text/html', 'Content-Encoding' => 'gzip' }
+        )
+      end
+
+      it 'keeps header values that are not strings, like the decompressed Content-Length' do
+        headers = page.to_hash['response']['headers']
+
+        expect(headers['content-length']).to eq(html.bytesize)
+        expect(JSON.parse(JSON.generate(page.to_hash))['response']['headers']['content-length']).to eq(html.bytesize)
+      end
+    end
   end
 
   describe 'public API' do

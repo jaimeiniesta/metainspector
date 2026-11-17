@@ -130,12 +130,19 @@ module MetaInspector
 
     private
 
+    # Middleware can add headers that Net::HTTP would have normalized: faraday-gzip
+    # sets "Content-Length" to an Integer after decompressing. Downcase the names
+    # and re-encode only String values.
     def serialized_response_headers
-      response.headers.transform_values do |value|
-        # Net::HTTP returns binary strings, even when the bytes are valid UTF-8.
-        source_encoding = value.encoding == Encoding::BINARY ? Encoding::UTF_8 : value.encoding
-        value.encode(Encoding::UTF_8, source_encoding, invalid: :replace, undef: :replace)
+      response.headers.to_h do |name, value|
+        [name.to_s.downcase, value.is_a?(String) ? utf8_header_value(value) : value]
       end
+    end
+
+    # Net::HTTP returns binary strings, even when the bytes are valid UTF-8.
+    def utf8_header_value(value)
+      source_encoding = value.encoding == Encoding::BINARY ? Encoding::UTF_8 : value.encoding
+      value.encode(Encoding::UTF_8, source_encoding, invalid: :replace, undef: :replace)
     end
 
     def defaults
