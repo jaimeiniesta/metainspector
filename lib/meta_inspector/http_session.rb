@@ -25,6 +25,8 @@ module MetaInspector
 
     def build(url, image: false, origin: nil, protect_redirect_callback: false)
       URLPolicy.validate!(url)
+      # Image requests must keep trusting the initial origin after page redirects.
+      @page_origin ||= url.to_s unless image
       faraday_options = @faraday_options.merge(url: url)
       redirects = (faraday_options.delete(:redirect) || {}).dup
       if protect_redirect_callback && redirects[:callback]
@@ -49,7 +51,8 @@ module MetaInspector
           faraday.use Faraday::FollowRedirects::Middleware, **redirects
           faraday.use :cookie_jar
         end
-        faraday.use URLPolicy, @url_filter, image ? origin : nil
+        faraday.use URLPolicy, @url_filter, image ? origin : nil,
+          request_origin: @page_origin || origin
         if !image && @cache.is_a?(Hash)
           cache_options = @cache.dup
           cache_options[:serializer] ||= Marshal
