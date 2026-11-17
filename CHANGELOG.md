@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Return a page again for PDFs, binary files and deeply nested feeds with `allow_non_html_content: true`, instead of raising `MetaInspector::ParserError`. When the response is not `text/html`, parser resource limits no longer raise; if the HTML5 parser gives up, `parsed` falls back to the depth-capped HTML4 tree, as in 5.21.0. HTML responses and `max_html_bytes` are still enforced (#592).
 * Fix `to_hash` raising `NoMethodError` on compressed responses. Header values that are not Strings, such as the Integer `Content-Length` set by faraday-gzip after decompressing, are kept as they are, and header names are downcased so `content-length` can be looked up as before (#591).
 * Decode fetched UTF-16 and UTF-32 pages with a byte-order mark before removing NUL characters, even when the HTTP header has no charset. Preserve the raw response body and prefer the mark over conflicting meta declarations (#601).
 * Security: apply `max_html_bytes` while downloading page and redirect responses and during gzip/deflate decompression, before charset conversion and parsing. Oversized responses raise `MetaInspector::ParserError`; cached responses are checked as well. The 5.x default remains `nil` (unlimited); set a finite limit for untrusted URLs. Other content encodings are rejected with a finite limit ([GHSA-36j3-rh89-4gm2](https://github.com/jaimeiniesta/metainspector/security/advisories/GHSA-36j3-rh89-4gm2)).

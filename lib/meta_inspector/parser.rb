@@ -66,13 +66,10 @@ module MetaInspector
         limit_error = document.errors.find do |error|
           error.message.match?(/Excessive depth in document|Resource limit exceeded|xmlSAX2Characters: huge text node/)
         end
-        raise MetaInspector::ParserError, limit_error.message.strip if limit_error
+        raise MetaInspector::ParserError, limit_error.message.strip if limit_error && !non_html_content?
 
         if (utf8 = html5_input(html, document))
-          parsed = Nokogiri::HTML5(utf8, max_attributes: -1, parse_noscript_content_as_text: true)
-          restore_noscript_content(parsed)
-          parsed.errors.concat(document.errors)
-          parsed
+          html5_document(utf8, document)
         else
           document
         end
@@ -82,6 +79,29 @@ module MetaInspector
     end
 
     private
+
+    def html5_document(html, fallback)
+      parsed = Nokogiri::HTML5(html, max_attributes: -1, parse_noscript_content_as_text: true)
+      restore_noscript_content(parsed)
+      parsed.errors.concat(fallback.errors)
+      parsed
+    rescue ArgumentError
+      raise unless non_html_content?
+
+      # Binary files and XML feeds can nest past the HTML5 tree depth limit.
+      # The caller accepted non-HTML content, so keep libxml2's tree, whose
+      # depth is already capped, as 5.21.0 did.
+      fallback
+    end
+
+    # The caller opted in with allow_non_html_content and the response is not
+    # HTML, so resource limits that guard against truncated HTML do not apply.
+    def non_html_content?
+      return false unless @document.allow_non_html_content
+
+      content_type = @document.content_type
+      !content_type.nil? && content_type != 'text/html'
+    end
 
     def restore_noscript_content(document)
       document.css('noscript').each do |node|

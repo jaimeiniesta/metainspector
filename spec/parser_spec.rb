@@ -53,6 +53,58 @@ describe MetaInspector::Parser do
       end.to raise_error(MetaInspector::ParserError, /tree depth limit/)
     end
 
+    describe 'with allow_non_html_content' do
+      def non_html_page(body, content_type)
+        stub_request(:get, 'http://example.com/file').to_return(
+          body: body, headers: { 'Content-Type' => content_type }
+        )
+        MetaInspector.new('http://example.com/file', allow_non_html_content: true)
+      end
+
+      it 'returns binary content nested past both depth limits' do
+        body = "%PDF-1.7\n".b + ('<x>' * 500) + 'end'
+        page = non_html_page(body, 'application/pdf')
+
+        expect(page.content_type).to eq('application/pdf')
+        expect(page.to_s).to eq(body)
+        expect(page.parsed.errors.map(&:message)).to include(/Excessive depth in document/)
+        expect { page.to_hash }.not_to raise_error
+      end
+
+      it 'returns feeds nested past the HTML5 depth limit' do
+        categories = '<category term="tag"/>' * 500
+        page = non_html_page(
+          "<?xml version=\"1.0\"?><feed><title>Feed</title>#{categories}<link href=\"/entry\"/></feed>",
+          'application/atom+xml'
+        )
+
+        expect(page.content_type).to eq('application/atom+xml')
+        expect(page.parsed.at_css('feed > title').text).to eq('Feed')
+        expect(page.parsed.css('category').size).to eq(500)
+        expect { page.to_hash }.not_to raise_error
+      end
+
+      it 'still rejects HTML responses truncated by the nesting limit' do
+        stub_request(:get, 'http://example.com/').to_return(
+          body: deep_html, headers: { 'Content-Type' => 'text/html' }
+        )
+
+        expect do
+          MetaInspector.new('http://example.com', allow_non_html_content: true)
+        end.to raise_error(MetaInspector::ParserError, /Excessive depth in document/)
+      end
+
+      it 'still enforces max_html_bytes' do
+        stub_request(:get, 'http://example.com/file').to_return(
+          body: 'x' * 100, headers: { 'Content-Type' => 'application/pdf' }
+        )
+
+        expect do
+          MetaInspector.new('http://example.com/file', allow_non_html_content: true, max_html_bytes: 10)
+        end.to raise_error(MetaInspector::ParserError)
+      end
+    end
+
     it 'does not introduce an attribute count limit' do
       attributes = (1..500).map { |i| "data-#{i}=\"#{i}\"" }.join(' ')
       page = MetaInspector.new('http://example.com', document: "<h1 #{attributes}><p>Hello</p></h1>")
