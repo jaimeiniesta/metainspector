@@ -1,4 +1,3 @@
-require 'timeout'
 require_relative 'http_session'
 require_relative 'html_encoding'
 
@@ -59,7 +58,7 @@ module MetaInspector
       @response ||= fetch
     rescue URLPolicy::Failure => failure
       raise failure.original
-    rescue Faraday::TimeoutError => e
+    rescue Faraday::TimeoutError, AttemptTimeout::Expired => e
       raise MetaInspector::TimeoutError.new(e)
     rescue Faraday::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError, URI::InvalidComponentError,
            Faraday::FollowRedirects::RedirectLimitReached, Zlib::Error => e
@@ -80,20 +79,16 @@ module MetaInspector
     end
 
     def fetch
-      Timeout::timeout(fatal_timeout) do
-        session = @http_session.build(url)
+      session = @http_session.build(url)
 
-        check_head_content_type(session) if @head_first
-        response = perform_request(session, :get)
+      check_head_content_type(session) if @head_first
+      response = perform_request(session, :get)
 
-        if @allow_redirections
-          @url.url = response.env.url.to_s
-        end
-
-        response
+      if @allow_redirections
+        @url.url = response.env.url.to_s
       end
-    rescue Timeout::Error => e
-      raise MetaInspector::TimeoutError.new(e)
+
+      response
     end
 
     def check_head_content_type(session)
@@ -127,17 +122,6 @@ module MetaInspector
         req.options.open_timeout = @connection_timeout
         req.options.timeout      = @read_timeout
       end
-    end
-
-    # Timeouts when connecting / reading a request are handled by Faraday, but in the
-    # case of URLs that respond with streaming, Faraday will never return. In that case,
-    # we'll resort to our own timeout
-    #
-    # https://github.com/jaimeiniesta/metainspector/issues/188
-    # https://github.com/lostisland/faraday/issues/602
-    #
-    def fatal_timeout
-      (@connection_timeout || 0) + (@read_timeout || 0) + 1
     end
   end
 end

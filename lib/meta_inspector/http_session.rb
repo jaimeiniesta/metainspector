@@ -8,6 +8,7 @@ require 'faraday/gzip'
 require 'faraday/retry'
 require_relative 'url_policy'
 require_relative 'limited_response'
+require_relative 'attempt_timeout'
 
 module MetaInspector
   # Builds page and binary image transports from the same caller configuration.
@@ -28,6 +29,7 @@ module MetaInspector
     def initialize(options = {})
       @allow_redirections = options[:allow_redirections]
       @retries = options[:retries]
+      @attempt_timeout = (options[:connection_timeout] || 0) + (options[:read_timeout] || 0) + 1
       @headers = options[:headers]
       @max_html_bytes = options[:max_html_bytes]
       @url_filter = options[:url_filter]
@@ -62,6 +64,7 @@ module MetaInspector
       connection = Faraday.new(faraday_options) do |faraday|
         unless image
           faraday.request :retry, max: @retries
+          faraday.use AttemptTimeout, @attempt_timeout
           # Responses run in reverse order: decompress before applying the charset.
           faraday.response :encoding
           faraday.request :gzip if @max_html_bytes.nil?
