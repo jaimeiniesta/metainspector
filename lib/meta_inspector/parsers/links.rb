@@ -7,9 +7,11 @@ module MetaInspector
         self
       end
 
-      # Returns all links found, unprocessed
+      # Returns all links found, unprocessed.
+      # Matches <a> by local name: in the HTML5 tree, links inside inline
+      # <svg> or <math> are in another namespace, and '//a' would miss them.
       def raw
-        @raw ||= cleanup(parsed.search('//a/@href')).compact.uniq
+        @raw ||= cleanup(parsed.xpath('//*[local-name()="a"]/@href')).compact.uniq
       end
 
       # Returns all links found, unrelavitized and absolutified

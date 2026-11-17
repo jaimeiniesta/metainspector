@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Return links inside inline `<svg>` and `<math>` again in `links`, as in 5.21.0. With the HTML5 parser those `<a>` elements are in another namespace, and the `//a/@href` lookup skipped them (#593).
 * Return a page again for PDFs, binary files and deeply nested feeds with `allow_non_html_content: true`, instead of raising `MetaInspector::ParserError`. When the response is not `text/html`, parser resource limits no longer raise; if the HTML5 parser gives up, `parsed` falls back to the depth-capped HTML4 tree, as in 5.21.0. HTML responses and `max_html_bytes` are still enforced (#592).
 * Fix `to_hash` raising `NoMethodError` on compressed responses. Header values that are not Strings, such as the Integer `Content-Length` set by faraday-gzip after decompressing, are kept as they are, and header names are downcased so `content-length` can be looked up as before (#591).
 * Decode fetched UTF-16 and UTF-32 pages with a byte-order mark before removing NUL characters, even when the HTTP header has no charset. Preserve the raw response body and prefer the mark over conflicting meta declarations (#601).

@@ -282,6 +282,30 @@ describe MetaInspector do
     end
   end
 
+  describe 'Links inside inline SVG and MathML' do
+    let(:page) do
+      MetaInspector.new('http://example.com/', document: <<~HTML)
+        <html><body>
+          <a href="/before">text</a>
+          <svg viewBox="0 0 10 10"><a href="/svg-link"><circle r="5"/></a></svg>
+          <math><a href="/math-link">x</a></math>
+          <a href="/after">text</a>
+        </body></html>
+      HTML
+    end
+
+    it 'returns them with the HTML links, in document order' do
+      expect(page.links.raw).to eq(['/before', '/svg-link', '/math-link', '/after'])
+    end
+
+    it 'resolves them like any other link' do
+      expect(page.links.internal).to eq(['http://example.com/before',
+                                         'http://example.com/svg-link',
+                                         'http://example.com/math-link',
+                                         'http://example.com/after'])
+    end
+  end
+
   describe 'Protocol-relative URLs' do
     before(:each) do
       @m_http   = MetaInspector.new('http://protocol-relative.com')
