@@ -43,9 +43,8 @@ module MetaInspector
         # HTTP charsets and the encoding: option already tag the body string.
         return html.encoding.name unless html.encoding == Encoding::BINARY
 
-        BYTE_ORDER_MARKS.each do |mark, encoding|
-          return encoding if html.start_with?(mark)
-        end
+        encoding = byte_order_mark_encoding(html)
+        return encoding if encoding
 
         catch(:metainspector_charset) do
           # Every byte is valid in Latin-1. Only markup matters during this scan;
@@ -53,6 +52,13 @@ module MetaInspector
           Nokogiri::HTML4::SAX::Parser.new(new, 'ISO-8859-1').parse(html) unless html.empty?
           nil
         end
+      end
+
+      def self.byte_order_mark_encoding(html)
+        BYTE_ORDER_MARKS.each do |mark, encoding|
+          return encoding if html.start_with?(mark)
+        end
+        nil
       end
 
       def start_element(name, attributes = [])
@@ -81,6 +87,10 @@ module MetaInspector
 
     def self.detect(html)
       Detector.detect(html)
+    end
+
+    def self.byte_order_mark_encoding(html)
+      Detector.byte_order_mark_encoding(html) if html.encoding == Encoding::BINARY
     end
   end
 end

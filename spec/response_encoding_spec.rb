@@ -49,6 +49,89 @@ RSpec.describe 'conflicting page charset declarations' do
     expect(page.title).to eq('中国')
     expect(page.links.raw).to eq(['/a'])
     expect(page.response.body).to eq(body)
+    expect(page.to_s.encoding).to eq(Encoding::BINARY)
+  end
+end
+
+RSpec.describe 'byte-order-mark response encoding' do
+  let(:url) { 'https://encoding.example/page' }
+
+  {
+    'UTF-16LE' => "\xFF\xFE".b,
+    'UTF-16BE' => "\xFE\xFF".b,
+    'UTF-32LE' => "\xFF\xFE\x00\x00".b,
+    'UTF-32BE' => "\x00\x00\xFE\xFF".b
+  }.each do |encoding, mark|
+    ['', '<meta charset=ISO-8859-1>'].each do |meta|
+      it "parses #{encoding} without an HTTP charset and with #{meta.empty? ? 'no' : 'a conflicting'} meta charset" do
+        html = "<html><head>#{meta}<title>Título 日本語</title></head>" \
+          '<body><h1>Heading</h1><a href="/one">one</a><img src="/image.png"></body></html>'
+        body = (mark + html.encode(encoding).b).freeze
+        stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => 'text/html' })
+
+        page = MetaInspector.new(url, download_images: false)
+        supplied = MetaInspector.new(url, document: body, download_images: false)
+
+        expect(page.title).to eq('Título 日本語')
+        expect(page.h1).to eq(['Heading'])
+        expect(page.links.raw).to eq(['/one'])
+        expect(page.images.to_a).to eq(['https://encoding.example/image.png'])
+        expect([page.title, page.h1, page.links.raw, page.images.to_a])
+          .to eq([supplied.title, supplied.h1, supplied.links.raw, supplied.images.to_a])
+        expect(page.to_s.encoding).to eq(Encoding::UTF_8)
+        expect(page.response.body).to eq(body)
+        expect(page.response.body.encoding).to eq(Encoding::BINARY)
+      end
+    end
+
+    it "removes NUL characters after decoding a #{encoding} byte-order mark" do
+      html = "<title>Hel\u0000lo 日本語</title><a href=\"/a\u0000fter\">after</a>"
+      body = mark + html.encode(encoding).b
+      stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => 'text/html' })
+
+      page = MetaInspector.new(url)
+
+      expect(page.title).to eq('Hello 日本語')
+      expect(page.links.raw).to eq(['/after'])
+      expect(page.to_s).not_to include("\u0000")
+      expect(page.response.body).to eq(body)
+    end
+  end
+
+  [false, true].each do |forced|
+    it "preserves #{forced ? 'a forced' : 'the HTTP'} charset over a byte-order mark" do
+      body = "\xFF\xFE".b + '<title>Hello</title>'.encode('UTF-16LE').b
+      stub_request(:get, url).to_return(body: body, headers: {
+        'Content-Type' => forced ? 'text/html' : 'text/html; charset=ISO-8859-1'
+      })
+
+      page = MetaInspector.new(url, **(forced ? { encoding: 'ISO-8859-1' } : {}))
+
+      expect(page.to_s).to eq('ÿþ<title>Hello</title>')
+      expect(page.response.body.b).to eq(body)
+    end
+  end
+
+  it 'decodes a byte-order mark after gzip decompression' do
+    body = "\xFF\xFE".b + '<title>Título</title>'.encode('UTF-16LE').b
+    stub_request(:get, url).to_return(body: Zlib.gzip(body), headers: {
+      'Content-Type' => 'text/html', 'Content-Encoding' => 'gzip'
+    })
+
+    page = MetaInspector.new(url)
+
+    expect(page.title).to eq('Título')
+    expect(page.response.body).to eq(body)
+  end
+
+  it 'wraps invalid BOM-declared UTF-16 bytes in RequestError' do
+    body = "\xFF\xFE".b + '<title>Hello</title>'.encode('UTF-16LE').b + "\x00".b
+    stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => 'text/html' })
+
+    expect { MetaInspector.new(url) }.to raise_error(MetaInspector::RequestError) { |error|
+      expect(error.cause).to be_a(Encoding::InvalidByteSequenceError)
+      expect(error.message).to eq(error.cause.message)
+    }
   end
 end
 

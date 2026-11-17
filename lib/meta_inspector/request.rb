@@ -29,6 +29,8 @@ module MetaInspector
       return unless response
       body = response.body
       body = body.dup.force_encoding(@encoding) if @encoding
+      encoding = HtmlEncoding.byte_order_mark_encoding(body)
+      body = body.dup.force_encoding(encoding) if encoding && !Encoding.find(encoding).ascii_compatible?
       body = HtmlEncoding.normalize(body)
       body = body.scrub if @encoding
       body = body.encode(Encoding::UTF_8) unless body.encoding.ascii_compatible?
