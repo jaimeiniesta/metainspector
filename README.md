@@ -48,6 +48,32 @@ page = MetaInspector.new("https://github.com",
                          :document => "<html>...</html>")
 ```
 
+## Options reference
+
+Pass these options as the second argument to `MetaInspector.new(url, options)`.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `connection_timeout` | `20` | Maximum seconds to wait for a connection. |
+| `read_timeout` | `20` | Maximum seconds to wait for a read once connected. |
+| `retries` | `3` | Maximum additional attempts for retryable failures, within the overall fetch deadline. See [Timeout & Retries](#timeout--retries). |
+| `allow_redirections` | `true` | Follow redirects, up to 10 by default; customize with `faraday_options[:redirect]`. |
+| `head_first` | `false` | Check content type with HEAD before downloading with GET. |
+| `document` | `nil` | HTML string to parse instead of fetching the page. |
+| `headers` | User-Agent and Accept-Encoding | Request headers; a custom hash replaces the [default headers](#headers). |
+| `encoding` | `nil` | Force the fetched body's encoding instead of relying on automatic detection. |
+| `normalize_url` | `true` | Normalize URLs using Addressable. |
+| `allow_non_html_content` | `false` | Allow non-HTML responses to be passed to the HTML parser. |
+| `download_images` | `true` | Allow image downloads for dimensions, metadata and validation. |
+| `max_image_downloads` | `nil` (unlimited) | Limit image lookup attempts; `0` disables image downloads. |
+| `download_image_options` | `nil` | Set `reject_invalid_images: true` in a hash to discard images that fail validation. |
+| `fetch_all_image_meta` | `nil` (disabled) | Enable validity lookups through `images.with_metadata`. |
+| `inline_image_data` | `nil` (disabled) | Return full data URLs and allow inline images in `best` and `largest`. |
+| `max_html_bytes` | `nil` (unlimited) | Byte limit for each response body, decompression stage and processed HTML; exceeding it raises `ParserError`. See [Timeout & Retries](#timeout--retries). |
+| `url_filter` | `nil` | Callable receiving a URI before each request; `false` or `nil` rejects the destination. |
+| `faraday_options` | `nil` | Faraday configuration, including `redirect` and `faraday_http_cache` settings. |
+| `faraday_http_cache` (deprecated) | `nil` | Legacy cache configuration; use `faraday_options[:faraday_http_cache]` instead. |
+
 ## Accessing response
 
 You can check the status and headers from the response like this:
@@ -82,7 +108,7 @@ page.root_url            # Root url (scheme + host, like https://github.com/)
 page.head_links          # an array of hashes of all head/links
 page.stylesheets         # an array of hashes of all head/links where rel='stylesheet'
 page.canonicals          # an array of hashes of all head/links where rel='canonical'
-page.feeds               # Get rss or atom links in meta data fields as array of hash in the form { href: "...", title: "...", type: "..." }
+page.feeds               # RSS, Atom or JSON feed links as an array of hashes: { href: "...", title: "...", type: "..." }
 ```
 
 `page.feed` is a deprecated compatibility method that returns the first RSS or
@@ -139,6 +165,9 @@ page.links.external      # every external link found on the page as an absolute 
 page.images              # enumerable collection of image URLs found on the page
 page.images.with_size    # a sorted array (by descending area) of [image_url, width, height]
 page.images.with_details # image hashes with dimensions, type and file size (downloads images)
+page.images.with_metadata # image hashes with URL and validity (enable lookups with fetch_all_image_meta: true)
+page.images.largest      # largest image, excluding aspect ratios of 10:1 or wider and 1:10 or taller
+page.images.owner_suggested # first image from og:image, twitter:image, or parsely-image-url
 page.images.best         # Most relevant image from og:image, twitter:image, or parsely-image-url; falls back to page.images.largest
 page.images.favicon      # absolute URL to the favicon
 ```
@@ -357,7 +386,7 @@ is parsed. `page.to_s` returns that UTF-8 text; the conversion preserves the raw
 You can specify 2 different timeouts when requesting a page:
 
 * `connection_timeout` sets the maximum number of seconds to wait to get a connection to the page.
-* `read_timeout` sets the maximum number of seconds to wait to read the page, once connected.
+* `read_timeout` sets the maximum number of seconds to wait for a read, once connected.
 
 Both timeouts default to 20 seconds each.
 
@@ -394,23 +423,32 @@ encoding detection before building the HTML5 DOM. HTML5's tree depth limit also
 raises `MetaInspector::ParserError` during initialization. Ordinary HTML errors
 and recoverable encoding errors are still tolerated.
 
-You can also specify the number of `retries`, which defaults to 3.
+You can also specify the maximum number of additional attempts with `retries`,
+which defaults to 3. The retry middleware retries read timeouts, but does not retry
+connection failures, including connection timeouts.
 
-For example, this will time out after 10 seconds waiting for a connection, or after 5 seconds waiting
-to read its contents, and will retry 4 times:
+One overall deadline of `connection_timeout + read_timeout + 1` seconds covers the
+entire fetch, including redirects, retries and the optional HEAD request. With the
+defaults, this is 41 seconds. The deadline can stop the fetch before all retries
+are attempted; increasing `retries` does not extend it.
+
+For example, this allows up to 10 seconds to connect and 5 seconds per read, with
+up to 4 additional attempts, all within a 16-second overall deadline:
 
 ```ruby
-page = MetaInspector.new('www.google', :connection_timeout => 10, :read_timeout => 5, :retries => 4)
+page = MetaInspector.new('https://example.com', connection_timeout: 10, read_timeout: 5, retries: 4)
 ```
 
-If MetaInspector fails to fetch the page after it has exhausted its retries,
-it will raise `MetaInspector::TimeoutError`, which you can rescue in your
-application code.
+Read timeouts that exhaust the retries, and expiration of the overall deadline,
+raise `MetaInspector::TimeoutError`. With the current Net::HTTP adapter, a
+connection timeout raises `MetaInspector::RequestError`, as do other connection
+failures. See [#598](https://github.com/jaimeiniesta/metainspector/issues/598).
+Rescue both classes if your application needs to handle either case:
 
 ```ruby
 begin
   page = MetaInspector.new(url)
-rescue MetaInspector::TimeoutError
+rescue MetaInspector::TimeoutError, MetaInspector::RequestError
   enqueue_for_future_fetch_attempt(url)
   render_simple(url)
 else
@@ -453,8 +491,8 @@ page = MetaInspector.new(url, faraday_options: { redirect: { callback: callback 
 ```
 
 
-The `faraday_options[:redirect]` hash is passed to the `FollowRedirects` middleware used by `Faraday`, so that we can use all available options.
-Check them [here](https://github.com/lostisland/faraday_middleware/blob/main/lib/faraday_middleware/response/follow_redirects.rb#L44).
+The `faraday_options[:redirect]` hash is passed to the `faraday-follow_redirects`
+middleware. See its [available options](https://github.com/tisba/faraday-follow-redirects#usage).
 The origin header policy also applies after your redirect callback runs and when
 `clear_authorization_header: false` is set.
 
@@ -526,7 +564,9 @@ By default, the following headers are set:
 }
 ```
 
-The `Accept-Encoding` is set to `identity` to avoid exceptions being raised on servers that return malformed compressed responses, [as explained here](https://github.com/lostisland/faraday/issues/337).
+`Accept-Encoding: identity` requests uncompressed responses to reduce problems with
+malformed compressed data. Servers may still send compressed responses; malformed
+gzip or deflate data raises `MetaInspector::RequestError`.
 
 If you want to override the default headers then use the `headers` option:
 
@@ -556,20 +596,24 @@ MetaInspector.new('https://example.com', faraday_options: { ssl: { verify: false
 
 ### Allow non-HTML content type
 
-MetaInspector will by default raise an exception when trying to parse a non-HTML URL (one that has a content-type different than text/html). You can disable this behaviour with:
+MetaInspector fetches and parses the document during initialization. By default,
+`MetaInspector.new` raises `MetaInspector::NonHtmlError` if the response declares a
+content type other than `text/html`. You can disable this behaviour with:
 
 ```ruby
 page = MetaInspector.new('github.com', :allow_non_html_content => true)
 ```
 
 ```ruby
-page = MetaInspector.new('http://example.com/image.png')
-page.content_type  # "image/png"
-page.description   # will raise an exception
+begin
+  page = MetaInspector.new('http://example.com/image.png')
+rescue MetaInspector::NonHtmlError => error
+  warn error.message # The url provided contains image/png content instead of text/html content
+end
 
 page = MetaInspector.new('http://example.com/image.png', :allow_non_html_content => true)
 page.content_type  # "image/png"
-page.description   # will return a garbled string
+page.description   # usually nil; non-HTML data is still passed to the HTML parser
 ```
 
 ### Check content type before downloading
@@ -599,14 +643,19 @@ redirect settings. Passing a `document` directly makes no HTTP requests.
 By default, URLs are normalized using the Addressable gem. For example:
 
 ```ruby
-# Normalization will add a default scheme and a trailing slash...
-page = MetaInspector.new('github.com')
-page.url # https://github.com/
+# Normalization adds the default http scheme and a trailing slash.
+# Supplying HTML avoids a request, so redirects cannot change the URL.
+page = MetaInspector.new('example.com', document: '<html></html>')
+page.url # http://example.com/
 
 # ...and it will also convert international characters
 page = MetaInspector.new('http://www.詹姆斯.com')
 page.url # http://www.xn--8ws00zhy3a.com/
 ```
+
+When a page is fetched with redirects enabled, `page.url` is updated to the final
+URL. For example, an HTTPS URL after requesting `github.com` reflects GitHub's
+redirect from HTTP, rather than a default HTTPS scheme.
 
 While this is generally useful, it can be [tricky](https://github.com/sporkmonger/addressable/issues/182) [sometimes](https://github.com/sporkmonger/addressable/issues/160).
 
@@ -716,7 +765,7 @@ Unsupported image URL schemes get `nil` metadata instead of raising; redirects t
 
 ### Caching responses
 
-MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/plataformatec/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option inside `faraday_options`, with at least the `:store` key, for example:
+MetaInspector can be configured to use [Faraday::HttpCache](https://github.com/sourcelevel/faraday-http-cache) to cache page responses. For that you should pass the `faraday_http_cache` option inside `faraday_options`, with at least the `:store` key, for example:
 
 ```ruby
 cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
@@ -729,8 +778,8 @@ The top-level `faraday_http_cache` option still works, but it is deprecated and 
 
 Web page scraping is tricky, you can expect to find different exceptions during the request of the page or the parsing of its contents. MetaInspector will encapsulate these exceptions on these main errors:
 
-* `MetaInspector::TimeoutError`. When fetching a web page has taken too long.
-* `MetaInspector::RequestError`. When there has been an error on the request phase. Examples: DNS failure, refused connection, SSL failure, invalid URI.
+* `MetaInspector::TimeoutError`. When read retries are exhausted or the overall fetch deadline expires. See [Timeout & Retries](#timeout--retries).
+* `MetaInspector::RequestError`. When there has been an error on the request phase. Examples: connection timeout, DNS failure, refused connection, SSL failure, invalid URI, malformed compressed response.
 * `MetaInspector::ParserError`. When there has been an error parsing the contents of the page.
 * `MetaInspector::NonHtmlError`. When the contents of the page was not HTML. See also the `allow_non_html_content` option
 
@@ -762,15 +811,19 @@ You can also run them from inside `examples/`, for example `bundle exec ruby bas
 * `iframes.rb`: lists iframe attributes and resolved source URLs without downloading embedded documents.
 * `html_size_limit.rb <url> [max_bytes]`: skips HTML over the byte limit (default: 2 MiB). The limit applies after download and does not bound parse time.
 
-What follows is an example of use from irb:
+What follows is an example of use from irb. The `; nil` suppresses the document's
+lengthy inspection output:
 
 ```ruby
 $ irb
 >> require 'metainspector'
 => true
 
->> page = MetaInspector.new('http://github.com')
-=> #<MetaInspector:0x11330c0 @url="http://github.com">
+>> page = MetaInspector.new('http://github.com'); nil
+=> nil
+
+>> page.class
+=> MetaInspector::Document
 
 >> page.title
 => "GitHub"
