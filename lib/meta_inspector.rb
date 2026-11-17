@@ -1,17 +1,18 @@
 require 'forwardable'
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/errors'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/request'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/url'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parser'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/base'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/images'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/iframes'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/links'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/head_links'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/meta_tags'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/parsers/texts'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/document'))
-require File.expand_path(File.join(File.dirname(__FILE__), 'meta_inspector/version'))
+require_relative 'meta_inspector/version'
+require_relative 'meta_inspector/errors'
+require_relative 'meta_inspector/url'
+require_relative 'meta_inspector/request'
+require_relative 'meta_inspector/image_downloader'
+require_relative 'meta_inspector/parser'
+require_relative 'meta_inspector/parsers/base'
+require_relative 'meta_inspector/parsers/images'
+require_relative 'meta_inspector/parsers/iframes'
+require_relative 'meta_inspector/parsers/links'
+require_relative 'meta_inspector/parsers/head_links'
+require_relative 'meta_inspector/parsers/meta_tags'
+require_relative 'meta_inspector/parsers/texts'
+require_relative 'meta_inspector/document'
 
 module MetaInspector
   extend self

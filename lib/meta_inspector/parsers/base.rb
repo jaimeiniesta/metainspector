@@ -13,17 +13,22 @@ module MetaInspector
     # which, in turn, delegates it to the LinksParser.
     #
     class Base
+      extend Forwardable
+
       def initialize(main_parser)
         @main_parser = main_parser
       end
-
-      extend Forwardable
 
       private
 
       # Cleans up nokogiri search results
       def cleanup(results)
         results.map { |r| r.value.strip }.reject(&:empty?).uniq
+      end
+
+      # Splits a rel attribute into its tokens, lowercased as HTML does: ASCII only.
+      def rel_tokens(rel)
+        rel.to_s.downcase(:ascii).split(/[ \t\n\f\r]+/)
       end
     end
   end

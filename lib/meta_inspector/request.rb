@@ -2,50 +2,37 @@ require_relative 'http_session'
 require_relative 'html_encoding'
 
 module MetaInspector
-
   # Makes the request to the server
   class Request
     def initialize(initial_url, options = {})
-      @url                = initial_url
-
+      @url = initial_url
       URLPolicy.validate!(@url.url)
 
-      @allow_redirections = options[:allow_redirections]
-      @head_first         = options[:head_first]
+      @allow_redirections     = options[:allow_redirections]
+      @head_first             = options[:head_first]
       @allow_non_html_content = options[:allow_non_html_content]
-      @connection_timeout = options[:connection_timeout]
-      @read_timeout       = options[:read_timeout]
-      @encoding           = options[:encoding]
-      @http_session       = options[:http_session] || HttpSession.new(options)
+      @connection_timeout     = options[:connection_timeout]
+      @read_timeout           = options[:read_timeout]
+      @encoding               = options[:encoding]
+      @http_session           = options[:http_session] || HttpSession.new(options)
 
-      response            # request early so we can fail early
+      response # request early so we can fail early
     end
 
     extend Forwardable
     delegate :url => :@url
 
+    # Responses without a Content-Type are treated as HTML.
+    def self.html_content_type?(content_type)
+      content_type.nil? || content_type == 'text/html'
+    end
+
     def read
       return unless response
+
       body = response.body
       check_content_encoding!(body)
-      if body.encoding == Encoding::BINARY
-        # The adapter tags the body only with HTTP charsets Ruby knows.
-        label = response.headers['content-type'].to_s[/(?:\A|;)\s*charset\s*=\s*["']?([^;\s"']+)/i, 1]
-        charset = HtmlEncoding.resolve(label)
-        body = body.dup.force_encoding(charset) if charset
-      end
-      body = body.dup.force_encoding(@encoding) if @encoding
-      encoding = HtmlEncoding.byte_order_mark_encoding(body)
-      body = body.dup.force_encoding(encoding) if encoding && !Encoding.find(encoding).ascii_compatible?
-      body = HtmlEncoding.normalize(body)
-      # Replace invalid bytes with U+FFFD, as browsers do, so one bad byte
-      # doesn't make the whole page fail. Binary bodies are decoded later by the parser.
-      body = if body.encoding.ascii_compatible?
-               body.scrub
-             else
-               body.encode(Encoding::UTF_8, invalid: :replace, undef: :replace)
-             end
-      body.tr("\000", '')
+      to_utf8(with_declared_encoding(body)).tr("\000", '')
     rescue ArgumentError, EncodingError => e
       raise MetaInspector::RequestError.new(e)
     end
@@ -73,10 +60,7 @@ module MetaInspector
       check_head_content_type(session) if @head_first
       response = perform_request(session, :get)
 
-      if @allow_redirections
-        @url.url = response.env.url.to_s
-      end
-
+      @url.url = response.env.url.to_s if @allow_redirections
       response
     end
 
@@ -85,8 +69,32 @@ module MetaInspector
       return unless head_response.success?
 
       type = response_content_type(head_response)
-      if !@allow_non_html_content && !type.nil? && type != 'text/html'
-        fail MetaInspector::NonHtmlError.new "The url provided contains #{type} content instead of text/html content"
+      raise NonHtmlError.for(type) unless @allow_non_html_content || self.class.html_content_type?(type)
+    end
+
+    # Tags the body with its encoding, from highest to lowest precedence: a
+    # byte-order mark for encodings that aren't ASCII-compatible, the encoding:
+    # option, then the HTTP charset. The adapter tags the body only with HTTP
+    # charsets Ruby knows, so labels such as "x-sjis" are resolved here.
+    def with_declared_encoding(body)
+      if body.encoding == Encoding::BINARY
+        charset = HtmlEncoding.resolve(HtmlEncoding.charset_param(response.headers['content-type']))
+        body = body.dup.force_encoding(charset) if charset
+      end
+      body = body.dup.force_encoding(@encoding) if @encoding
+      bom_encoding = HtmlEncoding.byte_order_mark_encoding(body)
+      body = body.dup.force_encoding(bom_encoding) if bom_encoding && !Encoding.find(bom_encoding).ascii_compatible?
+      body
+    end
+
+    # Replaces invalid bytes with U+FFFD, as browsers do, so one bad byte
+    # doesn't make the whole page fail. Binary bodies are decoded later by the parser.
+    def to_utf8(body)
+      body = HtmlEncoding.normalize(body)
+      if body.encoding.ascii_compatible?
+        body.scrub
+      else
+        body.encode(Encoding::UTF_8, invalid: :replace, undef: :replace)
       end
     end
 

@@ -2,11 +2,10 @@ module MetaInspector
   module Parsers
     class IframesParser < Base
       delegate [:parsed, :base_url] => :@main_parser
+
       def iframes
         @iframes ||= parsed.search('//iframe').map do |iframe|
-          iframe.attributes.each_with_object({}) do |(name, attribute), result|
-            result[name.to_sym] = attribute.value
-          end
+          iframe.attributes.to_h { |name, attribute| [name.to_sym, attribute.value] }
         end
       end
 

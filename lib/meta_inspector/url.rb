@@ -2,35 +2,36 @@ require 'addressable/uri'
 
 module MetaInspector
   class URL
+    WELL_KNOWN_TRACKING_PARAMS = %w[utm_source utm_medium utm_term utm_content utm_campaign]
+
     attr_reader :url
 
+    def self.defaults
+      { normalize: true }
+    end
+
     def initialize(initial_url, options = {})
-      options        = self.class.defaults.merge(options)
-
-      @normalize     = options[:normalize]
-
+      @normalize = self.class.defaults.merge(options)[:normalize]
       self.url = initial_url
     end
 
     def scheme
-      parsed(url) ? parsed(url).scheme : nil
+      parsed(url)&.scheme
     end
 
     def host
-      parsed(url) ? parsed(url).host : nil
+      parsed(url)&.host
     end
 
     def root_url
       "#{scheme}://#{host}/"
     end
 
-    WELL_KNOWN_TRACKING_PARAMS = %w( utm_source utm_medium utm_term utm_content utm_campaign )
-
     def tracked?
-      u = parsed(url)
-      return false unless u.query_values
-      found_tracking_params = WELL_KNOWN_TRACKING_PARAMS & u.query_values.keys
-      return found_tracking_params.any?
+      query_values = parsed(url).query_values
+      return false unless query_values
+
+      WELL_KNOWN_TRACKING_PARAMS.intersect?(query_values.keys)
     end
 
     # Removes only the tracking key=value pairs, keeping the rest of the
@@ -91,10 +92,6 @@ module MetaInspector
     end
 
     private
-
-    def self.defaults
-      { :normalize => true }
-    end
 
     def tracking_param?(param)
       key = Addressable::URI.unencode_component(param.split('=', 2).first)
