@@ -22,8 +22,17 @@ module MetaInspector
     # * url_filter: callable receiving a URI before each request; false/nil rejects it
     # * faraday_options: an optional hash of options to pass to Faraday on the request.
     #   Its faraday_http_cache key configures response caching with Faraday::HttpCache
-    # * faraday_http_cache: deprecated, use faraday_options: { faraday_http_cache: ... }
+    #
+    # Raises ArgumentError for any other key, including String keys
+    OPTIONS = %i[
+      connection_timeout read_timeout retries encoding allow_redirections allow_non_html_content
+      head_first document headers normalize_url download_images max_image_downloads
+      download_image_options fetch_all_image_meta inline_image_data max_html_bytes url_filter
+      faraday_options
+    ].freeze
+
     def initialize(initial_url, options = {})
+      validate_option_keys!(options)
       options             = defaults.merge(options)
       max_html_bytes = options[:max_html_bytes]
       unless max_html_bytes.nil? || (max_html_bytes.is_a?(Integer) && max_html_bytes >= 0)
@@ -47,7 +56,6 @@ module MetaInspector
       @headers            = options[:headers]
       @normalize_url      = options[:normalize_url]
       @faraday_options    = options[:faraday_options]
-      @faraday_http_cache = options[:faraday_http_cache]
       @http_session       = MetaInspector::HttpSession.new(options)
       @url                = MetaInspector::URL.new(initial_url, normalize:          @normalize_url)
       @request            = MetaInspector::Request.new(@url,    http_session: @http_session,
@@ -59,8 +67,7 @@ module MetaInspector
                                                                 retries:            @retries,
                                                                 encoding:           @encoding,
                                                                 headers:            @headers,
-                                                                faraday_options:    @faraday_options,
-                                                                faraday_http_cache: @faraday_http_cache) unless @document
+                                                                faraday_options:    @faraday_options) unless @document
       @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images,
                                                                 max_html_bytes: max_html_bytes,
                                                                 max_image_downloads: @max_image_downloads,
@@ -86,8 +93,8 @@ module MetaInspector
 
     delegate [:parsed, :language, :title, :best_title, :author, :best_author,
               :h1, :h2, :h3, :h4, :h5, :h6, :description, :best_description, :links,
-              :images, :iframes, :iframe_sources, :feeds, :feed, :charset, :meta_tags,
-              :meta_tag, :meta, :favicon,
+              :images, :iframes, :iframe_sources, :feeds, :charset, :meta_tags,
+              :meta_tag, :meta,
               :head_links, :stylesheets, :canonicals] => :@parser
 
     # Returns all document data as a nested Hash
@@ -129,6 +136,21 @@ module MetaInspector
     end
 
     private
+
+    # An option that is misspelled, or given with a String key (as when read from
+    # JSON or YAML), would otherwise be ignored: with 'document' => html, the page
+    # would be fetched instead of parsing the HTML.
+    def validate_option_keys!(options)
+      unknown = options.keys - OPTIONS
+      return if unknown.empty?
+
+      message = "Unknown option#{'s' if unknown.size > 1}: #{unknown.map(&:inspect).join(', ')}"
+      message += ' (option keys must be Symbols)' if unknown.any?(String)
+      if unknown.include?(:faraday_http_cache)
+        message += ' (pass it inside faraday_options: { faraday_http_cache: ... })'
+      end
+      raise ArgumentError, message
+    end
 
     # Middleware can add headers that Net::HTTP would have normalized: faraday-gzip
     # sets "Content-Length" to an Integer after decompressing. Downcase the names

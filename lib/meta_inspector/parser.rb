@@ -35,19 +35,12 @@ module MetaInspector
     extend Forwardable
     delegate [:url, :scheme, :host]                                                        => :@document
     delegate [:meta_tags, :meta_tag, :meta, :charset]                                      => :@meta_tag_parser
-    delegate [:head_links, :stylesheets, :canonicals, :feeds, :feed]                       => :@head_links_parser
+    delegate [:head_links, :stylesheets, :canonicals, :feeds]                              => :@head_links_parser
     delegate [:links, :base_url]                                                           => :@links_parser
     delegate :images                                                                       => :@images_parser
     delegate [:iframes, :iframe_sources]                                                   => :@iframes_parser
     delegate [:language, :title, :best_title, :author, :best_author, :description, :best_description,
               :h1, :h2, :h3, :h4, :h5, :h6]                                                => :@texts_parser
-
-    # Deprecated compatibility shortcut; remove in 6.0.
-    def favicon
-      warn 'DEPRECATION WARNING: page.favicon is deprecated and will be removed in 6.0. ' \
-           'Use page.images.favicon instead.'
-      images.favicon
-    end
 
     # Returns the whole parsed document
     def parsed

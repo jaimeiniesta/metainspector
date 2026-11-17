@@ -36,7 +36,7 @@ module MetaInspector
       if !@url_filter.nil? && !@url_filter.respond_to?(:call)
         raise ArgumentError, 'url_filter must respond to call'
       end
-      @cache = cache_option(options)
+      @cache = (options[:faraday_options] || {})[:faraday_http_cache]
       @faraday_options = (options[:faraday_options] || {}).except(:faraday_http_cache)
     end
 
@@ -88,19 +88,6 @@ module MetaInspector
       end
       connection.params.merge_query(query, connection.options.params_encoder)
       connection
-    end
-
-    private
-
-    def cache_option(options)
-      nested = (options[:faraday_options] || {})[:faraday_http_cache]
-      top_level = options[:faraday_http_cache]
-      return nested if top_level.nil?
-      unless nested.nil?
-        raise ArgumentError, 'Pass faraday_http_cache inside faraday_options or as a top-level option, not both'
-      end
-      Request.warn_faraday_http_cache_deprecation
-      top_level
     end
   end
 end
