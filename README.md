@@ -214,9 +214,18 @@ The collection includes `img[src]`, `img[srcset]`, and `source[srcset]` inside
 `picture`, resolved to absolute URLs and deduplicated. Elements appear in document
 order; for each `img`, `src` comes before its `srcset` candidates, which retain
 their listed order. All candidates are included regardless of media conditions or
-device density. Responsive candidates use their downloaded dimensions for ranking;
-the `img` element's width and height apply only to its `src` fallback. By default,
-non-HTTP responsive URLs remain in the collection but cannot be downloaded for sizing.
+device density. The `img` element's width and height apply only to its `src`
+fallback. By default, non-HTTP responsive URLs remain in the collection but cannot
+be downloaded for sizing.
+
+`with_size`, `largest` and `best` treat the candidates of each `img` or `picture`
+as one image at different sizes and rank only the largest one: the candidate with
+the largest width descriptor (`800w`) if any has one, otherwise the highest density
+(`2x`; `src` and candidates without a descriptor count as `1x`). That candidate is
+downloaded for its dimensions, so each image costs at most one download. A `src`
+with both `width` and `height` in the HTML is ranked as well, since it needs no
+download. The other candidates are not in `with_size`; `to_a` and `with_details`
+still list them all.
 
 `images.owner_suggested` tries `og:image`, `twitter:image`, and `parsely-image-url`
 in that order, skipping empty or whitespace-only values. Relative image URLs are
