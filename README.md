@@ -418,10 +418,11 @@ Nokogiri also enforces limits on nesting depth and the size of individual text
 nodes, attribute values and comments. If one of these limits truncates the HTML,
 MetaInspector raises `MetaInspector::ParserError` during initialization, with the
 parser's diagnostic in the message. These limits apply even when `max_html_bytes`
-is `nil`. MetaInspector retains an HTML4 validation pass for these limits and
-encoding detection before building the HTML5 DOM. HTML5's tree depth limit also
-raises `MetaInspector::ParserError` during initialization. Ordinary HTML errors
-and recoverable encoding errors are still tolerated.
+is `nil`. MetaInspector retains an HTML4 pass for the size limits and encoding
+detection before building the HTML5 DOM. The nesting limit is HTML5's, 400
+levels; for legacy charsets that Ruby cannot transcode, where the HTML4 tree is
+the DOM, it is HTML4's, 256 levels. Ordinary HTML errors and recoverable
+encoding errors are still tolerated.
 
 You can also specify the maximum number of additional attempts with `retries`,
 which defaults to 3. The retry middleware retries read timeouts, but does not retry

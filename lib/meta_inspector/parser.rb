@@ -9,6 +9,10 @@ module MetaInspector
   # passing itself as a reference for coordination purposes
   #
   class Parser
+    # libxml2's limit for a single text node, attribute value or comment
+    # (XML_MAX_TEXT_LENGTH).
+    MAX_NODE_BYTES = 10_000_000
+
     def initialize(document, options = {})
       @document        = document
       @max_html_bytes  = options[:max_html_bytes]
@@ -63,14 +67,18 @@ module MetaInspector
           html = HtmlEncoding.normalize(html.dup.force_encoding(document.encoding))
           document = Nokogiri::HTML(html)
         end
-        limit_error = document.errors.find do |error|
-          error.message.match?(/Excessive depth in document|Resource limit exceeded|xmlSAX2Characters: huge text node/)
-        end
-        raise MetaInspector::ParserError, limit_error.message.strip if limit_error && !non_html_content?
+        raise_limit_error(document, /Resource limit exceeded|xmlSAX2Characters: huge text node/)
 
         if (utf8 = html5_input(html, document))
-          html5_document(utf8, document)
+          # The HTML5 tree is the DOM and enforces its own depth limit, so
+          # libxml2's depth error doesn't apply: its HTML4 tree can be much
+          # deeper, as it leaves elements open that HTML5 closes (#612).
+          parsed = html5_document(utf8, document)
+          enforce_node_size_limit(parsed, utf8, document)
+          parsed
         else
+          # libxml2's tree is the DOM, and past its depth limit it's truncated.
+          raise_limit_error(document, /Excessive depth in document/)
           document
         end
       end
@@ -79,6 +87,37 @@ module MetaInspector
     end
 
     private
+
+    def raise_limit_error(document, pattern)
+      return if non_html_content?
+
+      limit_error = document.errors.find { |error| error.message.match?(pattern) }
+      raise MetaInspector::ParserError, limit_error.message.strip if limit_error
+    end
+
+    # libxml2 may stop reading at a fatal error, such as its depth limit, so it
+    # may not have checked the size of everything after that point. Then apply
+    # its limit to the HTML5 tree, which has none of its own. Skip inputs too
+    # small to hold an oversized node: HTML5 parsing turns a byte into at most
+    # 3 (NUL to U+FFFD).
+    def enforce_node_size_limit(parsed, html, document)
+      return if non_html_content? || html.bytesize * 3 <= MAX_NODE_BYTES
+      return unless document.errors.any?(&:fatal?)
+
+      kind = catch(:oversized) do
+        parsed.traverse do |node|
+          if node.element?
+            throw :oversized, 'attribute value' if node.attribute_nodes.any? { |a| a.value.bytesize > MAX_NODE_BYTES }
+          elsif node.comment?
+            throw :oversized, 'comment' if node.content.bytesize > MAX_NODE_BYTES
+          elsif node.text? || node.cdata?
+            throw :oversized, 'text node' if node.content.bytesize > MAX_NODE_BYTES
+          end
+        end
+        nil
+      end
+      raise MetaInspector::ParserError, "Resource limit exceeded: #{kind} longer than #{MAX_NODE_BYTES} bytes" if kind
+    end
 
     def html5_document(html, fallback)
       parsed = Nokogiri::HTML5(html, max_attributes: -1, parse_noscript_content_as_text: true)

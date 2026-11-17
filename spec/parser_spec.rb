@@ -24,24 +24,87 @@ describe MetaInspector::Parser do
   end
 
   describe 'parser resource limits' do
-    let(:deep_html) do
-      "<html><body>#{'<div>' * 256}<a href=\"/deep\">deep</a>#{'</div>' * 256}" \
+    def nested_html(depth)
+      "<html><body>#{'<div>' * depth}<a href=\"/deep\">deep</a>#{'</div>' * depth}" \
         '<a href="/after">after</a><h1>After</h1></body></html>'
     end
 
-    it 'rejects a passed document truncated by the nesting limit' do
-      expect do
-        MetaInspector.new('http://example.com', document: deep_html)
-      end.to raise_error(MetaInspector::ParserError, /Excessive depth in document/)
+    # Past libxml2's nesting limit (256), within the HTML5 one (400)
+    let(:deep_html) { nested_html(300) }
+    # Past both limits
+    let(:too_deep_html) { nested_html(500) }
+
+    it 'parses a passed document nested past the libxml2 limit but within the HTML5 one' do
+      page = MetaInspector.new('http://example.com', document: deep_html)
+
+      expect(page.links.raw).to eq(['/deep', '/after'])
+      expect(page.h1).to eq(['After'])
     end
 
-    it 'rejects a downloaded document truncated by the nesting limit' do
+    it 'parses a downloaded document nested past the libxml2 limit but within the HTML5 one' do
       stub_request(:get, 'http://example.com/').to_return(
         body: deep_html, headers: { 'Content-Type' => 'text/html' }
       )
 
+      expect(MetaInspector.new('http://example.com').links.raw).to eq(['/deep', '/after'])
+    end
+
+    it 'parses markup that only nests in the libxml2 tree' do
+      # HTML5 closes the open <div>s at </section>; libxml2's HTML4 parser
+      # leaves them open, so each section nests inside the previous one.
+      sections = (1..100).map { |i| %(<section><div><div><a href="/r#{i}">Read more</a></section>) }.join
+      page = MetaInspector.new('http://example.com', document: "<title>Release notes</title>#{sections}")
+
+      expect(page.title).to eq('Release notes')
+      expect(page.links.raw.size).to eq(100)
+      expect(page.parsed.css('section section')).to be_empty
+    end
+
+    it 'rejects a passed document nested past the HTML5 limit' do
+      expect do
+        MetaInspector.new('http://example.com', document: too_deep_html)
+      end.to raise_error(MetaInspector::ParserError, /tree depth limit/)
+    end
+
+    it 'rejects a downloaded document nested past the HTML5 limit' do
+      stub_request(:get, 'http://example.com/').to_return(
+        body: too_deep_html, headers: { 'Content-Type' => 'text/html' }
+      )
+
       expect do
         MetaInspector.new('http://example.com')
+      end.to raise_error(MetaInspector::ParserError, /tree depth limit/)
+    end
+
+    # libxml2 stops reading at its depth limit, so it can't check the size of
+    # what comes after. The same size limits apply to the HTML5 tree instead.
+    {
+      'text' => '<p>%s</p>',
+      'attribute value' => '<p title="%s">t</p>',
+      'comment' => '<!--%s-->',
+      'script' => '<script>%s</script>'
+    }.each do |kind, template|
+      it "rejects an oversized #{kind} after nesting past the libxml2 limit" do
+        html = "<html><body>#{'<div>' * 300}#{format(template, 'x' * 10_000_001)}</body></html>"
+
+        expect do
+          MetaInspector.new('http://example.com', document: html)
+        end.to raise_error(MetaInspector::ParserError, /Resource limit exceeded/)
+      end
+    end
+
+    it 'accepts nodes at the size limit after nesting past the libxml2 limit' do
+      html = "<html><body>#{'<div>' * 300}<p title=\"#{'x' * 10_000_000}\">#{'y' * 10_000_000}</p></body></html>"
+
+      expect(MetaInspector.new('http://example.com', document: html).parsed.at_css('p')['title'].size)
+        .to eq(10_000_000)
+    end
+
+    it 'rejects a document truncated by the libxml2 limit when HTML5 cannot parse its encoding' do
+      html = "<meta charset=\"UTF-7\">#{deep_html}".b
+
+      expect do
+        MetaInspector.new('http://example.com', document: html)
       end.to raise_error(MetaInspector::ParserError, /Excessive depth in document/)
     end
 
@@ -84,14 +147,14 @@ describe MetaInspector::Parser do
         expect { page.to_hash }.not_to raise_error
       end
 
-      it 'still rejects HTML responses truncated by the nesting limit' do
+      it 'still rejects HTML responses nested past the HTML5 limit' do
         stub_request(:get, 'http://example.com/').to_return(
-          body: deep_html, headers: { 'Content-Type' => 'text/html' }
+          body: too_deep_html, headers: { 'Content-Type' => 'text/html' }
         )
 
         expect do
           MetaInspector.new('http://example.com', allow_non_html_content: true)
-        end.to raise_error(MetaInspector::ParserError, /Excessive depth in document/)
+        end.to raise_error(MetaInspector::ParserError, /tree depth limit/)
       end
 
       it 'still enforces max_html_bytes' do
