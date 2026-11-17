@@ -9,6 +9,22 @@ module MetaInspector
 
       include Enumerable
 
+      # Meta tags that name the page's image, in order of preference.
+      SUGGESTED_IMAGE_META = %w[og:image twitter:image parsely-image-url].freeze
+
+      # A URL that an <img> or <picture> may show. group identifies that
+      # element, and descriptor is [:w, width] or [:x, density].
+      Candidate = Struct.new(:url, :width, :height, :group, :descriptor) do
+        def width_descriptor?
+          descriptor[0] == :w
+        end
+
+        def descriptor_value
+          descriptor[1]
+        end
+      end
+      private_constant :SUGGESTED_IMAGE_META, :Candidate
+
       def initialize(main_parser, options = {})
         @image_downloader = options[:image_downloader]
         @download_images = options[:download_images]
@@ -51,17 +67,14 @@ module MetaInspector
       # ranking one candidate per <img> or <picture> (see ranked_candidates).
       def with_size
         @with_size ||= begin
-          imgs_with_size = unique_image_candidates(ranked_candidates)
-          if @download_images && @reject_invalid_images
-            imgs_with_size.reject! { |url, width, height| image_validity(url) == false }
+          candidates = unique_image_candidates(ranked_candidates)
+          candidates.reject! { |candidate| image_validity(candidate.url) == false } if rejecting_invalid_images?
+          images = candidates.map do |candidate|
+            width, height = candidate.width, candidate.height
+            width, height = image_size(candidate.url) || [0, 0] if width.nil? || height.nil?
+            [result_url(candidate.url), width.to_i, height.to_i]
           end
-          imgs_with_size.map! do |url, width, height|
-            if width.nil? || height.nil?
-              width, height = image_size(url) || [0, 0]
-            end
-            [result_url(url), width.to_i, height.to_i]
-          end
-          imgs_with_size.sort_by { |url, width, height| -(width.to_i * height.to_i) }
+          images.sort_by { |_url, width, height| -(width * height) }
         end
       end
 
@@ -69,8 +82,9 @@ module MetaInspector
       # With validation enabled, details reuse the validation lookups.
       def with_details
         @with_details ||= begin
-          attempts = 0
-          images = unique_image_candidates(image_candidates).filter_map do |url, width, height|
+          downloads = 0
+          images = unique_image_candidates(image_candidates).filter_map do |candidate|
+            url = candidate.url
             metadata = nil
             if validating_images?
               next if @reject_invalid_images && image_validity(url) == false
@@ -79,16 +93,17 @@ module MetaInspector
             elsif @download_images
               if data_image_url?(url)
                 metadata = image_metadata(url)
-              elsif http_image_url?(url) && (@max_image_downloads.nil? || attempts < @max_image_downloads)
-                attempts += 1
+              elsif http_image_url?(url) && within_download_limit?(downloads)
+                downloads += 1
                 metadata = @image_downloader.metadata(encoded_url(url))
               end
             end
             downloaded_width, downloaded_height = metadata && metadata[:dimensions]
-            width ||= downloaded_width
-            height ||= downloaded_height
-            { url: result_url(url), width: width.to_i, height: height.to_i,
-              type: metadata && metadata[:type], file_size: metadata && metadata[:file_size] }
+            { url: result_url(url),
+              width: (candidate.width || downloaded_width).to_i,
+              height: (candidate.height || downloaded_height).to_i,
+              type: metadata && metadata[:type],
+              file_size: metadata && metadata[:file_size] }
           end
           images.sort_by { |image| -(image[:width] * image[:height]) }
         end
@@ -97,26 +112,20 @@ module MetaInspector
       # Returns the largest image from the image collection,
       # filtered for images that are more square than 10:1 or 1:10
       def largest
-        @largest_image ||= begin
-          imgs_with_size = with_size.dup
-          imgs_with_size.keep_if do |url, width, height|
-            ratio = width.to_f / height.to_f
-            (@inline_image_data || !data_image_url?(url)) && ratio > 0.1 && ratio < 10
-          end
-          url, width, height = imgs_with_size.first
-          url
-        end
+        @largest_image ||= with_size.find do |url, width, height|
+          ratio = width.to_f / height.to_f
+          (@inline_image_data || !data_image_url?(url)) && ratio > 0.1 && ratio < 10
+        end&.first
       end
 
-      # Return favicon url if exist
+      # Return favicon url if exist. An href that can't be resolved returns nil.
       def favicon
         link = parsed.xpath('//link[@rel]').find do |node|
           # Keep legacy shortcut-only links while matching whole, ASCII-insensitive tokens.
-          node['rel'].tr('A-Z', 'a-z').split(/[ \t\n\f\r]+/).any? { |rel| rel == 'icon' || rel == 'shortcut' }
+          rel_tokens(node['rel']).any? { |rel| rel == 'icon' || rel == 'shortcut' }
         end
-        value = link.attributes['href'].value
-        @favicon ||= result_url(URL.absolutify(value, base_url, normalize: false))
-      rescue
+        result_url(URL.absolutify(link.attributes['href'].value, base_url, normalize: false))
+      rescue StandardError
         nil
       end
 
@@ -129,30 +138,33 @@ module MetaInspector
       end
 
       def suggested_image(skip_inline: false)
-        ['og:image', 'twitter:image', 'parsely-image-url'].each do |key|
-          value = content_of(meta[key])
-          next unless value
+        SUGGESTED_IMAGE_META.each do |key|
+          value = meta[key]
+          next if value.nil? || value.strip.empty?
 
           url = URL.absolutify(value, base_url, normalize: false)
           next if url.nil? || (skip_inline && data_image_url?(url))
-          next if @download_images && @reject_invalid_images && image_validity(url) == false
+          next if rejecting_invalid_images? && image_validity(url) == false
 
           return url
         end
         nil
       end
 
-      def unique_image_candidates(list)
-        candidates = {}
-        list.each do |url, width, height|
+      # Keeps one candidate per URL: the first one, unless a later one has both
+      # dimensions in the HTML and the first doesn't.
+      def unique_image_candidates(candidates)
+        unique = {}
+        candidates.each do |candidate|
+          url = candidate.url
           next if url.nil? || url.empty?
 
-          previous = candidates[url]
-          if previous.nil? || ((previous[1].nil? || previous[2].nil?) && width && height)
-            candidates[url] = [url, width, height]
+          previous = unique[url]
+          if previous.nil? || ((previous.width.nil? || previous.height.nil?) && candidate.width && candidate.height)
+            unique[url] = candidate
           end
         end
-        candidates.values
+        unique.values
       end
 
       # The candidates of one <img> or <picture> are the same picture at different
@@ -162,14 +174,14 @@ module MetaInspector
       # remain. A src with both dimensions in the HTML is kept too, as it costs no
       # download.
       def ranked_candidates
-        image_candidates.group_by { |candidate| candidate[3] }.flat_map do |_group, candidates|
-          candidates = candidates.reject { |url, *| url.nil? || url.empty? }
-          sized = candidates.select { |_url, width, height| width && height }
-          pool = candidates.select { |url, *| measurable_image_url?(url) }
+        image_candidates.group_by(&:group).flat_map do |_group, candidates|
+          candidates = candidates.reject { |candidate| candidate.url.nil? || candidate.url.empty? }
+          sized = candidates.select { |candidate| candidate.width && candidate.height }
+          pool = candidates.select { |candidate| measurable_image_url?(candidate.url) }
           pool = candidates if pool.empty?
-          with_width = pool.select { |candidate| candidate[4][0] == :w }
+          with_width = pool.select(&:width_descriptor?)
           pool = with_width unless with_width.empty?
-          largest = pool.each_with_index.max_by { |candidate, index| [candidate[4][1], -index] }&.first
+          largest = pool.each_with_index.max_by { |candidate, index| [candidate.descriptor_value, -index] }&.first
           largest ? [largest] + (sized - [largest]) : sized
         end
       end
@@ -179,13 +191,15 @@ module MetaInspector
       end
 
       def images_collection
-        @images_collection ||= if @download_images && @reject_invalid_images
-          absolutified_images.reject { |url| url && image_validity(url) == false }.map { |url| result_url(url) }
-        else
-          absolutified_images.map { |url| result_url(url) }
+        @images_collection ||= begin
+          urls = absolutified_images
+          urls = urls.reject { |url| url && image_validity(url) == false } if rejecting_invalid_images?
+          urls.map { |url| result_url(url) }
         end
       end
 
+      # Returns [width, height], or nil if unknown. Each URL is looked up once,
+      # and only max_image_downloads HTTP lookups are made.
       def image_size(url)
         return @image_sizes[url] if @image_sizes.key?(url)
         return nil unless @download_images
@@ -196,15 +210,12 @@ module MetaInspector
           return @image_sizes[url] = metadata && metadata[:dimensions]
         end
         return @image_sizes[url] = nil unless http_image_url?(url)
-        return nil unless @max_image_downloads.nil? || @download_attempts < @max_image_downloads
+        return nil unless within_download_limit?(@download_attempts)
 
-        unless validating_images?
-          @download_attempts += 1
-          return @image_sizes[url] = @image_downloader.size(encoded_url(url))
-        end
-
-        request_url = encoded_url(url)
         @download_attempts += 1
+        request_url = encoded_url(url)
+        return @image_sizes[url] = @image_downloader.size(request_url) unless validating_images?
+
         # Metadata comes from the same download and lets with_details reuse it.
         metadata = @image_downloader.metadata(request_url, reject_invalid_url: true)
         @image_metadata[url] = metadata
@@ -216,8 +227,16 @@ module MetaInspector
         @image_metadata[url]
       end
 
+      def within_download_limit?(downloads)
+        @max_image_downloads.nil? || downloads < @max_image_downloads
+      end
+
       def validating_images?
         @reject_invalid_images || @fetch_all_image_meta
+      end
+
+      def rejecting_invalid_images?
+        @download_images && @reject_invalid_images
       end
 
       # Normalizes non-ASCII URLs for the request; results keep the original.
@@ -248,18 +267,20 @@ module MetaInspector
       end
 
       def absolutified_images
-        image_candidates.map(&:first).uniq
+        image_candidates.map(&:url).uniq
       end
 
+      # The src of each <img>, as 1x, and the srcset candidates of each <img>
+      # and <picture> source, in document order.
       def image_candidates
         @image_candidates ||= parsed.xpath('//img | //picture/source').flat_map do |node|
-          candidates = []
+          sources = []
           src = node['src'].to_s.strip if node.name == 'img'
-          candidates << [src, node['width'], node['height'], [:x, 1.0]] if src && !src.empty?
-          srcset_urls(node['srcset']).each { |url, descriptor| candidates << [url, nil, nil, descriptor] }
+          sources << [src, node['width'], node['height'], [:x, 1.0]] if src && !src.empty?
+          srcset_urls(node['srcset']).each { |url, descriptor| sources << [url, nil, nil, descriptor] }
           group = node.parent&.name == 'picture' ? node.parent.pointer_id : node.pointer_id
-          candidates.map do |url, width, height, descriptor|
-            [URL.absolutify(url, base_url, normalize: false), width, height, group, descriptor]
+          sources.map do |url, width, height, descriptor|
+            Candidate.new(URL.absolutify(url, base_url, normalize: false), width, height, group, descriptor)
           end
         end
       end
@@ -296,11 +317,6 @@ module MetaInspector
         elsif descriptor.match?(/\A(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?x\z/) && descriptor.to_f >= 0
           [:x, descriptor.to_f]
         end
-      end
-
-      def content_of(content)
-        return nil if content.nil? || content.strip.empty?
-        content
       end
     end
   end

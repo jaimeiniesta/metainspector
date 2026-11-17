@@ -5,17 +5,21 @@ module MetaInspector
 
       def meta_tags
         {
-          'name'        => meta_tags_by('name'),
-          'http-equiv'  => meta_tags_by('http-equiv'),
-          'property'    => meta_tags_by('property'),
-          'charset'     => [charset_from_meta_charset]
+          'name'       => meta_tags_by('name'),
+          'http-equiv' => meta_tags_by('http-equiv'),
+          'property'   => meta_tags_by('property'),
+          'charset'    => [charset_from_meta_charset]
         }
       end
 
+      # Like meta_tags, with only the first value of each tag
       def meta_tag
-        convert_each_array_to_first_element_on meta_tags
+        meta_tags.transform_values do |values|
+          values.is_a?(Hash) ? values.transform_values(&:first) : values.first
+        end
       end
 
+      # meta_tag merged into one Hash: name, then http-equiv, then property
       def meta
         meta_tag['name']
           .merge(meta_tag['http-equiv'])
@@ -33,7 +37,7 @@ module MetaInspector
       private
 
       def charset_from_meta_charset
-        parsed.css('meta[charset]')[0].attributes['charset'].value rescue nil
+        parsed.at_css('meta[charset]')&.attributes&.[]('charset')&.value
       end
 
       def charset_from_meta_content_type
@@ -45,32 +49,15 @@ module MetaInspector
         tag['content'].to_s[/;\s*charset\s*=\s*["']?([^;\s"']+)/i, 1]
       end
 
+      # Returns every content of the meta tags with that attribute, keyed by
+      # its lowercased value
       def meta_tags_by(attribute)
-        hash = {}
-        parsed.css("meta[@#{attribute}]").map do |tag|
-          name    = tag.attributes[attribute].value.downcase rescue nil
-          content = tag.attributes['content'].value rescue nil
-
-          if name && content
-            hash[name] ||= []
-            hash[name] << content
-          end
-        end
-        hash
-      end
-
-      def convert_each_array_to_first_element_on(hash)
-        hash.each_pair do |k, v|
-          hash[k] = if v.is_a?(Hash)
-                      convert_each_array_to_first_element_on(v)
-                    elsif v.is_a?(Array)
-                      v.first
-                    else
-                      v
-                    end
+        parsed.css("meta[@#{attribute}]").each_with_object({}) do |tag, contents|
+          name    = tag.attributes[attribute]&.value&.downcase
+          content = tag.attributes['content']&.value
+          (contents[name] ||= []) << content if name && content
         end
       end
-
     end
   end
 end

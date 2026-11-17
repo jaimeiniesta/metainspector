@@ -39,12 +39,33 @@ module MetaInspector
 
     private
 
+    # The first MAX_BYTES bytes of a successful image response. complete is
+    # true when the whole body was read.
+    Download = Struct.new(:status, :headers, :bytes, :complete, keyword_init: true)
+    private_constant :Download
+
     def fetch(url, metadata:, reject_invalid_url:)
-      bytes = ''.b
+      download = download(url, reject_invalid_url)
+      return unless download.status && (200..299).cover?(download.status)
+
+      dimensions = FastImage.size(StringIO.new(download.bytes))
+      return dimensions unless metadata
+
+      { dimensions: dimensions, type: FastImage.type(StringIO.new(download.bytes)), file_size: file_size(download) }
+    rescue URLPolicy::Failure => failure
+      raise failure.original
+    rescue URI::InvalidComponentError => error
+      raise MetaInspector::RequestError.new(error)
+    rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::SSLError,
+           Faraday::FollowRedirects::RedirectLimitReached, URI::InvalidURIError, Timeout::Error
+      nil
+    end
+
+    # Streams the response and stops as soon as it has MAX_BYTES, gets an
+    # error status, or reaches TIMEOUT.
+    def download(url, reject_invalid_url)
+      download = Download.new(bytes: ''.b, complete: false)
       received = 0
-      status = nil
-      headers = nil
-      completed = false
       stop = Object.new
       Timeout.timeout(TIMEOUT) do
         session = @session.build(url, image: true, origin: @origin.url, protect_redirect_callback: reject_invalid_url)
@@ -55,44 +76,34 @@ module MetaInspector
             request.options.open_timeout = @connection_timeout
             request.options.timeout = @read_timeout
             request.options.on_data = proc do |chunk, _total, env|
-              status = env.status
-              headers = env.response_headers
+              download.status = env.status
+              download.headers = env.response_headers
               remaining = MAX_BYTES - received
               received += chunk.bytesize
               # Count redirect bodies too, across the entire lookup.
-              if (200..299).cover?(status)
-                bytes << chunk.b.byteslice(0, remaining)
-              elsif !(300..399).cover?(status)
+              if (200..299).cover?(env.status)
+                download.bytes << chunk.b.byteslice(0, remaining)
+              elsif !(300..399).cover?(env.status)
                 throw stop
               end
               throw stop if received >= MAX_BYTES
             end
           end
-          completed = true
+          download.complete = true
         end
       end
-      return unless status && (200..299).cover?(status)
-
-      dimensions = FastImage.size(StringIO.new(bytes))
-      return dimensions unless metadata
-
-      { dimensions: dimensions, type: FastImage.type(StringIO.new(bytes)),
-        file_size: file_size(status, headers, completed, bytes.bytesize) }
-    rescue URLPolicy::Failure => failure
-      raise failure.original
-    rescue URI::InvalidComponentError => error
-      raise MetaInspector::RequestError.new(error)
-    rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::SSLError,
-           Faraday::FollowRedirects::RedirectLimitReached, URI::InvalidURIError, Timeout::Error
-      nil
+      download
     end
 
-    def file_size(status, headers, completed, bytesize)
+    # The full size of the image, from Content-Range for partial responses,
+    # or from Content-Length or the bytes read for complete ones.
+    def file_size(download)
+      status, headers = download.status, download.headers
       value = if status == 206
                 headers['content-range'].to_s[/\Abytes \d+-\d+\/(\d+)\z/i, 1]
               elsif status == 200 && (headers['content-encoding'].nil? || headers['content-encoding'] == 'identity')
                 length = headers['content-length']
-                length.nil? && completed ? bytesize.to_s : length.to_s[/\A\d+\z/]
+                length.nil? && download.complete ? download.bytes.bytesize.to_s : length.to_s[/\A\d+\z/]
               end
       value.to_i if value
     end

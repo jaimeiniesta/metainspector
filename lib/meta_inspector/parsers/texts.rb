@@ -5,8 +5,7 @@ module MetaInspector
 
       # Returns the declared HTML language, or nil when missing or blank
       def language
-        value = parsed.at_css('html')&.[]('lang')&.strip
-        value unless value.to_s.empty?
+        stripped_presence(parsed.at_css('html')&.[]('lang'))
       end
 
       # Returns the content of the first <title> tag within the <head> section,
@@ -32,7 +31,7 @@ module MetaInspector
       def h3
         @h3 ||= find_heading('h3')
       end
-      
+
       def h4
         @h4 ||= find_heading('h4')
       end
@@ -87,40 +86,41 @@ module MetaInspector
         text unless text.nil? || text.empty?
       end
 
+      # Strips the text and collapses its inner whitespace into single spaces
+      def squish(text)
+        text.strip.gsub(/\s+/, ' ')
+      end
+
       def find_heading(heading)
-        parsed.css(heading).map { |tag| tag.inner_text.strip.gsub(/\s+/, ' ') }.reject(&:empty?)
+        parsed.css(heading).map { |tag| squish(tag.inner_text) }.reject(&:empty?)
+      end
+
+      # Returns the first candidate, String or node, with non-blank text, squished
+      def first_squished_text(candidates)
+        texts = candidates.flatten.compact.map { |c| squish(c.respond_to?(:inner_text) ? c.inner_text : c) }
+        texts.find { |text| !text.empty? }
       end
 
       # Look for candidates per list of priority
       def find_best_title
-        candidates = [
-            meta['title'],
-            meta['og:title'],
-            parsed.css('head title'),
-            parsed.css('body title'),
-            parsed.css('h1').first,
-            meta['parsely-title']
-        ]
-        candidates.flatten!
-        candidates.compact!
-        candidates.map! { |c| (c.respond_to? :inner_text) ? c.inner_text : c }
-        candidates.map! { |c| c.strip.gsub(/\s+/, ' ') }
-        candidates.find { |c| !c.to_s.empty? }
+        first_squished_text([
+          meta['title'],
+          meta['og:title'],
+          parsed.css('head title'),
+          parsed.css('body title'),
+          parsed.css('h1').first,
+          meta['parsely-title']
+        ])
       end
 
       def find_best_author
-        candidates = [
+        first_squished_text([
           meta['author'],
           parsed.css('a[rel="author"]').first,
           parsed.css('address').first,
           meta['twitter:creator'],
           meta['parsely-author']
-        ]
-        candidates.flatten!
-        candidates.compact!
-        candidates.map! { |c| (c.respond_to? :inner_text) ? c.inner_text : c }
-        candidates.map! { |c| c.strip.gsub(/\s+/, ' ') }
-        candidates.find { |c| !c.to_s.empty? }
+        ])
       end
 
       def find_best_description
@@ -130,17 +130,12 @@ module MetaInspector
           meta['twitter:description'],
           secondary_description
         ]
-        candidates.each do |candidate|
-          text = stripped_presence(candidate)
-          return text if text
-        end
-        nil
+        candidates.filter_map { |candidate| stripped_presence(candidate) }.first
       end
 
       # Look for the first <p> block with 120 characters or more
       def secondary_description
-        first_long_paragraph = parsed.search('//p[string-length() >= 120]').first
-        first_long_paragraph ? first_long_paragraph.text : ''
+        parsed.at_xpath('//p[string-length() >= 120]')&.text
       end
     end
   end
