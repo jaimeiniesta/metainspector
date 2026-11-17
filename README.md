@@ -339,11 +339,20 @@ documents, set `max_html_bytes` to a non-negative integer:
 page = MetaInspector.new(url, max_html_bytes: 2 * 1024 * 1024)
 ```
 
-The default is `nil` (no limit). HTML larger than the limit raises
-`MetaInspector::ParserError` before parsing, including HTML passed with the
-`document` option. The limit is measured in bytes after fetching and processing
-the response, so it does not limit download size or memory used for the response.
-It also does not guarantee a parsing deadline: even a small document can be
+The default in 5.x is `nil` (no limit). Set a finite limit when fetching URLs you
+do not control. Exceeding it raises `MetaInspector::ParserError` during
+initialization. The limit applies separately to the bytes received for each
+response (including redirect bodies), each stage of gzip/deflate decompression,
+and the HTML after charset conversion and processing, before parsing. Downloads
+stop as soon as a received chunk exceeds the limit; decompression stops as soon
+as an output chunk exceeds it, without expanding the entire body. Cached
+responses are checked too. With a finite limit, only gzip and deflate compression
+are supported; other content encodings raise `MetaInspector::RequestError`.
+HTML passed with `document:` is checked before parsing as well.
+
+This bounds response buffers, not total process memory: charset conversion and
+DOM construction still need additional memory. It also does not guarantee a
+parsing deadline: even a small document can be
 slow to parse. Ruby's `Timeout.timeout` cannot reliably interrupt Nokogiri's
 native parser; use a separately supervised process if a hard deadline is needed.
 

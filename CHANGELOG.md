@@ -1,5 +1,9 @@
 # MetaInspector Changelog
 
+## [Changes in 5.21.2](https://github.com/jaimeiniesta/metainspector/compare/v5.21.1...v5.21.2)
+
+* Security: apply `max_html_bytes` while downloading page and redirect responses and during gzip/deflate decompression, before charset conversion and parsing. Oversized responses raise `MetaInspector::ParserError`; cached responses are checked as well. The 5.x default remains `nil` (unlimited); set a finite limit for untrusted URLs. Other content encodings are rejected with a finite limit ([GHSA-36j3-rh89-4gm2](https://github.com/jaimeiniesta/metainspector/security/advisories/GHSA-36j3-rh89-4gm2)).
+
 ## [Changes in 5.21.1](https://github.com/jaimeiniesta/metainspector/compare/v5.21.0...v5.21.1)
 
 * Security: forward only `User-Agent`, `Accept`, `Accept-Language` and `Accept-Encoding` when page redirects change the origin (scheme, host or port), preventing custom credentials from reaching another origin. Apply the policy to GET and HEAD, including headers supplied through `faraday_options`, and keep the initial credentials out of image requests on the redirected origin. Custom headers remain available within the initial origin ([GHSA-mcmp-j8cq-h65f](https://github.com/jaimeiniesta/metainspector/security/advisories/GHSA-mcmp-j8cq-h65f)).

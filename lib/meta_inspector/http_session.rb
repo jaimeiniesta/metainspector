@@ -7,6 +7,7 @@ require 'faraday/follow_redirects'
 require 'faraday/gzip'
 require 'faraday/retry'
 require_relative 'url_policy'
+require_relative 'limited_response'
 
 module MetaInspector
   # Builds page and binary image transports from the same caller configuration.
@@ -15,6 +16,7 @@ module MetaInspector
       @allow_redirections = options[:allow_redirections]
       @retries = options[:retries]
       @headers = options[:headers]
+      @max_html_bytes = options[:max_html_bytes]
       @url_filter = options[:url_filter]
       if !@url_filter.nil? && !@url_filter.respond_to?(:call)
         raise ArgumentError, 'url_filter must respond to call'
@@ -42,7 +44,9 @@ module MetaInspector
       Faraday.new(faraday_options) do |faraday|
         unless image
           faraday.request :retry, max: @retries
-          faraday.request :gzip
+          # Responses run in reverse order: decompress before applying the charset.
+          faraday.response :encoding if @max_html_bytes
+          faraday.request :gzip if @max_html_bytes.nil?
         end
         if @allow_redirections
           redirects[:limit] ||= 10
@@ -51,13 +55,15 @@ module MetaInspector
         end
         faraday.use URLPolicy, @url_filter, image ? origin : nil,
           request_origin: @page_origin || origin
+        faraday.use LimitedResponse, @max_html_bytes if !image && @max_html_bytes
         if !image && @cache.is_a?(Hash)
           cache_options = @cache.dup
           cache_options[:serializer] ||= Marshal
           faraday.use Faraday::HttpCache, **cache_options
         end
+        faraday.use LimitedResponse::Streaming, @max_html_bytes if !image && @max_html_bytes
         faraday.headers.merge!(@headers || {})
-        faraday.response :encoding unless image
+        faraday.response :encoding unless image || @max_html_bytes
         faraday.adapter :net_http
       end
     end
