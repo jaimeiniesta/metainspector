@@ -855,6 +855,8 @@ page.title                   # => the title of the error page
 
 ## Examples
 
+For a web demo, see [metainspectordemo](https://github.com/jaimeiniesta/metainspectordemo): a small Rack app where you enter a URL and explore what MetaInspector extracts from it, including metadata, images, links, headings, feeds and the full `to_hash` output. Run it locally with `bundle exec rackup`.
+
 Runnable sample scripts live in `examples/`. From the repository root, pass the URL as an argument:
 
 ```sh
