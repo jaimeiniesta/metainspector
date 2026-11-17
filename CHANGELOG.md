@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Preserve titles, head links and page content after tracking snippets in `<noscript>`, including unclosed or self-closing iframes. Parse each fallback separately so its links, images, stylesheets and iframes remain available (#602).
 * Use the first meta charset declaration for binary HTML bodies, so a later conflicting declaration no longer garbles text or truncates the page. Preserve HTTP and string encodings, and prefer a byte-order mark over meta declarations (#575).
 * Parse the DOM with HTML5 rules so paragraphs inside `h1`–`h6` retain their text, including the `best_title` heading fallback (#566). `parsed` now returns `Nokogiri::HTML5::Document`; malformed markup can produce a different tree, and literal CR/CRLF line endings in text and attributes normalize to LF. Preserve the existing HTML4 resource-limit checks and encoding detection before HTML5 parsing, and wrap HTML5 depth-limit failures in `MetaInspector::ParserError`. Retain HTML4 parsing for legacy charsets that Ruby cannot transcode to UTF-8.
 * Parse responses declared as UTF-16, UTF-32 or ISO-2022-JP by converting non-ASCII-compatible bodies to UTF-8 before removing NUL characters. Preserve the raw response body during conversion and wrap invalid or unsupported encoding conversions in `MetaInspector::RequestError` (#568).

@@ -69,7 +69,8 @@ module MetaInspector
         raise MetaInspector::ParserError, limit_error.message.strip if limit_error
 
         if (utf8 = html5_input(html, document))
-          parsed = Nokogiri::HTML5(utf8, max_attributes: -1)
+          parsed = Nokogiri::HTML5(utf8, max_attributes: -1, parse_noscript_content_as_text: true)
+          restore_noscript_content(parsed)
           parsed.errors.concat(document.errors)
           parsed
         else
@@ -81,6 +82,14 @@ module MetaInspector
     end
 
     private
+
+    def restore_noscript_content(document)
+      document.css('noscript').each do |node|
+        # Isolate fallback markup so it cannot close the head or consume the
+        # rest of the page, while keeping it available to all extractors.
+        node.children = Nokogiri::HTML5.fragment(node.text, max_attributes: -1)
+      end
+    end
 
     def html5_input(html, document)
       encoding = html.encoding == Encoding::BINARY ? document.encoding || 'UTF-8' : html.encoding.name
