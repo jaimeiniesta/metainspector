@@ -56,7 +56,7 @@ Pass these options as the second argument to `MetaInspector.new(url, options)`.
 | --- | --- | --- |
 | `connection_timeout` | `20` | Maximum seconds to wait for a connection. |
 | `read_timeout` | `20` | Maximum seconds to wait for a read once connected. |
-| `retries` | `3` | Maximum additional attempts for retryable failures, within the overall fetch deadline. See [Timeout & Retries](#timeout--retries). |
+| `retries` | `3` | Maximum additional attempts after a timeout. See [Timeout & Retries](#timeout--retries). |
 | `allow_redirections` | `true` | Follow redirects, up to 10 by default; customize with `faraday_options[:redirect]`. |
 | `head_first` | `false` | Check content type with HEAD before downloading with GET. |
 | `document` | `nil` | HTML string to parse instead of fetching the page. |
@@ -427,26 +427,27 @@ the DOM, it is HTML4's, 256 levels. Ordinary HTML errors and recoverable
 encoding errors are still tolerated.
 
 You can also specify the maximum number of additional attempts with `retries`,
-which defaults to 3. The retry middleware retries read timeouts, but does not retry
-connection failures, including connection timeouts.
+which defaults to 3. Connection timeouts, read timeouts and attempts that run out
+of time are retried. Other connection failures, such as a refused connection or a
+DNS failure, are not.
 
-One overall deadline of `connection_timeout + read_timeout + 1` seconds covers the
-entire fetch, including redirects, retries and the optional HEAD request. With the
-defaults, this is 41 seconds. The deadline can stop the fetch before all retries
-are attempted; increasing `retries` does not extend it.
+Each attempt also has a deadline of `connection_timeout + read_timeout + 1`
+seconds, which covers its redirects. It stops servers that keep sending data
+slowly enough that the read timeout never fires. With the defaults, this is 41
+seconds per attempt, so a page that times out on every attempt takes up to
+41 × 4 = 164 seconds to fail. With `head_first: true`, the HEAD and GET requests
+each get their own attempts.
 
 For example, this allows up to 10 seconds to connect and 5 seconds per read, with
-up to 4 additional attempts, all within a 16-second overall deadline:
+up to 4 additional attempts, each within a 16-second deadline:
 
 ```ruby
 page = MetaInspector.new('https://example.com', connection_timeout: 10, read_timeout: 5, retries: 4)
 ```
 
-Read timeouts that exhaust the retries, and expiration of the overall deadline,
-raise `MetaInspector::TimeoutError`. With the current Net::HTTP adapter, a
-connection timeout raises `MetaInspector::RequestError`, as do other connection
-failures. See [#598](https://github.com/jaimeiniesta/metainspector/issues/598).
-Rescue both classes if your application needs to handle either case:
+If the last attempt times out, MetaInspector raises `MetaInspector::TimeoutError`;
+other connection failures raise `MetaInspector::RequestError`. Rescue both if your
+application handles them the same way:
 
 ```ruby
 begin
@@ -796,8 +797,8 @@ The top-level `faraday_http_cache` option still works, but it is deprecated and 
 
 Web page scraping is tricky, you can expect to find different exceptions during the request of the page or the parsing of its contents. MetaInspector will encapsulate these exceptions on these main errors:
 
-* `MetaInspector::TimeoutError`. When read retries are exhausted or the overall fetch deadline expires. See [Timeout & Retries](#timeout--retries).
-* `MetaInspector::RequestError`. When there has been an error on the request phase. Examples: connection timeout, DNS failure, refused connection, SSL failure, invalid URI, malformed compressed response.
+* `MetaInspector::TimeoutError`. When connecting or reading times out, or an attempt runs out of time, and no retries are left. See [Timeout & Retries](#timeout--retries).
+* `MetaInspector::RequestError`. When there has been an error on the request phase. Examples: DNS failure, refused connection, SSL failure, invalid URI, malformed compressed response.
 * `MetaInspector::ParserError`. When there has been an error parsing the contents of the page.
 * `MetaInspector::NonHtmlError`. When the contents of the page was not HTML. See also the `allow_non_html_content` option
 
