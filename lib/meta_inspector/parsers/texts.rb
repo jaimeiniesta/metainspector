@@ -69,7 +69,8 @@ module MetaInspector
         @description = stripped_presence(meta['description'])
       end
 
-      # A description getter that returns the first non-blank description
+      # A description getter that returns the first non-blank description,
+      # without surrounding whitespace,
       # from the following candidates:
       # - the standard meta description
       # - the og:description meta tag
@@ -129,7 +130,11 @@ module MetaInspector
           meta['twitter:description'],
           secondary_description
         ]
-        candidates.find { |x| !x.to_s.strip.empty? }
+        candidates.each do |candidate|
+          text = stripped_presence(candidate)
+          return text if text
+        end
+        nil
       end
 
       # Look for the first <p> block with 120 characters or more

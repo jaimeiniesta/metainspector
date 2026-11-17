@@ -159,7 +159,7 @@ page.best_title          # best title of the page, from a selection of candidate
 page.author              # author of the page from the meta author tag
 page.best_author         # best author of the page, from a selection of candidates
 page.description         # returns the meta description, or nil
-page.best_description    # returns the first non-empty description between the following candidates: standard meta description, og:description, twitter:description, the first long paragraph
+page.best_description    # returns the first non-empty description between the following candidates: standard meta description, og:description, twitter:description, the first long paragraph; trims surrounding whitespace
 page.h1                  # returns h1 text array
 page.h2                  # returns h2 text array
 page.h3                  # returns h3 text array
@@ -442,7 +442,7 @@ documents, set `max_html_bytes` to a non-negative integer:
 page = MetaInspector.new(url, max_html_bytes: 2 * 1024 * 1024)
 ```
 
-The default in 5.x is `nil` (no limit). Set a finite limit when fetching URLs you
+The default is `nil` (no limit). Set a finite limit when fetching URLs you
 do not control. Exceeding it raises `MetaInspector::ParserError` during
 initialization. The limit applies separately to the bytes received for each
 response (including redirect bodies), each stage of gzip/deflate decompression,
