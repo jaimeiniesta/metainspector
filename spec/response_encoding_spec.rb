@@ -124,14 +124,14 @@ RSpec.describe 'byte-order-mark response encoding' do
     expect(page.response.body).to eq(body)
   end
 
-  it 'wraps invalid BOM-declared UTF-16 bytes in RequestError' do
+  it 'replaces invalid BOM-declared UTF-16 bytes' do
     body = "\xFF\xFE".b + '<title>Hello</title>'.encode('UTF-16LE').b + "\x00".b
     stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => 'text/html' })
 
-    expect { MetaInspector.new(url) }.to raise_error(MetaInspector::RequestError) { |error|
-      expect(error.cause).to be_a(Encoding::InvalidByteSequenceError)
-      expect(error.message).to eq(error.cause.message)
-    }
+    page = MetaInspector.new(url)
+
+    expect(page.title).to eq('Hello')
+    expect(page.to_s).to end_with("\u{FFFD}")
   end
 end
 
@@ -421,16 +421,16 @@ RSpec.describe 'non-ASCII-compatible page encoding' do
     expect(page.response.body.b).to eq(body)
   end
 
-  it 'wraps invalid UTF-16LE bytes in RequestError' do
+  it 'replaces invalid UTF-16LE bytes' do
     body = html.encode('UTF-16LE').b + "\x00".b
     stub_request(:get, url).to_return(body: body, headers: {
       'Content-Type' => 'text/html; charset=UTF-16LE'
     })
 
-    expect { MetaInspector.new(url) }.to raise_error(MetaInspector::RequestError) { |error|
-      expect(error.cause).to be_a(Encoding::InvalidByteSequenceError)
-      expect(error.message).to eq(error.cause.message)
-    }
+    page = MetaInspector.new(url)
+
+    expect(page.links.raw).to eq(['/after'])
+    expect(page.to_s).to end_with("\u{FFFD}")
   end
 
   it 'wraps unsupported UTF-7 conversion in RequestError' do
@@ -442,5 +442,46 @@ RSpec.describe 'non-ASCII-compatible page encoding' do
       expect(error.cause).to be_a(Encoding::ConverterNotFoundError)
       expect(error.message).to eq(error.cause.message)
     }
+  end
+end
+
+RSpec.describe 'invalid bytes in a fetched page' do
+  let(:url) { 'https://encoding.example/page' }
+  let(:body) do
+    "<html><head><title>caf\xC3\xA9</title></head>" \
+      "<body><p>one bad byte: \xE9</p><a href='/a'>a</a></body></html>".b
+  end
+
+  it 'replaces invalid bytes when the charset comes from the Content-Type header' do
+    stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => 'text/html; charset=utf-8' })
+
+    page = MetaInspector.new(url)
+
+    expect(page.title).to eq('café')
+    expect(page.links.raw).to eq(['/a'])
+    expect(page.parsed.at('p').text).to eq("one bad byte: \u{FFFD}")
+    expect(page.to_s).to be_valid_encoding
+    expect(page.response.body.b).to eq(body)
+  end
+
+  it 'replaces invalid bytes in a compressed page' do
+    stub_request(:get, url).to_return(body: Zlib.gzip(body), headers: {
+      'Content-Type' => 'text/html; charset=utf-8', 'Content-Encoding' => 'gzip'
+    })
+
+    page = MetaInspector.new(url)
+
+    expect(page.title).to eq('café')
+    expect(page.links.raw).to eq(['/a'])
+  end
+
+  it 'still lets a forced encoding override a wrong HTTP charset' do
+    stub_request(:get, url).to_return(body: "<title>caf\xE9</title>".b, headers: {
+      'Content-Type' => 'text/html; charset=utf-8'
+    })
+
+    page = MetaInspector.new(url, encoding: 'Windows-1252')
+
+    expect(page.title).to eq('café')
   end
 end
