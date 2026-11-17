@@ -1,5 +1,9 @@
 # MetaInspector Changelog
 
+## [Changes in 5.21.1](https://github.com/jaimeiniesta/metainspector/compare/v5.21.0...v5.21.1)
+
+* Security: forward only `User-Agent`, `Accept`, `Accept-Language` and `Accept-Encoding` when page redirects change the origin (scheme, host or port), preventing custom credentials from reaching another origin. Apply the policy to GET and HEAD, including headers supplied through `faraday_options`, and keep the initial credentials out of image requests on the redirected origin. Custom headers remain available within the initial origin ([GHSA-mcmp-j8cq-h65f](https://github.com/jaimeiniesta/metainspector/security/advisories/GHSA-mcmp-j8cq-h65f)).
+
 ## [Changes in 5.21.0](https://github.com/jaimeiniesta/metainspector/compare/v5.20.0...v5.21.0)
 
 * Restore working `page.feed` and `page.favicon` compatibility methods with deprecation warnings and removal scheduled for 6.0. `feed` returns the first RSS/Atom URL (or `nil`), and `favicon` returns `images.favicon`. Migrate to `page.feeds` and `page.images.favicon` (#547).

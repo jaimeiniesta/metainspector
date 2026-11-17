@@ -375,6 +375,14 @@ end
 
 By default, MetaInspector will follow redirects (up to a limit of 10).
 
+Custom headers are retained only on the initial page origin (scheme, host and port).
+For redirects to a different origin, including subdomains, different ports and
+HTTPS-to-HTTP redirects, only `User-Agent`, `Accept`, `Accept-Language` and
+`Accept-Encoding` are forwarded. This applies to GET and HEAD requests and to
+headers supplied through either `headers:` or `faraday_options[:headers]`.
+Credentials from the initial request are also withheld from images on a redirected
+page at a different origin. Image requests retain their generated `Range` header.
+
 If you want to disallow redirects, you can do it like this:
 
 ```ruby
@@ -400,6 +408,8 @@ page = MetaInspector.new(url, faraday_options: { redirect: { callback: callback 
 
 The `faraday_options[:redirect]` hash is passed to the `FollowRedirects` middleware used by `Faraday`, so that we can use all available options.
 Check them [here](https://github.com/lostisland/faraday_middleware/blob/main/lib/faraday_middleware/response/follow_redirects.rb#L44).
+The origin header policy also applies after your redirect callback runs and when
+`clear_authorization_header: false` is set.
 
 ### Filtering request URLs
 
