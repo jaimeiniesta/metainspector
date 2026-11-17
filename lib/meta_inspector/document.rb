@@ -18,7 +18,7 @@ module MetaInspector
     # * download_image_options: supports reject_invalid_images (default false)
     # * inline_image_data: return full data URLs in image results (default false)
     # * fetch_all_image_meta: enable image validity metadata (default false)
-    # * max_html_bytes: maximum HTML size before parsing, or nil for unlimited
+    # * max_html_bytes: maximum received, decompressed and parsed HTML bytes, or nil for unlimited
     # * url_filter: callable receiving a URI before each request; false/nil rejects it
     # * faraday_options: an optional hash of options to pass to Faraday on the request.
     #   Its faraday_http_cache key configures response caching with Faraday::HttpCache
