@@ -74,7 +74,7 @@ module MetaInspector
           # libxml2's depth error doesn't apply: its HTML4 tree can be much
           # deeper, as it leaves elements open that HTML5 closes (#612).
           parsed = html5_document(utf8, document)
-          enforce_node_size_limit(parsed, document)
+          enforce_node_size_limit(parsed, utf8, document)
           parsed
         else
           # libxml2's tree is the DOM, and past its depth limit it's truncated.
@@ -95,24 +95,28 @@ module MetaInspector
       raise MetaInspector::ParserError, limit_error.message.strip if limit_error
     end
 
-    # libxml2 stops reading at its depth limit, so it never checked the size
-    # of the text, attribute values and comments after that point. Apply its
-    # limit to them in the HTML5 tree, which has none of its own.
-    def enforce_node_size_limit(parsed, document)
-      return if non_html_content?
-      return unless document.errors.any? { |error| error.message.include?('Excessive depth in document') }
+    # libxml2 may stop reading at a fatal error, such as its depth limit, so it
+    # may not have checked the size of everything after that point. Then apply
+    # its limit to the HTML5 tree, which has none of its own. Skip inputs too
+    # small to hold an oversized node: HTML5 parsing turns a byte into at most
+    # 3 (NUL to U+FFFD).
+    def enforce_node_size_limit(parsed, html, document)
+      return if non_html_content? || html.bytesize * 3 <= MAX_NODE_BYTES
+      return unless document.errors.any?(&:fatal?)
 
-      oversized = parsed.xpath('//text() | //comment() | //@*').find do |node|
-        node.content.bytesize > MAX_NODE_BYTES
+      kind = catch(:oversized) do
+        parsed.traverse do |node|
+          if node.element?
+            throw :oversized, 'attribute value' if node.attribute_nodes.any? { |a| a.value.bytesize > MAX_NODE_BYTES }
+          elsif node.comment?
+            throw :oversized, 'comment' if node.content.bytesize > MAX_NODE_BYTES
+          elsif node.text? || node.cdata?
+            throw :oversized, 'text node' if node.content.bytesize > MAX_NODE_BYTES
+          end
+        end
+        nil
       end
-      return unless oversized
-
-      kind = case oversized
-             when Nokogiri::XML::Attr then 'attribute value'
-             when Nokogiri::XML::Comment then 'comment'
-             else 'text node'
-             end
-      raise MetaInspector::ParserError, "Resource limit exceeded: #{kind} longer than #{MAX_NODE_BYTES} bytes"
+      raise MetaInspector::ParserError, "Resource limit exceeded: #{kind} longer than #{MAX_NODE_BYTES} bytes" if kind
     end
 
     def html5_document(html, fallback)
