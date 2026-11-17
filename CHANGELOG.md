@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Decode fetched UTF-16 and UTF-32 pages with a byte-order mark before removing NUL characters, even when the HTTP header has no charset. Preserve the raw response body and prefer the mark over conflicting meta declarations (#601).
 * Security: apply `max_html_bytes` while downloading page and redirect responses and during gzip/deflate decompression, before charset conversion and parsing. Oversized responses raise `MetaInspector::ParserError`; cached responses are checked as well. The 5.x default remains `nil` (unlimited); set a finite limit for untrusted URLs. Other content encodings are rejected with a finite limit ([GHSA-36j3-rh89-4gm2](https://github.com/jaimeiniesta/metainspector/security/advisories/GHSA-36j3-rh89-4gm2)).
 * Security: forward only `User-Agent`, `Accept`, `Accept-Language` and `Accept-Encoding` when page redirects change the origin (scheme, host or port), preventing custom credentials from reaching another origin. Apply the policy to GET and HEAD, including headers supplied through `faraday_options`, and keep the initial credentials out of image requests on the redirected origin. Custom headers remain available within the initial origin ([GHSA-mcmp-j8cq-h65f](https://github.com/jaimeiniesta/metainspector/security/advisories/GHSA-mcmp-j8cq-h65f)).
 * Preserve titles, head links and page content after tracking snippets in `<noscript>`, including unclosed or self-closing iframes. Parse each fallback separately so its links, images, stylesheets and iframes remain available (#602).
