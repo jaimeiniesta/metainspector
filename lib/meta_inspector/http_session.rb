@@ -12,6 +12,19 @@ require_relative 'limited_response'
 module MetaInspector
   # Builds page and binary image transports from the same caller configuration.
   class HttpSession
+    # Faraday stores the query as a params hash and rebuilds it for the request,
+    # which sorts keys, drops repeated ones and re-escapes values. This encoder
+    # keeps the whole query as a single key, so it is sent as written.
+    module RawQuery
+      def self.decode(query)
+        query.to_s.empty? ? {} : { query => nil }
+      end
+
+      def self.encode(params)
+        params.keys.join('&')
+      end
+    end
+
     def initialize(options = {})
       @allow_redirections = options[:allow_redirections]
       @retries = options[:retries]
@@ -26,10 +39,15 @@ module MetaInspector
     end
 
     def build(url, image: false, origin: nil, protect_redirect_callback: false)
-      URLPolicy.validate!(url)
+      uri = URLPolicy.validate!(url)
       # Image requests must keep trusting the initial origin after page redirects.
       @page_origin ||= url.to_s unless image
-      faraday_options = @faraday_options.merge(url: url)
+      # Faraday.new decodes a query in its URL with the default encoder, before
+      # any configured one applies, so the query is added to the params below.
+      query = uri.query
+      uri.query = nil
+      faraday_options = @faraday_options.merge(url: uri.to_s)
+      faraday_options[:request] = { params_encoder: RawQuery }.merge(faraday_options[:request] || {})
       redirects = (faraday_options.delete(:redirect) || {}).dup
       if protect_redirect_callback && redirects[:callback]
         callback = redirects[:callback]
@@ -41,7 +59,7 @@ module MetaInspector
           end
         end
       end
-      Faraday.new(faraday_options) do |faraday|
+      connection = Faraday.new(faraday_options) do |faraday|
         unless image
           faraday.request :retry, max: @retries
           # Responses run in reverse order: decompress before applying the charset.
@@ -65,6 +83,8 @@ module MetaInspector
         faraday.headers.merge!(@headers || {})
         faraday.adapter :net_http
       end
+      connection.params.merge_query(query, connection.options.params_encoder)
+      connection
     end
 
     private
