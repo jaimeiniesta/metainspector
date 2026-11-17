@@ -28,6 +28,7 @@ module MetaInspector
     def read
       return unless response
       body = response.body
+      check_content_encoding!(body)
       if body.encoding == Encoding::BINARY
         # The adapter tags the body only with HTTP charsets Ruby knows.
         label = response.headers['content-type'].to_s[/(?:\A|;)\s*charset\s*=\s*["']?([^;\s"']+)/i, 1]
@@ -103,6 +104,18 @@ module MetaInspector
       if !@allow_non_html_content && !type.nil? && type != 'text/html'
         fail MetaInspector::NonHtmlError.new "The url provided contains #{type} content instead of text/html content"
       end
+    end
+
+    # The compression middleware removes Content-Encoding once it has decoded the
+    # body. If it's still there, the body is compressed bytes, not HTML (#597).
+    def check_content_encoding!(body)
+      return if body.empty?
+
+      header = response.headers['content-encoding'].to_s
+      encodings = header.split(',').map { |value| value.strip.downcase }.reject(&:empty?) - ['identity']
+      return if encodings.empty?
+
+      raise MetaInspector::RequestError, "Unsupported Content-Encoding: #{header.strip}"
     end
 
     def response_content_type(response)
