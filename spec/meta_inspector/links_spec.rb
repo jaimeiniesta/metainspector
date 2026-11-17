@@ -58,7 +58,7 @@ describe MetaInspector do
           "http://international.com/faqs#cami%C3%83%C2%B3n",
           "http://international.com/search?q=cami%C3%83%C2%B3n",
           "http://international.com/search?q=espa%C3%83%C2%B1a#top",
-          "http://international.com/index.php?q=espa%C3%83%C2%B1a&url=aHR0zZQ==&cntnt01pageid=21"
+          "http://international.com/index.php?q=espa%C3%83%C2%B1a&url=aHR0zZQ%3D%3D&cntnt01pageid=21"
         ])
 
         expect(m.links.external).to eq([
@@ -79,7 +79,7 @@ describe MetaInspector do
             "http://international.com/faqs#cami%C3%83%C2%B3n",
             "http://international.com/search?q=cami%C3%83%C2%B3n",
             "http://international.com/search?q=espa%C3%83%C2%B1a#top",
-            "http://international.com/index.php?q=espa%C3%83%C2%B1a&url=aHR0zZQ==&cntnt01pageid=21"
+            "http://international.com/index.php?q=espa%C3%83%C2%B1a&url=aHR0zZQ%3D%3D&cntnt01pageid=21"
           ])
         end
 
@@ -303,6 +303,27 @@ describe MetaInspector do
                                          'http://example.com/svg-link',
                                          'http://example.com/math-link',
                                          'http://example.com/after'])
+    end
+  end
+
+  describe 'Query strings in links' do
+    let(:page) do
+      MetaInspector.new('http://example.com/dir/', document: <<~HTML)
+        <a href="/a?x=1;y=2&b[]=1&c=a%2fb&%61=1">relative</a>
+        <a href="http://other.com/a?x=1;y=2&b[]=1&c=a%2fb&%61=1">absolute</a>
+        <a href="b?q=café&r=a|b&s=50%">needs escaping</a>
+        <link rel="alternate" type="application/rss+xml" href="/feed?x=1;y=2">
+      HTML
+    end
+
+    it 'keeps reserved characters and escapes as written (#613)' do
+      expect(page.links.all).to eq(['http://example.com/a?x=1;y=2&b[]=1&c=a%2fb&%61=1',
+                                    'http://other.com/a?x=1;y=2&b[]=1&c=a%2fb&%61=1',
+                                    'http://example.com/dir/b?q=caf%C3%A9&r=a%7Cb&s=50%25'])
+    end
+
+    it 'applies the same rule to head links' do
+      expect(page.feeds.map { |feed| feed[:href] }).to eq(['http://example.com/feed?x=1;y=2'])
     end
   end
 

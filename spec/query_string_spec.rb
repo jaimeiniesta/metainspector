@@ -63,6 +63,32 @@ RSpec.describe 'query strings' do
     expect(@targets).to eq(['/?q=caf%E9'])
   end
 
+  # With normalize_url, the default, only what can't be sent is escaped (#613).
+  {
+    '/?q=1;r=2' => '/?q=1;r=2',
+    '/?a[]=1&a[]=2' => '/?a[]=1&a[]=2',
+    '/?q=a%2fb' => '/?q=a%2fb',
+    '/?%61=1' => '/?%61=1',
+    '/?q=%7e' => '/?q=%7e',
+    '/?q=caf%c3%a9' => '/?q=caf%c3%a9',
+    '/?q=(1)*!$+,:@/?' => '/?q=(1)*!$+,:@/?',
+    '/?q=café' => '/?q=caf%C3%A9',
+    '/?q=a|b' => '/?q=a%7Cb',
+    '/?q={x}' => '/?q=%7Bx%7D',
+    '/?q=50%' => '/?q=50%25',
+    '/?q=%zz' => '/?q=%25zz',
+    '/?q=a b' => '/?q=a%20b',
+    '/?q="<x>"' => '/?q=%22%3Cx%3E%22',
+    '/?q=a^b\\c`d' => '/?q=a%5Eb%5Cc%60d'
+  }.each do |given, sent|
+    it "requests #{given} as #{sent} with URL normalization" do
+      serve
+      page = MetaInspector.new("#{@base}#{given}")
+      expect(@targets).to eq([sent])
+      expect(page.url).to eq("#{@base}#{sent}")
+    end
+  end
+
   it 'keeps the fragment out of the request and in url' do
     serve
     page = MetaInspector.new("#{@base}/page?b=2&a=1#section", normalize_url: false)
