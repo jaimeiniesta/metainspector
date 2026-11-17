@@ -259,6 +259,74 @@ RSpec.describe 'legacy HTML charset labels' do
   end
 end
 
+# https://encoding.spec.whatwg.org/#names-and-labels
+RSpec.describe 'Encoding Standard charset labels' do
+  let(:url) { 'https://encoding.example/page' }
+
+  def page_with(title_bytes, meta: nil, header: nil)
+    declaration = meta ? %(<meta http-equiv="Content-Type" content="text/html; charset=#{meta}">) : ''
+    body = %(<html><head>#{declaration}<title>).b + title_bytes.b +
+           '</title></head><body><a href="/one">one</a></body></html>'.b
+    content_type = header ? "text/html; charset=#{header}" : 'text/html'
+    stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => content_type })
+    MetaInspector.new(url)
+  end
+
+  [
+    ['ks_c_5601-1987', "\xC7\xD1\xB1\xDB", '한글'],
+    ['korean', "\xC7\xD1\xB1\xDB", '한글'],
+    ['windows-949', "\xC7\xD1\xB1\xDB", '한글'],
+    ['x-sjis', "\x93\xFA\x96\x7B", '日本'],
+    ['ms932', "\x93\xFA\x96\x7B", '日本'],
+    ['x-euc-jp', "\xC6\xFC\xCB\xDC", '日本'],
+    ['x-gbk', "\xD6\xD0", '中'],
+    ['chinese', "\xD6\xD0", '中'],
+    ['us-ascii', "caf\xE9 \x80", 'café €'],
+    ['ascii', "caf\xE9", 'café'],
+    ['iso-8859-9', "\x80 \xFD", '€ ı'],
+    ['x-cp1251', "\xC4\xE0", 'Да'],
+    ['unicode-1-1-utf-8', "caf\xC3\xA9", 'café']
+  ].each do |label, bytes, title|
+    it "decodes #{label} declared in a meta tag" do
+      page = page_with(bytes, meta: label)
+
+      expect(page.title).to eq(title)
+      expect(page.links.raw).to eq(['/one'])
+    end
+
+    it "decodes #{label} declared in the Content-Type header" do
+      page = page_with(bytes, header: label)
+
+      expect(page.title).to eq(title)
+      expect(page.links.raw).to eq(['/one'])
+    end
+  end
+
+  %w[utf-16 utf-16le utf-16be unicode].each do |label|
+    it "reads a #{label} meta declaration as UTF-8" do
+      page = page_with("caf\xC3\xA9", meta: label)
+
+      expect(page.title).to eq('café')
+      expect(page.links.raw).to eq(['/one'])
+    end
+  end
+
+  it 'ignores an unknown meta label instead of truncating the document' do
+    page = page_with("caf\xE9", meta: 'no-such-charset')
+
+    expect(page.title).to eq('café')
+    expect(page.links.raw).to eq(['/one'])
+  end
+
+  it 'uses a later meta declaration when the first label is unknown' do
+    body = '<meta charset="no-such-charset"><meta charset="x-sjis"><title>'.b + "\x93\xFA\x96\x7B".b +
+           '</title><a href="/one">one</a>'.b
+    stub_request(:get, url).to_return(body: body, headers: { 'Content-Type' => 'text/html' })
+
+    expect(MetaInspector.new(url).title).to eq('日本')
+  end
+end
+
 RSpec.describe 'compressed page encoding' do
   let(:url) { 'https://encoding.example/page' }
   let(:title) { 'Café – £5' }

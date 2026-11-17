@@ -28,6 +28,12 @@ module MetaInspector
     def read
       return unless response
       body = response.body
+      if body.encoding == Encoding::BINARY
+        # The adapter tags the body only with HTTP charsets Ruby knows.
+        label = response.headers['content-type'].to_s[/(?:\A|;)\s*charset\s*=\s*["']?([^;\s"']+)/i, 1]
+        charset = HtmlEncoding.resolve(label)
+        body = body.dup.force_encoding(charset) if charset
+      end
       body = body.dup.force_encoding(@encoding) if @encoding
       encoding = HtmlEncoding.byte_order_mark_encoding(body)
       body = body.dup.force_encoding(encoding) if encoding && !Encoding.find(encoding).ascii_compatible?
