@@ -427,27 +427,27 @@ the DOM, it is HTML4's, 256 levels. Ordinary HTML errors and recoverable
 encoding errors are still tolerated.
 
 You can also specify the maximum number of additional attempts with `retries`,
-which defaults to 3. Connection timeouts, read timeouts and attempts that run out
-of time are retried. Other connection failures, such as a refused connection or a
-DNS failure, are not.
+which defaults to 3. Connection timeouts and read timeouts are retried. Other
+connection failures, such as a refused connection or a DNS failure, are not.
 
 Each attempt also has a deadline of `connection_timeout + read_timeout + 1`
 seconds, which covers its redirects. It stops servers that keep sending data
 slowly enough that the read timeout never fires. With the defaults, this is 41
-seconds per attempt, so a page that times out on every attempt takes up to
-41 × 4 = 164 seconds to fail. With `head_first: true`, the HEAD and GET requests
-each get their own attempts.
+seconds. An attempt that reaches the deadline is not retried, so such a server
+holds the fetch for 41 seconds, not 41 for each retry. With `head_first: true`,
+the HEAD and GET requests each get their own attempts.
 
 For example, this allows up to 10 seconds to connect and 5 seconds per read, with
-up to 4 additional attempts, each within a 16-second deadline:
+up to 4 additional attempts after a timeout, each within a 16-second deadline:
 
 ```ruby
 page = MetaInspector.new('https://example.com', connection_timeout: 10, read_timeout: 5, retries: 4)
 ```
 
-If the last attempt times out, MetaInspector raises `MetaInspector::TimeoutError`;
-other connection failures raise `MetaInspector::RequestError`. Rescue both if your
-application handles them the same way:
+If the last attempt times out, or any attempt reaches the deadline, MetaInspector
+raises `MetaInspector::TimeoutError`; other connection failures raise
+`MetaInspector::RequestError`. Rescue both if your application handles them the
+same way:
 
 ```ruby
 begin
@@ -797,7 +797,7 @@ The top-level `faraday_http_cache` option still works, but it is deprecated and 
 
 Web page scraping is tricky, you can expect to find different exceptions during the request of the page or the parsing of its contents. MetaInspector will encapsulate these exceptions on these main errors:
 
-* `MetaInspector::TimeoutError`. When connecting or reading times out, or an attempt runs out of time, and no retries are left. See [Timeout & Retries](#timeout--retries).
+* `MetaInspector::TimeoutError`. When connecting or reading times out and no retries are left, or an attempt reaches its deadline. See [Timeout & Retries](#timeout--retries).
 * `MetaInspector::RequestError`. When there has been an error on the request phase. Examples: DNS failure, refused connection, SSL failure, invalid URI, malformed compressed response.
 * `MetaInspector::ParserError`. When there has been an error parsing the contents of the page.
 * `MetaInspector::NonHtmlError`. When the contents of the page was not HTML. See also the `allow_non_html_content` option

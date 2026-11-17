@@ -58,7 +58,7 @@ module MetaInspector
       @response ||= fetch
     rescue URLPolicy::Failure => failure
       raise failure.original
-    rescue Faraday::TimeoutError => e
+    rescue Faraday::TimeoutError, AttemptTimeout::Expired => e
       raise MetaInspector::TimeoutError.new(e)
     rescue Faraday::ConnectionFailed, Faraday::SSLError, URI::InvalidURIError, URI::InvalidComponentError,
            Faraday::FollowRedirects::RedirectLimitReached, Zlib::Error => e

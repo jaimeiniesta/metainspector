@@ -68,7 +68,9 @@ describe 'Timeouts and retries' do
       calls = 0
       request = stub_request(:get, page_url).to_return do
         calls += 1
-        sleep 1.5 if calls == 1
+        # Ends with a read timeout after more than half the deadline.
+        sleep 0.7
+        raise Net::ReadTimeout if calls == 1
         html
       end
 
@@ -78,14 +80,28 @@ describe 'Timeouts and retries' do
       expect(request).to have_been_requested.twice
     end
 
-    it 'raises MetaInspector::TimeoutError when every attempt runs out of time' do
+    # A server that keeps an attempt busy until the deadline, such as one that
+    # streams forever, would hold the fetch for every retry (#188).
+    it 'raises MetaInspector::TimeoutError without retrying when an attempt runs out of time' do
       request = stub_request(:get, page_url).to_return { sleep 1.5; html }
 
       expect do
-        MetaInspector.new(page_url, **options, retries: 1)
+        MetaInspector.new(page_url, **options, retries: 2)
       end.to raise_error(MetaInspector::TimeoutError, /execution expired/)
 
-      expect(request).to have_been_requested.twice
+      expect(request).to have_been_requested.once
+    end
+
+    it 'applies to HEAD requests too' do
+      head_request = stub_request(:head, page_url).to_return { sleep 1.5; html }
+      get_request = stub_request(:get, page_url).to_return(html)
+
+      expect do
+        MetaInspector.new(page_url, **options, head_first: true, retries: 2)
+      end.to raise_error(MetaInspector::TimeoutError)
+
+      expect(head_request).to have_been_requested.once
+      expect(get_request).not_to have_been_requested
     end
   end
 end
