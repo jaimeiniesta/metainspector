@@ -9,10 +9,12 @@ module MetaInspector
         value unless value.to_s.empty?
       end
 
-      # Returns the parsed document title, from the content of the first <title> tag
-      # within the <head> section.
+      # Returns the content of the first <title> tag within the <head> section,
+      # without surrounding whitespace, or nil when missing or blank
       def title
-        @title ||= parsed.at_css('head title')&.inner_text.to_s rescue nil
+        return @title if defined?(@title)
+
+        @title = stripped_presence(parsed.at_css('head title')&.inner_text)
       end
 
       def best_title
@@ -59,9 +61,12 @@ module MetaInspector
         @best_author ||= find_best_author
       end
 
-      # Returns the meta description, if present
+      # Returns the meta description without surrounding whitespace, or nil when
+      # missing or blank
       def description
-        @description ||= meta['description']
+        return @description if defined?(@description)
+
+        @description = stripped_presence(meta['description'])
       end
 
       # A description getter that returns the first non-blank description
@@ -75,6 +80,11 @@ module MetaInspector
       end
 
       private
+
+      def stripped_presence(text)
+        text = text&.strip
+        text unless text.nil? || text.empty?
+      end
 
       def find_heading(heading)
         parsed.css(heading).map { |tag| tag.inner_text.strip.gsub(/\s+/, ' ') }.reject(&:empty?)

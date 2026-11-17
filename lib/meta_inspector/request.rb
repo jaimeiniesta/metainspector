@@ -67,17 +67,6 @@ module MetaInspector
 
     private
 
-    # Once per process: apps fetch many pages with the same options, and a warning
-    # per request would flood their logs
-    def self.warn_faraday_http_cache_deprecation
-      return if @faraday_http_cache_deprecation_warned
-
-      @faraday_http_cache_deprecation_warned = true
-      warn 'DEPRECATION WARNING: the top-level faraday_http_cache option is deprecated and will be removed ' \
-           'in the next major version. Pass it inside faraday_options instead: ' \
-           'faraday_options: { faraday_http_cache: { store: cache } }'
-    end
-
     def fetch
       session = @http_session.build(url)
 

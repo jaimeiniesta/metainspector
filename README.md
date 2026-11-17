@@ -84,7 +84,7 @@ page = MetaInspector.new("https://github.com",
 
 ## Options reference
 
-Pass these options as the second argument to `MetaInspector.new(url, options)`.
+Pass these options as the second argument to `MetaInspector.new(url, options)`, with Symbol keys. Any other key, including a String key such as `'document'`, raises an `ArgumentError` that names it.
 
 | Option | Default | Description |
 | --- | --- | --- |
@@ -106,7 +106,6 @@ Pass these options as the second argument to `MetaInspector.new(url, options)`.
 | `max_html_bytes` | `nil` (unlimited) | Byte limit for each response body, decompression stage and processed HTML; exceeding it raises `ParserError`. See [Timeout & Retries](#timeout--retries). |
 | `url_filter` | `nil` | Callable receiving a URI before each request; `false` or `nil` rejects the destination. |
 | `faraday_options` | `nil` | Faraday configuration, including `redirect` and `faraday_http_cache` settings. |
-| `faraday_http_cache` (deprecated) | `nil` | Legacy cache configuration; use `faraday_options[:faraday_http_cache]` instead. |
 
 ## Accessing response
 
@@ -151,20 +150,15 @@ page.feeds               # RSS, Atom or JSON feed links as an array of hashes: {
 and ignoring parameters such as `; charset=utf-8`; `type` in the result is the
 attribute as written.
 
-`page.feed` is a deprecated compatibility method that returns the first RSS or
-Atom feed's absolute URL, or `nil` if none is found. It skips JSON feeds. Each
-call emits a deprecation warning. Use `page.feeds` instead; `page.feed` is
-scheduled for removal in **6.0**.
-
 ### Texts
 
 ```ruby
 page.language            # declared language from the root <html lang="..."> attribute
-page.title               # title of the page from the head section, as string
+page.title               # title of the page from the head section, or nil
 page.best_title          # best title of the page, from a selection of candidates
 page.author              # author of the page from the meta author tag
 page.best_author         # best author of the page, from a selection of candidates
-page.description         # returns the meta description
+page.description         # returns the meta description, or nil
 page.best_description    # returns the first non-empty description between the following candidates: standard meta description, og:description, twitter:description, the first long paragraph
 page.h1                  # returns h1 text array
 page.h2                  # returns h2 text array
@@ -179,6 +173,10 @@ capitalization and regional tags such as `en-US`. It returns `nil` when the `lan
 attribute is missing, empty, or whitespace-only. It does not infer language from
 the page content or other attributes. The value is also included in `to_hash`
 under the `"language"` key.
+
+`title` is the text of the first `<title>` in the head and `description` the
+content of the meta description. Both trim surrounding whitespace and return
+`nil` when missing or blank, so `page.title || fallback` works.
 
 `best_title` selects the first non-empty value from the standard `title` meta tag,
 `og:title`, the head `<title>`, a body `<title>`, the first `<h1>`, and finally
@@ -211,10 +209,6 @@ page.images.owner_suggested # first image from og:image, twitter:image, or parse
 page.images.best         # Most relevant image from og:image, twitter:image, or parsely-image-url; falls back to page.images.largest
 page.images.favicon      # absolute URL to the favicon
 ```
-
-`page.favicon` is a deprecated shortcut for `page.images.favicon`, returning the
-same URL or `nil`. Each call emits a deprecation warning. Use
-`page.images.favicon` instead; `page.favicon` is scheduled for removal in **6.0**.
 
 The collection includes `img[src]`, `img[srcset]`, and `source[srcset]` inside
 `picture`, resolved to absolute URLs and deduplicated. Elements appear in document
@@ -831,7 +825,7 @@ cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
 page = MetaInspector.new('http://example.com', faraday_options: { faraday_http_cache: { store: cache } })
 ```
 
-The top-level `faraday_http_cache` option still works, but it is deprecated and prints a warning, once per process. Passing it in both places raises an `ArgumentError`.
+The top-level `faraday_http_cache` option was removed in 6.0 and raises an `ArgumentError`.
 
 ## Exception Handling
 

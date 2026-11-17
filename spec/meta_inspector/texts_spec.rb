@@ -102,32 +102,50 @@ describe MetaInspector do
     context 'when the first title is empty' do
       let(:html) { '<html><head><title></title><title>Two</title></head></html>' }
 
-      it 'should return an empty string without falling back to a later title' do
-        expect(page.title).to eq('')
+      it 'should return nil without falling back to a later title' do
+        expect(page.title).to be_nil
+      end
+    end
+
+    context 'when the first title is blank' do
+      let(:html) { "<html><head><title> \n\t </title><title>Two</title></head></html>" }
+
+      it 'should return nil without falling back to a later title' do
+        expect(page.title).to be_nil
+        expect(page.to_hash['title']).to be_nil
       end
     end
 
     context 'when the title contains whitespace and entities' do
-      let(:html) { '<html><head><title>  One &amp; Two  </title></head></html>' }
+      let(:html) { "<html><head><title>\n  One &amp; Two  \n</title></head></html>" }
 
-      it 'should preserve whitespace and decode entities' do
-        expect(page.title).to eq('  One & Two  ')
+      it 'should strip surrounding whitespace and decode entities' do
+        expect(page.title).to eq('One & Two')
+      end
+    end
+
+    context 'when the title has whitespace inside' do
+      let(:html) { "<html><head><title>One\n   Two</title></head></html>" }
+
+      it 'should keep the inner whitespace as written' do
+        expect(page.title).to eq("One\n   Two")
       end
     end
 
     context 'when there is no title' do
       let(:html) { '<html><head></head><body></body></html>' }
 
-      it 'should return an empty string' do
-        expect(page.title).to eq('')
+      it 'should return nil, so a fallback can be chained' do
+        expect(page.title).to be_nil
+        expect(page.title || 'fallback').to eq('fallback')
       end
     end
 
     context 'when the title is only in the body' do
       let(:html) { '<html><head></head><body><title>Body title</title></body></html>' }
 
-      it 'should return an empty string' do
-        expect(page.title).to eq('')
+      it 'should return nil' do
+        expect(page.title).to be_nil
       end
     end
   end
@@ -348,6 +366,28 @@ describe MetaInspector do
 
       expect(page.description).to be(nil)
     end
+
+    it "should strip surrounding whitespace" do
+      html = %(<meta name="description" content="\n  The description  \n">)
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.description).to eq('The description')
+    end
+
+    it "should keep the inner whitespace as written" do
+      html = %(<meta name="description" content="One\n   Two">)
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.description).to eq("One\n   Two")
+    end
+
+    ['', ' ', "\n\t "].each do |blank|
+      it "should be nil for a blank meta description (#{blank.inspect})" do
+        page = MetaInspector.new('http://example.com/', document: %(<meta name="description" content="#{blank}">))
+
+        expect(page.description).to be_nil
+      end
+    end
   end
 
   describe "#best_description" do
@@ -375,7 +415,7 @@ describe MetaInspector do
         page = MetaInspector.new('http://example.com/', document: html)
 
         expect(page.best_description).to eq('Useful Open Graph description')
-        expect(page.description).to eq(blank)
+        expect(page.description).to be_nil
       end
 
       it "should skip a blank Open Graph description (#{blank.inspect})" do
