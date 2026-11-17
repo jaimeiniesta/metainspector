@@ -14,7 +14,7 @@ module MetaInspector
     # * headers: object containing custom headers for the request
     # * normalize_url: true by default
     # * download_images: fetch missing image dimensions. Defaults to true
-    # * max_image_downloads: maximum image size lookups, or nil for unlimited
+    # * max_image_downloads: maximum image size lookups. Defaults to 20; nil for unlimited
     # * download_image_options: supports reject_invalid_images (default false)
     # * inline_image_data: return full data URLs in image results (default false)
     # * fetch_all_image_meta: enable image validity metadata (default false)
@@ -22,57 +22,46 @@ module MetaInspector
     # * url_filter: callable receiving a URI before each request; false/nil rejects it
     # * faraday_options: an optional hash of options to pass to Faraday on the request.
     #   Its faraday_http_cache key configures response caching with Faraday::HttpCache
-    # * faraday_http_cache: deprecated, use faraday_options: { faraday_http_cache: ... }
-    def initialize(initial_url, options = {})
-      options             = defaults.merge(options)
-      max_html_bytes = options[:max_html_bytes]
-      unless max_html_bytes.nil? || (max_html_bytes.is_a?(Integer) && max_html_bytes >= 0)
-        raise ArgumentError, 'max_html_bytes must be a non-negative Integer or nil'
-      end
-      @max_image_downloads = options[:max_image_downloads]
-      unless @max_image_downloads.nil? || (@max_image_downloads.is_a?(Integer) && @max_image_downloads >= 0)
-        raise ArgumentError, 'max_image_downloads must be a non-negative Integer or nil'
-      end
+    #
+    # Raises ArgumentError for any other key, including String keys
+    OPTIONS = %i[
+      connection_timeout read_timeout retries encoding allow_redirections allow_non_html_content
+      head_first document headers normalize_url download_images max_image_downloads
+      download_image_options fetch_all_image_meta inline_image_data max_html_bytes url_filter
+      faraday_options
+    ].freeze
 
-      @connection_timeout = options[:connection_timeout]
-      @read_timeout       = options[:read_timeout]
-      @retries            = options[:retries]
-      @encoding           = options[:encoding]
+    # Options used by Request and by Parser. HttpSession and ImageDownloader
+    # pick their own options from the whole hash.
+    REQUEST_OPTIONS = %i[
+      allow_redirections head_first allow_non_html_content connection_timeout read_timeout encoding
+    ].freeze
+    PARSER_OPTIONS = %i[
+      download_images max_html_bytes max_image_downloads download_image_options fetch_all_image_meta
+      inline_image_data
+    ].freeze
+    private_constant :REQUEST_OPTIONS, :PARSER_OPTIONS
+
+    def initialize(initial_url, options = {})
+      validate_option_keys!(options)
+      options = defaults.merge(options)
+      validate_limit!(options, :max_html_bytes)
+      validate_limit!(options, :max_image_downloads)
 
       @allow_redirections     = options[:allow_redirections]
       @allow_non_html_content = options[:allow_non_html_content]
+      @headers                = options[:headers]
+      @document               = options[:document]
 
-      @document           = options[:document]
-      @download_images    = options[:download_images]
-      @headers            = options[:headers]
-      @normalize_url      = options[:normalize_url]
-      @faraday_options    = options[:faraday_options]
-      @faraday_http_cache = options[:faraday_http_cache]
-      @http_session       = MetaInspector::HttpSession.new(options)
-      @url                = MetaInspector::URL.new(initial_url, normalize:          @normalize_url)
-      @request            = MetaInspector::Request.new(@url,    http_session: @http_session,
-                                                                allow_redirections: @allow_redirections,
-                                                                head_first:         options[:head_first],
-                                                                allow_non_html_content: @allow_non_html_content,
-                                                                connection_timeout: @connection_timeout,
-                                                                read_timeout:       @read_timeout,
-                                                                retries:            @retries,
-                                                                encoding:           @encoding,
-                                                                headers:            @headers,
-                                                                faraday_options:    @faraday_options,
-                                                                faraday_http_cache: @faraday_http_cache) unless @document
-      @parser             = MetaInspector::Parser.new(self,     download_images:    @download_images,
-                                                                max_html_bytes: max_html_bytes,
-                                                                max_image_downloads: @max_image_downloads,
-                                                                download_image_options: options[:download_image_options],
-                                                                fetch_all_image_meta: options[:fetch_all_image_meta],
-                                                                inline_image_data: options[:inline_image_data],
-                                                                image_downloader: MetaInspector::ImageDownloader.new(@http_session, @url, options))
+      http_session = HttpSession.new(options)
+      @url         = URL.new(initial_url, normalize: options[:normalize_url])
+      @request     = Request.new(@url, http_session: http_session, **options.slice(*REQUEST_OPTIONS)) unless @document
+      @parser      = Parser.new(self, image_downloader: ImageDownloader.new(http_session, @url, options),
+                                      **options.slice(*PARSER_OPTIONS))
     end
 
     extend Forwardable
-    delegate [:url, :scheme, :host, :root_url,
-              :tracked?, :untracked_url, :untrack!]   => :@url
+    delegate %i[url scheme host root_url tracked? untracked_url untrack!] => :@url
 
     # No request is made when the HTML is passed with the document: option,
     # so these return nil in that case
@@ -84,11 +73,10 @@ module MetaInspector
       @request&.response
     end
 
-    delegate [:parsed, :language, :title, :best_title, :author, :best_author,
-              :h1, :h2, :h3, :h4, :h5, :h6, :description, :best_description, :links,
-              :images, :iframes, :iframe_sources, :feeds, :feed, :charset, :meta_tags,
-              :meta_tag, :meta, :favicon,
-              :head_links, :stylesheets, :canonicals] => :@parser
+    delegate %i[
+      parsed language title best_title author best_author h1 h2 h3 h4 h5 h6 description best_description
+      links images iframes iframe_sources feeds charset meta_tags meta_tag meta head_links stylesheets canonicals
+    ] => :@parser
 
     # Returns all document data as a nested Hash
     def to_hash
@@ -130,6 +118,28 @@ module MetaInspector
 
     private
 
+    # An option that is misspelled, or given with a String key (as when read from
+    # JSON or YAML), would otherwise be ignored: with 'document' => html, the page
+    # would be fetched instead of parsing the HTML.
+    def validate_option_keys!(options)
+      unknown = options.keys - OPTIONS
+      return if unknown.empty?
+
+      message = "Unknown option#{'s' if unknown.size > 1}: #{unknown.map(&:inspect).join(', ')}"
+      message += ' (option keys must be Symbols)' if unknown.any?(String)
+      if unknown.include?(:faraday_http_cache)
+        message += ' (pass it inside faraday_options: { faraday_http_cache: ... })'
+      end
+      raise ArgumentError, message
+    end
+
+    def validate_limit!(options, name)
+      value = options[name]
+      return if value.nil? || (value.is_a?(Integer) && value >= 0)
+
+      raise ArgumentError, "#{name} must be a non-negative Integer or nil"
+    end
+
     # Middleware can add headers that Net::HTTP would have normalized: faraday-gzip
     # sets "Content-Length" to an Integer after decompressing. Downcase the names
     # and re-encode only String values.
@@ -146,19 +156,18 @@ module MetaInspector
     end
 
     def defaults
-      { :connection_timeout     => 20,
-        :read_timeout           => 20,
-        :retries                => 3,
-        :headers                => {
-                                     'User-Agent'      => default_user_agent,
-                                     'Accept-Encoding' => 'identity'
-                                  },
-        :allow_redirections     => true,
-        :allow_non_html_content => false,
-        :head_first             => false,
-        :normalize_url          => true,
-        :download_images        => true,
-        :max_image_downloads    => nil }
+      {
+        connection_timeout:     20,
+        read_timeout:           20,
+        retries:                3,
+        headers:                { 'User-Agent' => default_user_agent, 'Accept-Encoding' => 'identity' },
+        allow_redirections:     true,
+        allow_non_html_content: false,
+        head_first:             false,
+        normalize_url:          true,
+        download_images:        true,
+        max_image_downloads:    20
+      }
     end
 
     def default_user_agent
@@ -166,9 +175,10 @@ module MetaInspector
     end
 
     def document
-      @document ||= if !allow_non_html_content && !content_type.nil? && content_type != 'text/html'
-        fail MetaInspector::NonHtmlError.new "The url provided contains #{content_type} content instead of text/html content"
-      else
+      @document ||= begin
+        unless allow_non_html_content || Request.html_content_type?(content_type)
+          raise NonHtmlError.for(content_type)
+        end
         @request.read
       end
     end

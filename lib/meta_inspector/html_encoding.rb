@@ -67,6 +67,12 @@ module MetaInspector
       'UTF-16LE' => %w[csunicode iso-10646-ucs-2 ucs-2 unicode unicodefeff utf-16 utf-16le]
     }.flat_map { |encoding, labels| labels.map { |label| [label, encoding] } }.to_h.freeze
 
+    # Returns the charset label of a Content-Type value, such as
+    # "text/html; charset=utf-8", or nil if there is none.
+    def self.charset_param(content_type)
+      content_type.to_s[/(?:\A|;)\s*charset\s*=\s*["']?([^;\s"']+)/i, 1]
+    end
+
     # Returns the encoding for a charset label, or nil if browsers don't know it.
     def self.resolve(label)
       LABELS[label.to_s.strip.downcase]
@@ -145,7 +151,7 @@ module MetaInspector
         attributes = attributes.to_h
         charset = attributes['charset']
         if !charset && attributes['http-equiv'].to_s.casecmp?('content-type')
-          charset = attributes['content'].to_s[/(?:\A|;)\s*charset\s*=\s*["']?([^;\s"']+)/i, 1]
+          charset = HtmlEncoding.charset_param(attributes['content'])
         end
         return if charset.to_s.strip.empty?
 

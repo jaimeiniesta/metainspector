@@ -52,7 +52,7 @@ RSpec.describe 'request error handling' do
         'Content-Type' => 'text/html', 'Content-Encoding' => 'gzip'
       })
 
-      expect(MetaInspector.new(url).title).to eq('')
+      expect(MetaInspector.new(url).title).to be_nil
     end
   end
 

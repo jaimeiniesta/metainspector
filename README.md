@@ -84,7 +84,7 @@ page = MetaInspector.new("https://github.com",
 
 ## Options reference
 
-Pass these options as the second argument to `MetaInspector.new(url, options)`.
+Pass these options as the second argument to `MetaInspector.new(url, options)`, with Symbol keys. Any other key, including a String key such as `'document'`, raises an `ArgumentError` that names it.
 
 | Option | Default | Description |
 | --- | --- | --- |
@@ -99,14 +99,13 @@ Pass these options as the second argument to `MetaInspector.new(url, options)`.
 | `normalize_url` | `true` | Normalize URLs using Addressable. |
 | `allow_non_html_content` | `false` | Allow non-HTML responses to be passed to the HTML parser. |
 | `download_images` | `true` | Allow image downloads for dimensions, metadata and validation. |
-| `max_image_downloads` | `nil` (unlimited) | Limit image lookup attempts; `0` disables image downloads. |
+| `max_image_downloads` | `20` | Limit image lookup attempts; `nil` for unlimited, `0` disables image downloads. |
 | `download_image_options` | `nil` | Set `reject_invalid_images: true` in a hash to discard images that fail validation. |
 | `fetch_all_image_meta` | `nil` (disabled) | Enable validity lookups through `images.with_metadata`. |
 | `inline_image_data` | `nil` (disabled) | Return full data URLs and allow inline images in `best` and `largest`. |
 | `max_html_bytes` | `nil` (unlimited) | Byte limit for each response body, decompression stage and processed HTML; exceeding it raises `ParserError`. See [Timeout & Retries](#timeout--retries). |
 | `url_filter` | `nil` | Callable receiving a URI before each request; `false` or `nil` rejects the destination. |
 | `faraday_options` | `nil` | Faraday configuration, including `redirect` and `faraday_http_cache` settings. |
-| `faraday_http_cache` (deprecated) | `nil` | Legacy cache configuration; use `faraday_options[:faraday_http_cache]` instead. |
 
 ## Accessing response
 
@@ -151,21 +150,16 @@ page.feeds               # RSS, Atom or JSON feed links as an array of hashes: {
 and ignoring parameters such as `; charset=utf-8`; `type` in the result is the
 attribute as written.
 
-`page.feed` is a deprecated compatibility method that returns the first RSS or
-Atom feed's absolute URL, or `nil` if none is found. It skips JSON feeds. Each
-call emits a deprecation warning. Use `page.feeds` instead; `page.feed` is
-scheduled for removal in **6.0**.
-
 ### Texts
 
 ```ruby
 page.language            # declared language from the root <html lang="..."> attribute
-page.title               # title of the page from the head section, as string
+page.title               # title of the page from the head section, or nil
 page.best_title          # best title of the page, from a selection of candidates
 page.author              # author of the page from the meta author tag
 page.best_author         # best author of the page, from a selection of candidates
-page.description         # returns the meta description
-page.best_description    # returns the first non-empty description between the following candidates: standard meta description, og:description, twitter:description, the first long paragraph
+page.description         # returns the meta description, or nil
+page.best_description    # returns the first non-empty description between the following candidates: standard meta description, og:description, twitter:description, the first long paragraph; trims surrounding whitespace
 page.h1                  # returns h1 text array
 page.h2                  # returns h2 text array
 page.h3                  # returns h3 text array
@@ -179,6 +173,10 @@ capitalization and regional tags such as `en-US`. It returns `nil` when the `lan
 attribute is missing, empty, or whitespace-only. It does not infer language from
 the page content or other attributes. The value is also included in `to_hash`
 under the `"language"` key.
+
+`title` is the text of the first `<title>` in the head and `description` the
+content of the meta description. Both trim surrounding whitespace and return
+`nil` when missing or blank, so `page.title || fallback` works.
 
 `best_title` selects the first non-empty value from the standard `title` meta tag,
 `og:title`, the head `<title>`, a body `<title>`, the first `<h1>`, and finally
@@ -212,17 +210,22 @@ page.images.best         # Most relevant image from og:image, twitter:image, or 
 page.images.favicon      # absolute URL to the favicon
 ```
 
-`page.favicon` is a deprecated shortcut for `page.images.favicon`, returning the
-same URL or `nil`. Each call emits a deprecation warning. Use
-`page.images.favicon` instead; `page.favicon` is scheduled for removal in **6.0**.
-
 The collection includes `img[src]`, `img[srcset]`, and `source[srcset]` inside
 `picture`, resolved to absolute URLs and deduplicated. Elements appear in document
 order; for each `img`, `src` comes before its `srcset` candidates, which retain
 their listed order. All candidates are included regardless of media conditions or
-device density. Responsive candidates use their downloaded dimensions for ranking;
-the `img` element's width and height apply only to its `src` fallback. By default,
-non-HTTP responsive URLs remain in the collection but cannot be downloaded for sizing.
+device density. The `img` element's width and height apply only to its `src`
+fallback. By default, non-HTTP responsive URLs remain in the collection but cannot
+be downloaded for sizing.
+
+`with_size`, `largest` and `best` treat the candidates of each `img` or `picture`
+as one image at different sizes and rank only the largest one: the candidate with
+the largest width descriptor (`800w`) if any has one, otherwise the highest density
+(`2x`; `src` and candidates without a descriptor count as `1x`). That candidate is
+downloaded for its dimensions, so each image costs at most one download. A `src`
+with both `width` and `height` in the HTML is ranked as well, since it needs no
+download. The other candidates are not in `with_size`; `to_a` and `with_details`
+still list them all.
 
 `images.owner_suggested` tries `og:image`, `twitter:image`, and `parsely-image-url`
 in that order, skipping empty or whitespace-only values. Relative image URLs are
@@ -439,7 +442,7 @@ documents, set `max_html_bytes` to a non-negative integer:
 page = MetaInspector.new(url, max_html_bytes: 2 * 1024 * 1024)
 ```
 
-The default in 5.x is `nil` (no limit). Set a finite limit when fetching URLs you
+The default is `nil` (no limit). Set a finite limit when fetching URLs you
 do not control. Exceeding it raises `MetaInspector::ParserError` during
 initialization. The limit applies separately to the bytes received for each
 response (including redirect bodies), each stage of gzip/deflate decompression,
@@ -768,7 +771,7 @@ page = MetaInspector.new('http://example.com', max_image_downloads: 10)
 page.images.with_size
 ```
 
-The default is `nil` (unlimited). The option accepts a non-negative integer or `nil`; `0` disables image downloads. `download_images: false` always disables downloads, regardless of the limit.
+The default is `20`; pass `nil` for no limit. The option accepts a non-negative integer or `nil`; `0` disables image downloads. `download_images: false` always disables downloads, regardless of the limit.
 
 By default, the limit counts image size lookup attempts in HTML order, after excluding unparseable URLs and duplicates. Images with both HTML dimensions already present do not consume the limit, and those dimensions are preserved even after the limit is reached. Failed lookups count toward the limit. Images with incomplete dimensions that are not downloaded remain in `images.with_size` with dimensions `[0, 0]`, matching the behavior when downloads are disabled.
 
@@ -831,7 +834,7 @@ cache = ActiveSupport::Cache.lookup_store(:file_store, '/tmp/cache')
 page = MetaInspector.new('http://example.com', faraday_options: { faraday_http_cache: { store: cache } })
 ```
 
-The top-level `faraday_http_cache` option still works, but it is deprecated and prints a warning, once per process. Passing it in both places raises an `ArgumentError`.
+The top-level `faraday_http_cache` option was removed in 6.0 and raises an `ArgumentError`.
 
 ## Exception Handling
 

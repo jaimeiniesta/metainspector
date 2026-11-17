@@ -14,60 +14,38 @@ module MetaInspector
     MAX_NODE_BYTES = 10_000_000
 
     def initialize(document, options = {})
-      @document        = document
-      @max_html_bytes  = options[:max_html_bytes]
-      @head_links_parser = MetaInspector::Parsers::HeadLinksParser.new(self)
-      @meta_tag_parser = MetaInspector::Parsers::MetaTagsParser.new(self)
-      @links_parser    = MetaInspector::Parsers::LinksParser.new(self)
-      @download_images = options[:download_images]
-      @images_parser   = MetaInspector::Parsers::ImagesParser.new(self, download_images: @download_images,
-                                                                      max_image_downloads: options[:max_image_downloads],
-                                                                      download_image_options: options[:download_image_options],
-                                                                      fetch_all_image_meta: options[:fetch_all_image_meta],
-                                                                      inline_image_data: options[:inline_image_data],
-                                                                      image_downloader: options[:image_downloader])
-      @iframes_parser  = MetaInspector::Parsers::IframesParser.new(self)
-      @texts_parser    = MetaInspector::Parsers::TextsParser.new(self)
+      @document          = document
+      @max_html_bytes    = options[:max_html_bytes]
+      @head_links_parser = Parsers::HeadLinksParser.new(self)
+      @meta_tag_parser   = Parsers::MetaTagsParser.new(self)
+      @links_parser      = Parsers::LinksParser.new(self)
+      @images_parser     = Parsers::ImagesParser.new(self, options)
+      @iframes_parser    = Parsers::IframesParser.new(self)
+      @texts_parser      = Parsers::TextsParser.new(self)
 
-      parsed           # parse early so we can fail early
+      parsed # parse early so we can fail early
     end
 
     extend Forwardable
-    delegate [:url, :scheme, :host]                                                        => :@document
-    delegate [:meta_tags, :meta_tag, :meta, :charset]                                      => :@meta_tag_parser
-    delegate [:head_links, :stylesheets, :canonicals, :feeds, :feed]                       => :@head_links_parser
-    delegate [:links, :base_url]                                                           => :@links_parser
-    delegate :images                                                                       => :@images_parser
-    delegate [:iframes, :iframe_sources]                                                   => :@iframes_parser
-    delegate [:language, :title, :best_title, :author, :best_author, :description, :best_description,
-              :h1, :h2, :h3, :h4, :h5, :h6]                                                => :@texts_parser
-
-    # Deprecated compatibility shortcut; remove in 6.0.
-    def favicon
-      warn 'DEPRECATION WARNING: page.favicon is deprecated and will be removed in 6.0. ' \
-           'Use page.images.favicon instead.'
-      images.favicon
-    end
+    delegate %i[url scheme host]                              => :@document
+    delegate %i[meta_tags meta_tag meta charset]              => :@meta_tag_parser
+    delegate %i[head_links stylesheets canonicals feeds]      => :@head_links_parser
+    delegate %i[links base_url]                               => :@links_parser
+    delegate :images                                          => :@images_parser
+    delegate %i[iframes iframe_sources]                       => :@iframes_parser
+    delegate %i[language title best_title author best_author description best_description
+                h1 h2 h3 h4 h5 h6]                            => :@texts_parser
 
     # Returns the whole parsed document
+    #
+    # libxml2 (HTML4) parses first: it detects the encoding and enforces its
+    # resource limits. The DOM is then built with HTML5 rules, unless the HTML
+    # can't be converted to UTF-8, in which case libxml2's tree is kept.
     def parsed
       @parsed ||= begin
         html = @document.to_s
-        if @max_html_bytes && html.bytesize > @max_html_bytes
-          raise MetaInspector::ParserError, "HTML is #{html.bytesize} bytes, exceeding the limit of #{@max_html_bytes} bytes"
-        end
-        html = HtmlEncoding.normalize(html).scrub
-        # Keep libxml2's resource-limit validation. HTML5 has different limits
-        # and would otherwise accept oversized text nodes.
-        document = Nokogiri::HTML(html, nil, HtmlEncoding.detect(html))
-        # For untagged bytes, use the selected declaration, then parse
-        # again after the same conversion used for tagged strings. libxml2's
-        # Windows-31J decoder still uses some strict Shift_JIS character mappings.
-        if html.encoding == Encoding::BINARY && HtmlEncoding.superset(document.encoding)
-          html = HtmlEncoding.normalize(html.dup.force_encoding(document.encoding))
-          document = Nokogiri::HTML(html)
-        end
-        raise_limit_error(document, /Resource limit exceeded|xmlSAX2Characters: huge text node/)
+        check_html_size!(html)
+        html, document = html4_document(html)
 
         if (utf8 = html5_input(html, document))
           # The HTML5 tree is the DOM and enforces its own depth limit, so
@@ -87,6 +65,30 @@ module MetaInspector
     end
 
     private
+
+    def check_html_size!(html)
+      return unless @max_html_bytes && html.bytesize > @max_html_bytes
+
+      raise MetaInspector::ParserError, "HTML is #{html.bytesize} bytes, exceeding the limit of #{@max_html_bytes} bytes"
+    end
+
+    # Returns the HTML, converted if its encoding was detected from its bytes,
+    # and libxml2's tree for it.
+    def html4_document(html)
+      html = HtmlEncoding.normalize(html).scrub
+      # Keep libxml2's resource-limit validation. HTML5 has different limits
+      # and would otherwise accept oversized text nodes.
+      document = Nokogiri::HTML(html, nil, HtmlEncoding.detect(html))
+      # For untagged bytes, use the selected declaration, then parse
+      # again after the same conversion used for tagged strings. libxml2's
+      # Windows-31J decoder still uses some strict Shift_JIS character mappings.
+      if html.encoding == Encoding::BINARY && HtmlEncoding.superset(document.encoding)
+        html = HtmlEncoding.normalize(html.dup.force_encoding(document.encoding))
+        document = Nokogiri::HTML(html)
+      end
+      raise_limit_error(document, /Resource limit exceeded|xmlSAX2Characters: huge text node/)
+      [html, document]
+    end
 
     def raise_limit_error(document, pattern)
       return if non_html_content?
@@ -136,10 +138,7 @@ module MetaInspector
     # The caller opted in with allow_non_html_content and the response is not
     # HTML, so resource limits that guard against truncated HTML do not apply.
     def non_html_content?
-      return false unless @document.allow_non_html_content
-
-      content_type = @document.content_type
-      !content_type.nil? && content_type != 'text/html'
+      @document.allow_non_html_content && !Request.html_content_type?(@document.content_type)
     end
 
     def restore_noscript_content(document)

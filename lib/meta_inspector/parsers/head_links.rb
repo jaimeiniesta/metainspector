@@ -10,14 +10,11 @@ module MetaInspector
 
       def head_links
         @head_links ||= parsed.css('head link').map do |tag|
-          Hash[
-            tag.attributes.keys.map do |key|
-              keysym = key.to_sym
-              val = tag.attributes[key].value
-              val = URL.absolutify(val, base_url) if keysym == :href
-              [keysym, val]
-            end
-          ]
+          tag.attributes.to_h do |name, attribute|
+            value = attribute.value
+            value = URL.absolutify(value, base_url) if name == 'href'
+            [name.to_sym, value]
+          end
         end
       end
 
@@ -30,25 +27,13 @@ module MetaInspector
       end
 
       def feeds
-        @feeds ||=
-          parsed.search('//link[@rel]').map do |link|
-            next unless rel_includes?(link['rel'], 'alternate')
-            next if !KNOWN_FEED_TYPES.include?(media_type(link["type"])) || link["href"].to_s.strip == ''
+        @feeds ||= parsed.search('//link[@rel]').filter_map do |link|
+          next unless rel_includes?(link['rel'], 'alternate')
+          next unless KNOWN_FEED_TYPES.include?(media_type(link['type']))
+          next if link['href'].to_s.strip.empty?
 
-            {
-              title: link["title"],
-              href: URL.absolutify(link["href"], base_url),
-              type: link["type"]
-            }
-          end.compact
-      end
-
-      # Deprecated compatibility method; remove in 6.0.
-      def feed
-        warn 'DEPRECATION WARNING: page.feed is deprecated and will be removed in 6.0. ' \
-             'Use page.feeds instead.'
-        first_feed = feeds.find { |link| %w[application/rss+xml application/atom+xml].include?(media_type(link[:type])) }
-        first_feed && first_feed[:href]
+          { title: link['title'], href: URL.absolutify(link['href'], base_url), type: link['type'] }
+        end
       end
 
       private
@@ -60,7 +45,7 @@ module MetaInspector
       end
 
       def rel_includes?(rel, keyword)
-        rel.to_s.downcase(:ascii).split(/[ \t\n\f\r]+/).include?(keyword)
+        rel_tokens(rel).include?(keyword)
       end
     end
   end

@@ -82,8 +82,9 @@ describe MetaInspector::Document do
     end
     let(:page) { MetaInspector.new('https://example.com/', document: html) }
 
-    it 'retains the deprecated feed and favicon methods' do
-      expect(page).to respond_to(:feed, :favicon)
+    it 'no longer has the feed and favicon methods removed in 6.0' do
+      expect(page).not_to respond_to(:feed)
+      expect(page).not_to respond_to(:favicon)
     end
 
     it 'exposes feeds through the plural API' do
@@ -115,39 +116,10 @@ describe MetaInspector::Document do
             type: ' application/rss+xml ; charset=utf-8' }
         ])
       end
-
-      it 'returns RSS or Atom feeds with parameters from the deprecated feed method' do
-        page = MetaInspector.new('https://example.com/', document: <<~HTML)
-          <link rel="alternate" type="application/feed+json" href="/feed.json">
-          <link rel="alternate" type="application/atom+xml; charset=utf-8" href="/atom.xml">
-        HTML
-
-        expect { expect(page.feed).to eq('https://example.com/atom.xml') }.to output(/DEPRECATION/).to_stderr
-      end
     end
 
     it 'exposes the favicon through the images API' do
       expect(page.images.favicon).to eq('https://example.com/icon.png')
-    end
-
-    { feed: 'feeds', favicon: 'images.favicon' }.each do |method, replacement|
-      it "warns on each call to ##{method}, naming its replacement and removal version" do
-        2.times do
-          expect { page.public_send(method) }.to output(
-            "DEPRECATION WARNING: page.#{method} is deprecated and will be removed in 6.0. Use page.#{replacement} instead.\n"
-          ).to_stderr
-        end
-      end
-
-      it "returns nil from ##{method} when the document has no matching metadata" do
-        empty_page = MetaInspector.new('https://example.com/', document: '<html></html>')
-
-        expect { expect(empty_page.public_send(method)).to be_nil }.to output(/DEPRECATION/).to_stderr
-      end
-    end
-
-    it 'returns the favicon URL from the deprecated shortcut' do
-      expect { expect(page.favicon).to eq(page.images.favicon) }.to output(/DEPRECATION/).to_stderr
     end
 
     it 'keeps the supported APIs and serialization free of deprecation warnings' do
@@ -159,38 +131,6 @@ describe MetaInspector::Document do
         fetched_page.images.favicon
         fetched_page.to_hash
       end.not_to output.to_stderr
-    end
-
-    describe '#feed' do
-      let(:html) do
-        <<~HTML
-          <html><head>
-            <base href="https://example.com/blog/">
-            <link rel="alternate" type="application/json" href="feed.json">
-            <link rel="alternate" type="#{first_type}" href="first.xml">
-            <link rel="alternate" type="application/rss+xml" href="second.xml">
-          </head></html>
-        HTML
-      end
-
-      ['application/rss+xml', 'application/atom+xml'].each do |type|
-        context "with #{type} first" do
-          let(:first_type) { type }
-
-          it 'returns the first RSS or Atom URL, skipping JSON and resolving the base URL' do
-            expect { expect(page.feed).to eq('https://example.com/blog/first.xml') }
-              .to output(/DEPRECATION/).to_stderr
-          end
-        end
-      end
-
-      context 'with only JSON feeds' do
-        let(:html) { '<link rel="alternate" type="application/json" href="/feed.json">' }
-
-        it 'returns nil' do
-          expect { expect(page.feed).to be_nil }.to output(/DEPRECATION/).to_stderr
-        end
-      end
     end
 
     ['<html></html>', nil].each do |document|
@@ -205,14 +145,54 @@ describe MetaInspector::Document do
           it "can call ##{method}" do
             fetched_page = MetaInspector.new('https://example.com/', download_images: false)
 
-            if [:feed, :favicon].include?(method)
-              expect { fetched_page.public_send(method) }.to output(/DEPRECATION/).to_stderr
-            else
-              expect { fetched_page.public_send(method) }.not_to raise_error
-            end
+            expect { fetched_page.public_send(method) }.not_to raise_error
           end
         end
       end
+    end
+  end
+
+  describe 'unknown options' do
+    let(:url) { 'http://unknown-options.example/' }
+
+    it 'raises ArgumentError naming the unknown options, before any request' do
+      expect { MetaInspector.new(url, timeout: 5, allow_redirection: false) }
+        .to raise_error(ArgumentError, 'Unknown options: :timeout, :allow_redirection')
+      expect(a_request(:any, url)).not_to have_been_made
+    end
+
+    it 'uses the singular for a single unknown option' do
+      expect { MetaInspector.new(url, timeout: 5) }.to raise_error(ArgumentError, 'Unknown option: :timeout')
+    end
+
+    it 'rejects String keys, which would otherwise be ignored and fetch the page' do
+      expect { MetaInspector.new(url, 'document' => '<title>Hi</title>') }
+        .to raise_error(ArgumentError, 'Unknown option: "document" (option keys must be Symbols)')
+      expect(a_request(:any, url)).not_to have_been_made
+    end
+
+    it 'rejects the top-level faraday_http_cache option removed in 6.0, pointing to faraday_options' do
+      expect { MetaInspector.new(url, faraday_http_cache: { store: {} }) }
+        .to raise_error(ArgumentError, 'Unknown option: :faraday_http_cache ' \
+                                       '(pass it inside faraday_options: { faraday_http_cache: ... })')
+    end
+
+    it 'accepts every documented option' do
+      options = {
+        connection_timeout: 1, read_timeout: 1, retries: 0, allow_redirections: false, head_first: false,
+        document: '<title>Hi</title>', headers: {}, encoding: nil, normalize_url: true,
+        allow_non_html_content: false, download_images: false, max_image_downloads: 0,
+        download_image_options: {}, fetch_all_image_meta: false, inline_image_data: false,
+        max_html_bytes: 100, url_filter: ->(_) { true }, faraday_options: {}
+      }
+
+      expect(MetaInspector.new(url, options).title).to eq('Hi')
+    end
+
+    it 'leaves the options hash it was given unchanged' do
+      options = { document: '<title>Hi</title>' }.freeze
+
+      expect { MetaInspector.new(url, options) }.not_to raise_error
     end
   end
 

@@ -78,7 +78,10 @@ describe MetaInspector do
     end
 
     it 'applies the download limit to responsive candidates in document order' do
-      html = '<picture><source srcset="/10x10 1x, /100x100 2x"><img src="/fallback.jpg" width="20" height="20"></picture>'
+      html = <<~HTML
+        <picture><source srcset="/10x10 2x"><img src="/fallback.jpg" width="20" height="20"></picture>
+        <img srcset="/100x100 1x">
+      HTML
       page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 1)
 
       expect(page.images.with_size).to eq([
@@ -87,6 +90,62 @@ describe MetaInspector do
         ['http://example.com/100x100', 0, 0]
       ])
       expect(WebMock).not_to have_requested(:get, 'http://example.com/100x100')
+    end
+
+    describe 'ranking responsive images' do
+      before do
+        %w[small medium fallback].each do |name|
+          stub_request(:get, "http://example.com/#{name}.jpg").to_return(fixture_file('10x10.jpg.response'))
+        end
+      end
+
+      it 'downloads only the candidate with the largest width descriptor' do
+        html = '<img srcset="/small.jpg 400w, /100x100 1200w, /medium.jpg 800w">'
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.images.best).to eq('http://example.com/100x100')
+        expect(page.images.with_size).to eq([['http://example.com/100x100', 100, 100]])
+        expect(page.images.to_a.size).to eq(3)
+        expect(WebMock).to have_requested(:get, 'http://example.com/100x100').once
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/small.jpg')
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/medium.jpg')
+      end
+
+      it 'treats a picture as one image' do
+        html = <<~HTML
+          <picture>
+            <source media="(min-width: 800px)" srcset="/small.jpg 400w, /100x100 800w">
+            <img src="/fallback.jpg" srcset="/medium.jpg 2x">
+          </picture>
+          <img src="/10x10">
+        HTML
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.images.with_size).to eq([
+          ['http://example.com/100x100', 100, 100],
+          ['http://example.com/10x10', 10, 10]
+        ])
+        %w[small.jpg fallback.jpg medium.jpg].each do |path|
+          expect(WebMock).not_to have_requested(:get, "http://example.com/#{path}")
+        end
+      end
+
+      it 'downloads only the highest density candidate, counting src as 1x' do
+        html = '<img src="/small.jpg" srcset="/medium.jpg 1.5x, /100x100 2x">'
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.images.best).to eq('http://example.com/100x100')
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/small.jpg')
+        expect(WebMock).not_to have_requested(:get, 'http://example.com/medium.jpg')
+      end
+
+      it 'keeps HTML dimensions when src is the ranked candidate' do
+        html = '<img src="/fallback.jpg" width="300" height="200" srcset="/fallback.jpg 1x, /small.jpg 0.5x">'
+        page = MetaInspector.new('http://example.com/', document: html)
+
+        expect(page.images.with_size).to eq([['http://example.com/fallback.jpg', 300, 200]])
+        expect(WebMock).not_to have_requested(:get, %r{\Ahttp://example\.com/.+\.jpg\z})
+      end
     end
 
     describe "returns an Enumerable" do
@@ -292,6 +351,28 @@ describe MetaInspector do
 
       before do
         stub_request(:get, 'http://example.com/remaining.jpg').to_return(status: 404)
+      end
+
+      describe "default" do
+        let(:many_images) { (1..25).map { |i| %(<img src="/many/#{i}.jpg">) }.join }
+
+        before { stub_request(:get, %r{\Ahttp://example\.com/many/}).to_return(status: 404) }
+
+        it "should download at most 20 images" do
+          page = MetaInspector.new('http://example.com/', document: many_images)
+
+          expect(page.images.with_size.size).to eq(25)
+          expect(WebMock).to have_requested(:get, %r{\Ahttp://example\.com/many/}).times(20)
+          expect(WebMock).to have_requested(:get, 'http://example.com/many/20.jpg').once
+          expect(WebMock).not_to have_requested(:get, 'http://example.com/many/21.jpg')
+        end
+
+        it "should download every image when nil is passed explicitly" do
+          page = MetaInspector.new('http://example.com/', document: many_images, max_image_downloads: nil)
+
+          page.images.with_size
+          expect(WebMock).to have_requested(:get, %r{\Ahttp://example\.com/many/}).times(25)
+        end
       end
 
       it "should download only the first images needing dimensions in document order" do

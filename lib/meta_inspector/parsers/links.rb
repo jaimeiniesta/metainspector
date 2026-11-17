@@ -3,6 +3,9 @@ module MetaInspector
     class LinksParser < Base
       delegate [:parsed, :url, :scheme, :host] => :@main_parser
 
+      HTTP_LINK = /^http(s)?:\/\//i
+      private_constant :HTTP_LINK
+
       def links
         self
       end
@@ -14,19 +17,19 @@ module MetaInspector
         @raw ||= cleanup(parsed.xpath('//*[local-name()="a"]/@href')).compact.uniq
       end
 
-      # Returns all links found, unrelavitized and absolutified
+      # Returns all links found, absolutified
       def all
         @all ||= raw.map { |link| URL.absolutify(link, base_url) }.compact.uniq
       end
 
       # Returns all HTTP links found
       def http
-        @http ||= all.select { |link| link =~ /^http(s)?:\/\//i}
+        @http ||= all.grep(HTTP_LINK)
       end
 
       # Returns all non-HTTP links found
       def non_http
-        @non_http ||= all.select { |link| link !~ /^http(s)?:\/\//i}
+        @non_http ||= all.grep_v(HTTP_LINK)
       end
 
       # Returns all internal HTTP links found
@@ -50,8 +53,9 @@ module MetaInspector
       # or the url of the document if no <base> tag was found.
       # Relative base hrefs are resolved against the document URL.
       def base_url
-        current_base_href = base_href.to_s.strip.empty? ? nil : URL.absolutify(base_href, url)
-        current_base_href || url
+        return url if base_href.to_s.strip.empty?
+
+        URL.absolutify(base_href, url) || url
       end
 
       # Returns the value of the href attribute on the <base /> tag, if exists.
@@ -60,7 +64,7 @@ module MetaInspector
       def base_href
         return @base_href if defined?(@base_href)
 
-        @base_href = parsed.search('base').first.attributes['href'].value rescue nil
+        @base_href = parsed.search('base').first&.attributes&.[]('href')&.value
       end
     end
   end
