@@ -368,11 +368,20 @@ documents, set `max_html_bytes` to a non-negative integer:
 page = MetaInspector.new(url, max_html_bytes: 2 * 1024 * 1024)
 ```
 
-The default is `nil` (no limit). HTML larger than the limit raises
-`MetaInspector::ParserError` before parsing, including HTML passed with the
-`document` option. The limit is measured in bytes after fetching and processing
-the response, so it does not limit download size or memory used for the response.
-It also does not guarantee a parsing deadline: even a small document can be
+The default in 5.x is `nil` (no limit). Set a finite limit when fetching URLs you
+do not control. Exceeding it raises `MetaInspector::ParserError` during
+initialization. The limit applies separately to the bytes received for each
+response (including redirect bodies), each stage of gzip/deflate decompression,
+and the HTML after charset conversion and processing, before parsing. Downloads
+stop as soon as a received chunk exceeds the limit; decompression stops as soon
+as an output chunk exceeds it, without expanding the entire body. Cached
+responses are checked too. With a finite limit, only gzip and deflate compression
+are supported; other content encodings raise `MetaInspector::RequestError`.
+HTML passed with `document:` is checked before parsing as well.
+
+This bounds response buffers, not total process memory: charset conversion and
+DOM construction still need additional memory. It also does not guarantee a
+parsing deadline: even a small document can be
 slow to parse. Ruby's `Timeout.timeout` cannot reliably interrupt Nokogiri's
 native parser; use a separately supervised process if a hard deadline is needed.
 
@@ -413,6 +422,14 @@ end
 
 By default, MetaInspector will follow redirects (up to a limit of 10).
 
+Custom headers are retained only on the initial page origin (scheme, host and port).
+For redirects to a different origin, including subdomains, different ports and
+HTTPS-to-HTTP redirects, only `User-Agent`, `Accept`, `Accept-Language` and
+`Accept-Encoding` are forwarded. This applies to GET and HEAD requests and to
+headers supplied through either `headers:` or `faraday_options[:headers]`.
+Credentials from the initial request are also withheld from images on a redirected
+page at a different origin. Image requests retain their generated `Range` header.
+
 If you want to disallow redirects, you can do it like this:
 
 ```ruby
@@ -438,6 +455,8 @@ page = MetaInspector.new(url, faraday_options: { redirect: { callback: callback 
 
 The `faraday_options[:redirect]` hash is passed to the `FollowRedirects` middleware used by `Faraday`, so that we can use all available options.
 Check them [here](https://github.com/lostisland/faraday_middleware/blob/main/lib/faraday_middleware/response/follow_redirects.rb#L44).
+The origin header policy also applies after your redirect callback runs and when
+`clear_authorization_header: false` is set.
 
 ### Filtering request URLs
 

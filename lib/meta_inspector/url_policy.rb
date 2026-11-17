@@ -12,7 +12,8 @@ module MetaInspector
       end
     end
 
-    IMAGE_HEADERS = %w[user-agent accept accept-language accept-encoding range].freeze
+    PAGE_HEADERS = %w[user-agent accept accept-language accept-encoding].freeze
+    IMAGE_HEADERS = (PAGE_HEADERS + %w[range]).freeze
 
     def self.validate!(value)
       uri = URI.parse(value.to_s)
@@ -24,16 +25,22 @@ module MetaInspector
       raise InvalidURL.new(error)
     end
 
-    def initialize(app, filter, image_origin = nil)
+    def initialize(app, filter, image_origin = nil, request_origin: nil)
       super(app)
       @filter = filter
       @image_origin = image_origin && self.class.validate!(image_origin)
+      @request_origin = request_origin && self.class.validate!(request_origin)
+      @request_origin ||= @image_origin
+      @allowed_headers = @image_origin ? IMAGE_HEADERS : PAGE_HEADERS
     end
 
     def call(env)
       uri = self.class.validate!(env.url)
-      if @image_origin && origin(uri) != origin(@image_origin)
-        env.request_headers.delete_if { |key, _| !IMAGE_HEADERS.include?(key.downcase) }
+      cross_image_origin = @image_origin && origin(uri) != origin(@image_origin)
+      if cross_image_origin || (@request_origin && origin(uri) != origin(@request_origin))
+        env.request_headers.delete_if { |key, _| !@allowed_headers.include?(key.downcase) }
+      end
+      if cross_image_origin
         unless @image_origin.scheme == 'https' && uri.scheme == 'http'
           referer = @image_origin.dup
           referer.userinfo = nil

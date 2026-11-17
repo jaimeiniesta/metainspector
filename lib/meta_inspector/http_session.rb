@@ -7,6 +7,7 @@ require 'faraday/follow_redirects'
 require 'faraday/gzip'
 require 'faraday/retry'
 require_relative 'url_policy'
+require_relative 'limited_response'
 
 module MetaInspector
   # Builds page and binary image transports from the same caller configuration.
@@ -15,6 +16,7 @@ module MetaInspector
       @allow_redirections = options[:allow_redirections]
       @retries = options[:retries]
       @headers = options[:headers]
+      @max_html_bytes = options[:max_html_bytes]
       @url_filter = options[:url_filter]
       if !@url_filter.nil? && !@url_filter.respond_to?(:call)
         raise ArgumentError, 'url_filter must respond to call'
@@ -25,6 +27,8 @@ module MetaInspector
 
     def build(url, image: false, origin: nil, protect_redirect_callback: false)
       URLPolicy.validate!(url)
+      # Image requests must keep trusting the initial origin after page redirects.
+      @page_origin ||= url.to_s unless image
       faraday_options = @faraday_options.merge(url: url)
       redirects = (faraday_options.delete(:redirect) || {}).dup
       if protect_redirect_callback && redirects[:callback]
@@ -42,19 +46,22 @@ module MetaInspector
           faraday.request :retry, max: @retries
           # Responses run in reverse order: decompress before applying the charset.
           faraday.response :encoding
-          faraday.request :gzip
+          faraday.request :gzip if @max_html_bytes.nil?
         end
         if @allow_redirections
           redirects[:limit] ||= 10
           faraday.use Faraday::FollowRedirects::Middleware, **redirects
           faraday.use :cookie_jar
         end
-        faraday.use URLPolicy, @url_filter, image ? origin : nil
+        faraday.use URLPolicy, @url_filter, image ? origin : nil,
+          request_origin: @page_origin || origin
+        faraday.use LimitedResponse, @max_html_bytes if !image && @max_html_bytes
         if !image && @cache.is_a?(Hash)
           cache_options = @cache.dup
           cache_options[:serializer] ||= Marshal
           faraday.use Faraday::HttpCache, **cache_options
         end
+        faraday.use LimitedResponse::Streaming, @max_html_bytes if !image && @max_html_bytes
         faraday.headers.merge!(@headers || {})
         faraday.adapter :net_http
       end
