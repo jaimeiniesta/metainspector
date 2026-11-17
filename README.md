@@ -99,7 +99,7 @@ Pass these options as the second argument to `MetaInspector.new(url, options)`, 
 | `normalize_url` | `true` | Normalize URLs using Addressable. |
 | `allow_non_html_content` | `false` | Allow non-HTML responses to be passed to the HTML parser. |
 | `download_images` | `true` | Allow image downloads for dimensions, metadata and validation. |
-| `max_image_downloads` | `nil` (unlimited) | Limit image lookup attempts; `0` disables image downloads. |
+| `max_image_downloads` | `20` | Limit image lookup attempts; `nil` for unlimited, `0` disables image downloads. |
 | `download_image_options` | `nil` | Set `reject_invalid_images: true` in a hash to discard images that fail validation. |
 | `fetch_all_image_meta` | `nil` (disabled) | Enable validity lookups through `images.with_metadata`. |
 | `inline_image_data` | `nil` (disabled) | Return full data URLs and allow inline images in `best` and `largest`. |
@@ -771,7 +771,7 @@ page = MetaInspector.new('http://example.com', max_image_downloads: 10)
 page.images.with_size
 ```
 
-The default is `nil` (unlimited). The option accepts a non-negative integer or `nil`; `0` disables image downloads. `download_images: false` always disables downloads, regardless of the limit.
+The default is `20`; pass `nil` for no limit. The option accepts a non-negative integer or `nil`; `0` disables image downloads. `download_images: false` always disables downloads, regardless of the limit.
 
 By default, the limit counts image size lookup attempts in HTML order, after excluding unparseable URLs and duplicates. Images with both HTML dimensions already present do not consume the limit, and those dimensions are preserved even after the limit is reached. Failed lookups count toward the limit. Images with incomplete dimensions that are not downloaded remain in `images.with_size` with dimensions `[0, 0]`, matching the behavior when downloads are disabled.
 
