@@ -379,8 +379,9 @@ converted text for downloaded pages.
 Fetched bodies with non-ASCII-compatible encodings, such as UTF-16, UTF-32 and
 ISO-2022-JP, are converted to UTF-8 before NUL characters are removed and the HTML
 is parsed. `page.to_s` returns that UTF-8 text; the conversion preserves the raw
-`page.response.body`. Invalid or unsupported conversions raise
-`MetaInspector::RequestError` with the original encoding error as the cause.
+`page.response.body`. Invalid bytes are replaced with U+FFFD; conversions Ruby
+doesn't support, such as UTF-7, raise `MetaInspector::RequestError` with the
+original encoding error as the cause.
 
 ### Timeout & Retries
 
@@ -567,8 +568,12 @@ By default, the following headers are set:
 ```
 
 `Accept-Encoding: identity` requests uncompressed responses to reduce problems with
-malformed compressed data. Servers may still send compressed responses; malformed
-gzip or deflate data raises `MetaInspector::RequestError`.
+malformed compressed data. Servers may still send compressed responses. gzip and
+deflate are decoded, and malformed gzip or deflate data raises
+`MetaInspector::RequestError`. Other encodings, such as `br` or `zstd`, also raise
+`MetaInspector::RequestError` instead of being parsed as HTML. To decode `br`, add
+the [`brotli`](https://rubygems.org/gems/brotli) gem to your Gemfile; this doesn't
+apply with `max_html_bytes`, which only decodes gzip and deflate.
 
 If you want to override the default headers then use the `headers` option:
 

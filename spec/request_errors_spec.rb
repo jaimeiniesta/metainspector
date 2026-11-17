@@ -16,6 +16,46 @@ RSpec.describe 'request error handling' do
     end
   end
 
+  describe 'content encodings that are not decoded' do
+    let(:compressed) { "\x1B\x4F\x00\xF8\x8D\x94\x6E\xDE\x44\x55\x86\xD6".b * 50 }
+
+    [['br', 'text/html'], ['zstd', 'text/html; charset=utf-8'], ['gzip, br', 'text/html']].each do |encoding, type|
+      it "raises RequestError for Content-Encoding: #{encoding} with #{type}" do
+        stub_request(:get, url).to_return(body: compressed, headers: {
+          'Content-Type' => type, 'Content-Encoding' => encoding
+        })
+
+        expect { MetaInspector.new(url) }
+          .to raise_error(MetaInspector::RequestError, "Unsupported Content-Encoding: #{encoding}")
+      end
+    end
+
+    it 'raises RequestError for non-HTML content too' do
+      stub_request(:get, url).to_return(body: compressed, headers: {
+        'Content-Type' => 'application/pdf', 'Content-Encoding' => 'br'
+      })
+
+      expect { MetaInspector.new(url, allow_non_html_content: true) }
+        .to raise_error(MetaInspector::RequestError, 'Unsupported Content-Encoding: br')
+    end
+
+    it 'parses an identity-encoded body' do
+      stub_request(:get, url).to_return(body: '<title>Hi</title>', headers: {
+        'Content-Type' => 'text/html', 'Content-Encoding' => 'Identity'
+      })
+
+      expect(MetaInspector.new(url).title).to eq('Hi')
+    end
+
+    it 'returns an empty page for an empty body with a Content-Encoding' do
+      stub_request(:get, url).to_return(body: '', headers: {
+        'Content-Type' => 'text/html', 'Content-Encoding' => 'gzip'
+      })
+
+      expect(MetaInspector.new(url).title).to eq('')
+    end
+  end
+
   it 'wraps malformed mailto page URLs in RequestError' do
     expect { MetaInspector.new('mailto:') }.to raise_error(MetaInspector::RequestError) { |error|
       expect(error.cause).to be_a(URI::InvalidComponentError)

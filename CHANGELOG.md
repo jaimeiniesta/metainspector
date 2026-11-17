@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Raise `MetaInspector::RequestError` when a response is still compressed with an encoding MetaInspector doesn't decode, such as `br` or `zstd`, instead of parsing the compressed bytes as HTML and returning an empty page. Servers can send these even when asked for `Accept-Encoding: identity`. Adding the `brotli` gem enables `br` (#597).
 * Replace invalid byte sequences in fetched pages with U+FFFD, as browsers do, instead of raising `MetaInspector::RequestError` when the charset comes from the `Content-Type` header. Before, they were only replaced with the `encoding:` option (#596).
 * Resolve charset labels with the [Encoding Standard](https://encoding.spec.whatwg.org/#names-and-labels) table, as browsers do. Labels such as `ks_c_5601-1987`, `x-sjis`, `x-gbk` or `unicode-1-1-utf-8` no longer leave the page empty or garbled. `us-ascii` and `ascii` decode as Windows-1252 instead of raising `MetaInspector::RequestError`, and `iso-8859-9` and `iso-8859-11` as Windows-1254 and Windows-874. A UTF-16 label in a meta tag is read as UTF-8. A meta label that neither the table nor Ruby knows is ignored instead of cutting the document at the meta tag (#595).
 * Return links inside inline `<svg>` and `<math>` again in `links`, as in 5.21.0. With the HTML5 parser those `<a>` elements are in another namespace, and the `//a/@href` lookup skipped them (#593).
