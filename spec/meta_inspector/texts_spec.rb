@@ -409,6 +409,21 @@ describe MetaInspector do
       expect(page.best_description).to eq("the twitter description")
     end
 
+    it "should strip surrounding whitespace, like description" do
+      html = %(<meta name="description" content="\n  One\n   Two  \n">)
+      page = MetaInspector.new('http://example.com/', document: html)
+
+      expect(page.best_description).to eq("One\n   Two")
+      expect(page.best_description).to eq(page.description)
+    end
+
+    it "should strip surrounding whitespace from the paragraph fallback" do
+      paragraph = 'This paragraph is long enough to be used as the description when the page has no description in its metadata at all.'
+      page = MetaInspector.new('http://example.com/', document: "<p>\n    #{paragraph}\n  </p>")
+
+      expect(page.best_description).to eq(paragraph)
+    end
+
     ['', ' ', "\n\t "].each do |blank|
       it "should skip a blank standard description (#{blank.inspect})" do
         html = %(<html><head><meta name="description" content="#{blank}"><meta property="og:description" content="Useful Open Graph description"></head></html>)
@@ -450,12 +465,12 @@ describe MetaInspector do
     end
 
     ['description', 'og:description', 'twitter:description'].each do |name|
-      it "should preserve whitespace in a useful #{name} value" do
+      it "should strip surrounding whitespace from a useful #{name} value" do
         description = " \n Useful description\t "
         html = %(<html><head><meta name="#{name}" content="#{description}"></head></html>)
         page = MetaInspector.new('http://example.com/', document: html)
 
-        expect(page.best_description).to eq(description)
+        expect(page.best_description).to eq('Useful description')
       end
     end
 
