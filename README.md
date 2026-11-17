@@ -357,14 +357,15 @@ MetaInspector retains the HTML4 document and its parsing behavior.
 
 ### Forced encoding
 
-If you get a `MetaInspector::RequestError, "invalid byte sequence in UTF-8"` or similar error, you can try forcing the encoding like this:
+Invalid byte sequences in the page's encoding are replaced with U+FFFD before
+parsing, as browsers do, so one bad byte doesn't stop the rest of the page from
+being read. If a page declares the wrong charset, you can force the right one:
 
 ```ruby
-page = MetaInspector.new(url, :encoding => 'UTF-8')
+page = MetaInspector.new(url, :encoding => 'Windows-1252')
 ```
 
-For HTML passed with `document:`, invalid byte sequences in the string's encoding
-are replaced before parsing. The original string is still available through `page.to_s`.
+For HTML passed with `document:`, the original string is still available through `page.to_s`.
 
 Legacy HTML charsets use browser-compatible supersets: GB2312 uses GBK,
 Shift_JIS uses Windows-31J, EUC-KR uses CP949, Big5 uses Big5-HKSCS, and

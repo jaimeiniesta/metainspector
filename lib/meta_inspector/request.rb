@@ -38,8 +38,13 @@ module MetaInspector
       encoding = HtmlEncoding.byte_order_mark_encoding(body)
       body = body.dup.force_encoding(encoding) if encoding && !Encoding.find(encoding).ascii_compatible?
       body = HtmlEncoding.normalize(body)
-      body = body.scrub if @encoding
-      body = body.encode(Encoding::UTF_8) unless body.encoding.ascii_compatible?
+      # Replace invalid bytes with U+FFFD, as browsers do, so one bad byte
+      # doesn't make the whole page fail. Binary bodies are decoded later by the parser.
+      body = if body.encoding.ascii_compatible?
+               body.scrub
+             else
+               body.encode(Encoding::UTF_8, invalid: :replace, undef: :replace)
+             end
       body.tr("\000", '')
     rescue ArgumentError, EncodingError => e
       raise MetaInspector::RequestError.new(e)
