@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Resolve charset labels with the [Encoding Standard](https://encoding.spec.whatwg.org/#names-and-labels) table, as browsers do. Labels such as `ks_c_5601-1987`, `x-sjis`, `x-gbk` or `unicode-1-1-utf-8` no longer leave the page empty or garbled. `us-ascii` and `ascii` decode as Windows-1252 instead of raising `MetaInspector::RequestError`, and `iso-8859-9` and `iso-8859-11` as Windows-1254 and Windows-874. A UTF-16 label in a meta tag is read as UTF-8. A meta label that neither the table nor Ruby knows is ignored instead of cutting the document at the meta tag (#595).
 * Return links inside inline `<svg>` and `<math>` again in `links`, as in 5.21.0. With the HTML5 parser those `<a>` elements are in another namespace, and the `//a/@href` lookup skipped them (#593).
 * Return a page again for PDFs, binary files and deeply nested feeds with `allow_non_html_content: true`, instead of raising `MetaInspector::ParserError`. When the response is not `text/html`, parser resource limits no longer raise; if the HTML5 parser gives up, `parsed` falls back to the depth-capped HTML4 tree, as in 5.21.0. HTML responses and `max_html_bytes` are still enforced (#592).
 * Fix `to_hash` raising `NoMethodError` on compressed responses. Header values that are not Strings, such as the Integer `Content-Length` set by faraday-gzip after decompressing, are kept as they are, and header names are downcased so `content-length` can be looked up as before (#591).
