@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* **Breaking:** `max_image_downloads` defaults to `20` instead of `nil` (unlimited), so a page with many images no longer decides how many requests `images.with_size`, `images.largest` and `images.best` make. Images past the limit that lack HTML dimensions get `[0, 0]` and can't win `largest`. Pass `max_image_downloads: nil` to keep downloading every image (#600).
 * **Breaking:** raise `ArgumentError` for unknown options, naming them, instead of ignoring them. A misspelled option, or one with a String key as read from JSON or YAML, did nothing: `MetaInspector.new(url, 'document' => html)` fetched the page instead of parsing `html`. Option keys must be Symbols (#604).
 * **Breaking:** `title` returns `nil` instead of `""` when the head has no `<title>` or it is blank, like `description`, `author` and the other readers, so `page.title || fallback` reaches the fallback. `title` and `description` trim surrounding whitespace, and `description` returns `nil` for a blank meta description; whitespace inside the text is kept as written. `to_hash['title']` and `to_hash['description']` change the same way (#604).
 * **Breaking:** remove `page.feed` and `page.favicon`, which warn as deprecated since 5.21.0. Use `page.feeds` and `page.images.favicon` (#604).

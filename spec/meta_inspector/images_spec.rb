@@ -353,6 +353,28 @@ describe MetaInspector do
         stub_request(:get, 'http://example.com/remaining.jpg').to_return(status: 404)
       end
 
+      describe "default" do
+        let(:many_images) { (1..25).map { |i| %(<img src="/many/#{i}.jpg">) }.join }
+
+        before { stub_request(:get, %r{\Ahttp://example\.com/many/}).to_return(status: 404) }
+
+        it "should download at most 20 images" do
+          page = MetaInspector.new('http://example.com/', document: many_images)
+
+          expect(page.images.with_size.size).to eq(25)
+          expect(WebMock).to have_requested(:get, %r{\Ahttp://example\.com/many/}).times(20)
+          expect(WebMock).to have_requested(:get, 'http://example.com/many/20.jpg').once
+          expect(WebMock).not_to have_requested(:get, 'http://example.com/many/21.jpg')
+        end
+
+        it "should download every image when nil is passed explicitly" do
+          page = MetaInspector.new('http://example.com/', document: many_images, max_image_downloads: nil)
+
+          page.images.with_size
+          expect(WebMock).to have_requested(:get, %r{\Ahttp://example\.com/many/}).times(25)
+        end
+      end
+
       it "should download only the first images needing dimensions in document order" do
         page = MetaInspector.new('http://example.com/', document: html, max_image_downloads: 2)
 

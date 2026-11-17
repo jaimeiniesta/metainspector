@@ -14,7 +14,7 @@ module MetaInspector
     # * headers: object containing custom headers for the request
     # * normalize_url: true by default
     # * download_images: fetch missing image dimensions. Defaults to true
-    # * max_image_downloads: maximum image size lookups, or nil for unlimited
+    # * max_image_downloads: maximum image size lookups. Defaults to 20; nil for unlimited
     # * download_image_options: supports reject_invalid_images (default false)
     # * inline_image_data: return full data URLs in image results (default false)
     # * fetch_all_image_meta: enable image validity metadata (default false)
@@ -180,7 +180,7 @@ module MetaInspector
         :head_first             => false,
         :normalize_url          => true,
         :download_images        => true,
-        :max_image_downloads    => nil }
+        :max_image_downloads    => 20 }
     end
 
     def default_user_agent
