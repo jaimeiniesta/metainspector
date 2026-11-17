@@ -664,6 +664,17 @@ When a page is fetched with redirects enabled, `page.url` is updated to the fina
 URL. For example, an HTTPS URL after requesting `github.com` reflects GitHub's
 redirect from HTTP, rather than a default HTTPS scheme.
 
+Normalization leaves the query string as written, except for characters that
+can't be sent in a URL, such as spaces, non-ASCII characters, `|`, `{`, `}` or a
+`%` that doesn't start an escape. Reserved characters such as `;` and `[]`, and
+existing escapes such as `%2F`, are kept, because changing them can change the
+page the server returns. The same applies to the URLs in `links` and `head_links`:
+
+```ruby
+page = MetaInspector.new('http://example.com/?a[]=1;b=café')
+page.url # http://example.com/?a[]=1;b=caf%C3%A9
+```
+
 While this is generally useful, it can be [tricky](https://github.com/sporkmonger/addressable/issues/182) [sometimes](https://github.com/sporkmonger/addressable/issues/160).
 
 You can disable URL normalization by passing the `normalize_url: false` option.

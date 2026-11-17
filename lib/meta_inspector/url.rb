@@ -66,10 +66,28 @@ module MetaInspector
         MetaInspector::URL.new(url, options).url
       else
         uri = Addressable::URI.join(base_url, url)
-        options[:normalize] ? uri.normalize.to_s : uri.to_s
+        options[:normalize] ? normalize(uri) : uri.to_s
       end
     rescue MetaInspector::ParserError, Addressable::URI::InvalidURIError, ArgumentError
       nil
+    end
+
+    # Addressable's normalization, except for the query: reserved characters such
+    # as ";" or "[]" and existing escapes are kept as written, since changing them
+    # can change the resource (RFC 3986, 2.2). Only what can't be sent is escaped.
+    def self.normalize(uri)
+      normalized = uri.normalize
+      normalized.query = escape_query(uri.query) if uri.query
+      normalized.to_s
+    end
+
+    # Bytes allowed in a query by RFC 3986 (pchar, "/" and "?"), plus "[]" and
+    # "%" when it starts an escape. Browsers send "[]" unescaped too.
+    QUERY_UNSAFE = /%(?![0-9A-Fa-f]{2})|[^A-Za-z0-9\-._~!$&'()*+,;=:@\/?\[\]%]/n
+    private_constant :QUERY_UNSAFE
+
+    def self.escape_query(query)
+      query.b.gsub(QUERY_UNSAFE) { |byte| format('%%%02X', byte.ord) }.force_encoding(Encoding::UTF_8)
     end
 
     private
@@ -91,7 +109,7 @@ module MetaInspector
     # Normalize url to deal with characters that should be encoded,
     # add trailing slash, convert to downcase...
     def normalized(url)
-      Addressable::URI.parse(url).normalize.to_s
+      self.class.normalize(Addressable::URI.parse(url))
     rescue Addressable::URI::InvalidURIError => e
       raise MetaInspector::ParserError.new(e)
     end
